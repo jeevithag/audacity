@@ -47,7 +47,7 @@
 #include "../Project.h"
 #include "../Prefs.h"
 #include "../Tags.h"
-#include "../widgets/ErrorDialog.h"
+#include "../widgets/HelpSystem.h"
 
 
 /* define our dynamic array of export settings */
@@ -959,7 +959,4 @@ void SuccessDialog::OnItemActivated(wxListEvent& WXUNUSED(event))
    EndModal(1);
 }
 
-void MouseEvtHandler::OnMouse(wxMouseEvent& event)
-{
-   event.Skip(false);
-}
+void MouseEvtHandler::
