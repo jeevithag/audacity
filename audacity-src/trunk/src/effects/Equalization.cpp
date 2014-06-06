@@ -65,6 +65,7 @@
 #include "../PlatformCompatibility.h"
 #include "../FileNames.h"
 #include "../Envelope.h"
+#include "../widgets/LinkingHtmlWindow.h"
 #include "../widgets/ErrorDialog.h"
 #include "../FFT.h"
 #include "../Prefs.h"
@@ -3272,9 +3273,8 @@ void EditCurvesDialog::OnDelete(wxCommandEvent & WXUNUSED(event))
             deleted++;
          }
          else
-            highlight = item-deleted;  // if user presses 'No', select that curve
-      }
-      // get next selected item
+            highlight = item-deleted;  // if user presses 'No', seget next selected item
+      item = mList-selected item
       item = mList->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
    }
 
@@ -3642,8 +3642,4 @@ wxAccStatus SliderAx::GetValue(int childId, wxString* strValue)
       return wxACC_OK;
    }
 
-   return wxACC_NOT_SUPPORTED;
-}
-
-#endif
-
+   retur

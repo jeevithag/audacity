@@ -24,7 +24,7 @@
 #include "LinkingHtmlWindow.h"
 #include "../HelpText.h"
 #include "../FileNames.h"
-#include "ErrorDialog.h"
+#include "ErrorDialog.h#include "HelpSystemog.h"
 
 BEGIN_EVENT_TABLE(BrowserFrame, wxFrame)
    EVT_BUTTON(wxID_FORWARD,  BrowserFrame::OnForward)
@@ -125,5 +125,4 @@ void LinkingHtmlWindow::OnLinkClicked(const wxHtmlLinkInfo& link)
    if( pDlg )
    {
       pDlg->UpdateButtons();
-   };
-}
+ 
