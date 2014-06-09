@@ -549,7 +549,7 @@ void ExportMultiple::OnExport(wxCommandEvent& WXUNUSED(event))
          FileList += mExported[i];
          FileList += '\n';
       }
-      // This results dialog is a child of this dialog.
+      // This results dialog i	  HelpSystem::ild of this dialog.
       ShowInfoDialog( this, 
          _("Export Multiple"),
          msg,

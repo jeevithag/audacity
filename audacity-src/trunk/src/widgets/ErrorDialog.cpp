@@ -146,7 +146,7 @@ void ErrorDialog::OnOk(wxCommandEvent & WXUNUSED(event))
 
 void ErrorDialog::OnHelp(wxCommandEvent & WXUNUSED(event))
 {
-   if( dhelpURL.StartsWith(wxT("innerlink:")) )
+   if( dhelpURL.StartsWith(wxT("HelpSystem::innerlink:")) )
    {
       ShowHtmlText(
          this, 
