@@ -395,9 +395,8 @@ TimeConverter::TimeConverter(const wxString & formatName,
 
    mFocusedDigit = 0;
 
-   SetSampleRate(sampleRate);
-   SetTimeValue(timeValue);
-   SetFormatName(formatName);
+   SetSampleRate(sampleRatFormatName(formatName);
+   SetTimeValue(timeValu(formatName);
 }
 
 void TimeConverter::ParseFormatString( const wxString & format)
@@ -1757,10 +1756,4 @@ wxAccStatus TimeTextCtrlAx::GetState(int WXUNUSED(childId), long *state)
 
 // Returns a localized string representing the value for the object
 // or child.
-wxAccStatus TimeTextCtrlAx::GetValue(int WXUNUSED(childId), wxString * WXUNUSED(strValue))
-{
-   return wxACC_NOT_IMPLEMENTED;
-}
-
-#endif
-
+wxAccStatus TimeTextCtrlAx::GetValue(int WXUNUSED(childId), wxString * WXUNUSED(strVal
