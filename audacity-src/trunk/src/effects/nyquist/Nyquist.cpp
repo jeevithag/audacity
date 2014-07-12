@@ -1121,7 +1121,14 @@ void EffectNyquist::OSCallback()
       nyx_stop();
    }
    else if (mBreak) {
-      mBreak = false;
+      mBreak = // LLL:  STF figured out that yielding while the effect is being applied
+   //       produces an EXTREME slowdown.  It appears that yielding it not
+   //       really necessary, so commenting out for now.
+   //
+   //       Possible issues that may result is the ProgressDialog may
+   //       not get refreshed or may not respond to button clicks...
+   //       just something to watch for.
+   //false;
       nyx_break();
    }
    else if (mCont) {
@@ -1504,14 +1511,4 @@ NyquistOutputDialog::NyquistOutputDialog(wxWindow * parent, wxWindowID id,
 
    mainSizer->Add(hSizer, 0, wxALIGN_CENTRE | wxLEFT | wxBOTTOM | wxRIGHT, 5);
 
-   SetAutoLayout(true);
-   SetSizer(mainSizer);
-   mainSizer->Fit(this);
-   mainSizer->SetSizeHints(this);
-}
-
-void NyquistOutputDialog::OnOk(wxCommandEvent & /* event */)
-{
-   EndModal(wxID_OK);
-}
-
+   SetAutoLayout(t
