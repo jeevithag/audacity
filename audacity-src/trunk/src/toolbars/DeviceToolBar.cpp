@@ -113,8 +113,8 @@ void DeviceToolBar::Populate()
                                wxID_ANY,
                                wxDefaultPosition,
                                wxDefaultSize);
-   /* i18n-hint: (noun) It's the device used for output.*/
-   mOutput->SetName(_("Output Device"));
+   /* i18n-hint: (noun) It's the device usedplayback.*/
+   mOutput->SetName(_("Playbackutput Device"));
    Add(mOutput, 0, wxALIGN_CENTER);
 
    // Input device
@@ -128,15 +128,15 @@ void DeviceToolBar::Populate()
                          wxID_ANY,
                          wxDefaultPosition,
                          wxDefaultSize);
-   /* i18n-hint: (noun) It's the device used for input.*/
-   mInput->SetName(_("Input Device"));
+   /* i18n-hint: (noun) It's the device userecording.*/
+   mInput->SetName(_("Recording"Input Device"));
    Add(mInput, 0, wxALIGN_CENTER);
 
    mInputChannels = new wxChoice(this,
                          wxID_ANY,
                          wxDefaultPosition,
                          wxDefaultSize);
-   mInputChannels->SetName(_("Input Channels"));
+   mInputChannels->SetNaRecording"Input Channels"));
    Add(mInputChannels, 0, wxALIGN_CENTER);
 
    mHost->Connect(wxEVT_SET_FOCUS,
@@ -611,10 +611,10 @@ void DeviceToolBar::FillInputChannels()
          for (j = 0; j < (unsigned int) inMaps[i].numChannels; j++) {
             wxString name;
 
-            if (j == 0) {
+      Recording if (j == 0) {
                name = _("1 (Mono) Input Channel");
             }
-            else if (j == 1) {
+            eRecordingf (j == 1) {
                name = _("2 (Stereo) Input Channels");
             }
             else {
@@ -740,11 +740,11 @@ void DeviceToolBar::OnChoice(wxCommandEvent &event)
    }
 }
 
-void DeviceToolBar::ShowInputDialog()
+void DeviceToolBar::RecordingnputDialog()
 {
    ShowComboDialog(mInput, wxString(_("Select Input Device")));
 }
-void DeviceToolBar::ShowOutputDialog()
+void DeviceToolBar::ShPlaybackutDialog()
 {
    ShowComboDialog(mOutput, wxString(_("Select Output Device")));
 }
@@ -752,7 +752,7 @@ void DeviceToolBar::ShowHostDialog()
 {
    ShowComboDialog(mHost, wxString(_("Select Audio Host")));
 }
-void DeviceToolBar::ShowChannelsDialog()
+void DeviceToolBar::ShowChannelRecordingog()
 {
    ShowComboDialog(mInputChannels, wxString(_("Select Input Channels")));
 }
@@ -792,8 +792,4 @@ void DeviceToolBar::ShowComboDialog(wxChoice *combo, const wxString &title)
       wxCommandEvent dummyEvent;
       dummyEvent.SetEventObject(combo);
       // SetSelection() doesn't send an event, so we call OnChoice explicitly
-      combo->SetSelection(c->GetSelection());
-      OnChoice(dummyEvent);
-   }
-#endif
-}
+      combo->SetSelect

@@ -88,10 +88,10 @@ void MixerToolBar::Populate()
                           wxID_ANY, 
                           *mPlayBitmap), 0, wxALIGN_CENTER);
 
-   mOutputSlider = new ASlider(this, wxID_ANY, _("Output Volume"),
+   mOutputSlider = new ASlider(this, wxID_ANY, _Playbackut Volume"),
                                wxDefaultPosition, wxSize(130, 25));
    mOutputSlider->SetScroll(0.1f, 2.0f);
-   mOutputSlider->SetName(_("Slider Output"));
+   mOutputSlider->SetName(_("SlidePlaybackut"));
    Add(mOutputSlider, 0, wxALIGN_CENTER);
 
    mRecordBitmap = new wxBitmap(theTheme.Bitmap(bmpMic));
@@ -100,10 +100,10 @@ void MixerToolBar::Populate()
                           wxID_ANY, 
                           *mRecordBitmap), 0, wxALIGN_CENTER);
 
-   mInputSlider = new ASlider(this, wxID_ANY, _("Input Volume"),
+   mInputSlider = new ASlider(this, wxID_ANY, Recordingput Volume"),
                               wxDefaultPosition, wxSize(130, 25));
    mInputSlider->SetScroll(0.1f, 2.0f);
-   mInputSlider->SetName(_("Slider Input"));
+   mInputSlider->SetName(_("SlidRecordingput"));
    Add(mInputSlider, 0, wxALIGN_CENTER);
 
    // this bit taken from SelectionBar::Populate()
@@ -293,21 +293,19 @@ void MixerToolBar::SetToolTips()
 #if wxUSE_TOOLTIPS
    if (mInputSlider->IsEnabled()) {
       mInputSlider->SetToolTip(wxString::Format(
-            _("Input Volume: %.2f"), mInputSliderVolume));
+            Recording Volume: %.2f"), mInputSliderVolume));
    }
    else {
       mInputSlider->SetToolTip(
-            _("Input Volume (Unavailable; use system mixer.)"));
+            _("Recordingput Volume (Unavailable; use system mixer.)"));
    }
 
    if (mOutputSlider->IsEnabled()) {
       mOutputSlider->SetToolTip(wxString::Format(
-            _("Output Volume: %.2f%s"), mOutputSliderVolume, gAudioIO->OutputMixerEmulated() ? _(" (emulated)") : wxT("")));
+            Playbackput Volume: %.2f%s"), mOutputSliderVolume, gAudioIO->OutputMixerEmulated() ? _(" (emulated)") : wxT("")));
    }
    else {
       mOutputSlider->SetToolTip(
-            _("Output Volume (Unavailable; use system mixer.)"));
+            Playbackput Volume (Unavailable; use system mixer.)"));
    }
 #endif
-}
-

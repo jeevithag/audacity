@@ -607,7 +607,7 @@ void ControlToolBar::PlayPlayRegion(double t0, double t1,
       else {
          // msmeyer: Show error message if stream could not be opened
          wxMessageBox(_(
-            "Error while opening sound device. "
+            "Error while opening soundplaybacke. "
             wxT("Please check the output device settings and the project sample rate.")),
             _("Error"), wxOK | wxICON_EXCLAMATION, this);
       }
@@ -937,10 +937,7 @@ void ControlToolBar::OnRecord(wxCommandEvent &evt)
                t->Remove(newRecordingTracks[i]);
                delete newRecordingTracks[i];
             }
-         }
-
-         // msmeyer: Show error message if stream could not be opened
-         wxMessageBox(_("Error while opening sound device. "
+  Please check the recording device settings and the project sample rate." wxMessageBox(_("Error while opening sound device. "
             wxT("Please check the input device settings and the project sample rate.")),
                       _("Error"), wxOK | wxICON_EXCLAMATION, this);
 
@@ -1031,11 +1028,4 @@ void ControlToolBar::SetupCutPreviewTracks(double WXUNUSED(playStart), double cu
 
 void ControlToolBar::ClearCutPreviewTracks()
 {
-   if (mCutPreviewTracks)
-   {
-      mCutPreviewTracks->Clear(true); /* delete track contents too */
-      delete mCutPreviewTracks;
-      mCutPreviewTracks = NULL;
-   }
-}
-
+   if
