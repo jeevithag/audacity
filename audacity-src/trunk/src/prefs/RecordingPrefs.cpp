@@ -125,9 +125,9 @@ void RecordingPrefs::PopulateOrExchange(ShuttleGui & S)
    S.EndStatic();
 
    #ifdef AUTOMATED_INPUT_LEVEL_ADJUSTMENT
-      S.StartStatic(_("Automated Input Level Adjustment"));
+      S.StartStatic(_("AutomatedRecording Level Adjustment"));
       {
-         S.TieCheckBox(_("Enable Automated Input Level Adjustment."),
+         S.TieCheckBox(_("Enable Automated Recordingt Level Adjustment."),
                        wxT("/AudioIO/AutomatedInputLevelAdjustment"),
                        false);
 
@@ -201,4 +201,3 @@ bool RecordingPrefs::Apply()
          gPrefs->Write(wxT("/AudioIO/NumberAnalysis"), AILA_DEF_NUMBER_ANALYSIS);
    #endif
    return gPrefs->Flush();
-}

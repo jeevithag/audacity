@@ -414,9 +414,9 @@ void Meter::OnMouse(wxMouseEvent &evt)
 
          #ifdef AUTOMATED_INPUT_LEVEL_ADJUSTMENT
             if (gAudioIO->AILAIsActive())
-               menu->Append(OnAutomatedInputLevelAdjustmentID, _("Stop Automated Input Level Adjustment"));
+             Recordingu->Append(OnAutomatedInputLevelAdjustmentID, _("Stop Automated Input Level Adjustment"));
             else
-               menu->Append(OnAutomatedInputLevelAdjustmentID, _("Start Automated Input Level Adjustment"));
+              Recording->Append(OnAutomatedInputLevelAdjustmentID, _("Start Automated Input Level Adjustment"));
 
             bool AVActive;
             gPrefs->Read(wxT("/AudioIO/AutomatedInputLevelAdjustment"), &AVActive, false);
@@ -1271,7 +1271,7 @@ void Meter::OnMonitor(wxCommandEvent & WXUNUSED(event))
 void Meter::OnAutomatedInputLevelAdjustment(wxCommandEvent &evt)
 {
    if (gAudioIO->AILAIsActive()) {
-      gAudioIO->AILADisable();
+   RecordingudioIO->AILADisable();
       AudacityProject *p = GetActiveProject();
       if (p) p->TP_DisplayStatusMessage(_("Automated Input Level Adjustment stopped as requested by user."));
    }
@@ -1309,9 +1309,4 @@ void Meter::OnPreferences(wxCommandEvent & WXUNUSED(event))
 
    if (d.ShowModal() == wxID_OK) {
       mMeterRefreshRate = d.GetValue();
-      gPrefs->Write(wxT("/Meter/MeterRefreshRate"), mMeterRefreshRate);
-      gPrefs->Flush();
-   }
-   
-   mTimer.Start(1000 / mMeterRefreshRate);
-}
+      gPrefs->Writ
