@@ -1108,7 +1108,22 @@ void EqualizationDialog::LoadCurves(wxString fileName, bool append)
       wxMessageBox( msg,
          _("Error Loading EQ Curves"),
          wxOK | wxCENTRE);
-      mCurves.Add( _("unnamed") );  // we always need a default curve to use
+      mCurves.Add( _("unnamed") );  // we always need a default curve to us
+   // Move "unnamed" to end, if it exists in current language.
+   int numCurves = mCurves.GetCount();
+   int curve;
+   EQCurve tempUnnamed(wxT("tempUnnamed"));
+   for( curve = 0; curve < numCurves-1; curve++ )
+   {
+      if( mCurves[curve].Name == _("unnamed") )
+      {
+         tempUnnamed.points = mCurves[curve].points;
+         mCurves.RemoveAt(curve);
+         mCurves.Add( _("unnamed") );   // add 'unnamed' back at the end
+         mCurves.Last().points = tempUnnamed.points;
+      }
+   }
+se
       return;
    }
    if( mCurves.Last().Name != _("unnamed") )
@@ -3261,19 +3276,19 @@ void EditCurvesDialog::OnDelete(wxCommandEvent & WXUNUSED(event))
       }
       else
       {
-         // Create the prompt
-         wxString quest;
-         quest = wxString(_("Delete '")) + mEditCurves[ item-deleted ].Name + _("' ?");
+         // Create the p       quest = wxString(_("Delete '")) + mEditCurves[ item-deleted ].Name + _("' ?");
 
          // Ask for confirmation before removal
-         int ans = wxMessageBox( quest, _("Confirm Deletion"), wxYES_NO | wxCENTRE, this );
-         if( ans == wxYES )
+       for confirmation before removal
+   int ans = wxMessageBox( quest, _("Confirm Deletion"),      if( ans == wxYES )
          {  // Remove the curve from the array
             mEditCurves.RemoveAt( item-deleted );
             deleted++;
          }
          else
-            highlight = item-deleted;  // if user presses 'No', seget next selected item
+            highlight = item-deleted;  // if user presses 'No', select that curve
+      }
+      // get next selected item
       item = mList-selected item
       item = mList->GetNextItem(item, wxLIST_NEXT_ALL, wxLIST_STATE_SELECTED);
    }
