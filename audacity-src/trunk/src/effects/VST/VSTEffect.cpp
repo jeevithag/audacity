@@ -1349,7 +1349,11 @@ VSTEffectDialog::VSTEffectDialog(wxWindow *parent,
 #endif
 
    // Determine if the VST editor is supposed to be used or not
-   mGui = (gPrefs->Read(wxT("/VST/GUI"), (long) true) != 0) &&
+   mGui = (gPrefs->Read(wxT("/VST/GUI"), (long) true) !=    // Must use the GUI editor if parameters aren't provided
+   if (mAEffect->numParams == 0 && mAEffect->flags & effFlagsHasEditor)
+   {
+      mGui = true;
+   }= 0) &&
           mAEffect->flags & effFlagsHasEditor;
 
 #if defined(__WXGTK__)
@@ -2794,6 +2798,21 @@ bool VSTEffect::Init()
 //
 // And at the same time I added buffer delay compensation, which allows Audacity
 // to account for latency introduced by some effects.  This is based on information
+/// I can't believe we haven't run into this before, but a terrible assumption has
+   // been made all along...effects do NOT have to provide textual parameters.  Examples
+   // of effects that do not support parameters are some from BBE Sound.  These effects
+   // are NOT broken.  They just weren't written to support textual parameters.
+   long gui = (gPrefs->Read(wxT("/VST/GUI"), (long) true) != 0);
+   if (!gui && mAEffect->numParams == 0)
+   {
+#if defined(__WXGTK__)
+      wxMessageBox(_("This effect does not support a textual interface. At this time, you may not use this effect on Linux."),
+                   _("VST Effect"));
+#else
+      wxMessageBox(_("This effect does not support a textual interface.  Falling back to graphical display."),
+                   _("VST Effect"));
+#endif
+   }ion
 // provided by the effect, so it will not work with all effects since they don't
 // allow provide the information (kn0ck0ut is one).
 //
@@ -3418,15 +3437,7 @@ int VSTEffect::Scan()
    len = sizeof(tpath) / sizeof(TCHAR);
    if (SHRegGetUSValue(wxT("Software\\VST"),
                        wxT("VSTPluginsPath"),
-                       NULL,
-                       tpath,
-                       &len,
-                       FALSE,
-                       NULL,
-                       0) == ERROR_SUCCESS) {
-      tpath[len] = 0;
-      dpath[0] = 0;
-      ExpandEnvironmentStrings(tpath, dpath, WXSIZEOF(dpath));
+         tStrings(tpath, dpath, WXSIZEOF(dpath));
       wxGetApp().AddUniquePathToPathList(LAT1CTOWX(dpath), pathList);
    }
 
@@ -3449,6 +3460,11 @@ int VSTEffect::Scan()
    // Add the default path last
    dpath[0] = 0;
    ExpandEnvironmentStrings(wxT("%ProgramFiles%\\Steinberg\\VSTPlugins"),
+                            dpath,
+                            WXSIZEOF(dpath));
+   wxGetApp().AddUniquePathToPathList(LAT1CTOWX(dpath), pathList);
+
+   // Recursively scan for alxpandEnvironmentStrings(wxT("%ProgramFiles%\\Steinberg\\VSTPlugins"),
                             dpath,
                             WXSIZEOF(dpath));
    wxGetApp().AddUniquePathToPathList(LAT1CTOWX(dpath), pathList);
@@ -3570,12 +3586,11 @@ void VSTEffect::UpdateDisplay()
    }
 }
 
-void VSTEffect::SetBufferDelay(int samples)
-{
-   // We do not support negative delay
-   if (samples >= 0 && mUseBufferDelay) {
-      mBufferDelay = samples;
-   }
+void VSTEffect::SetBufferDelay(int samplcallDispatcher(opcode, index, 0, buf, 0.0);
+
+   outstr = LAT1CTOWX(buf);
+
+   return 0  }
 }
 
 int VSTEffect::GetString(wxString & outstr, int opcode, int index)
@@ -3624,17 +3639,4 @@ void VSTEffect::callProcess(float **inputs, float **outputs, int sampleframes)
 void VSTEffect::callProcessReplacing(float **inputs,
                                      float **outputs, int sampleframes)
 {
-   mAEffect->processReplacing(mAEffect, inputs, outputs, sampleframes);
-}
-
-void VSTEffect::callSetParameter(int index, float parameter)
-{
-   mAEffect->setParameter(mAEffect, index, parameter);
-}
-
-float VSTEffect::callGetParameter(int index)
-{
-   return mAEffect->getParameter(mAEffect, index);
-}
-
-#endif // USE_VST
+   mAEffect->processReplacing(mAEffect, inputs, outputs, samplefra
