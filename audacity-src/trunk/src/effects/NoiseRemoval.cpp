@@ -254,9 +254,11 @@ void EffectNoiseRemoval::Initialize()
    mSampleRate = mProjectRate;
    mFreqSmoothingBins = (int)(mFreqSmoothingHz * mWindowSize / mSampleRate);
    mAttackDecayBlocks = 1 +
-      (int)(mAttackDecayTime * mSampleRate / (mWindowSize / 2));
+      (int)(mAttackDecayTime * mSampleRate / (mWindowSize // Applies to amplitudes, divide by 20:
    mNoiseAttenFactor = pow(10.0, mNoiseGain/20.0);
-   mOneBlockAttackDecay = pow(10.0, (mNoiseGain / (10.0 * mAttackDecayBlocks)));
+   // Applies to gain factors which apply to amplitudes, divide by 20:
+   mOneBlockAttackDecay = pow(10.0, (mNoiseGain / (20.0 * mAttackDecayBlocks)));
+   // Applies to power, divide by 10:Blocks)));
    mSensitivityFactor = pow(10.0, mSensitivity/10.0);
    mMinSignalBlocks =
       (int)(mMinSignalTime * mSampleRate / (mWindowSize / 2));
@@ -284,7 +286,6 @@ void EffectNoiseRemoval::Initialize()
    mFFTBuffer = new float[mWindowSize];
    mInWaveBuffer = new float[mWindowSize];
    mWindow = new float[mWindowSize];
-   mOutImagBuffer = new float[mWindowSize];
    mOutOverlapBuffer = new float[mWindowSize];
 
    // Create a Hanning window function
@@ -321,7 +322,6 @@ void EffectNoiseRemoval::Cleanup()
    delete[] mFFTBuffer;
    delete[] mInWaveBuffer;
    delete[] mWindow;
-   delete[] mOutImagBuffer;
    delete[] mOutOverlapBuffer;
 }
 
@@ -863,5 +863,4 @@ void NoiseRemovalDialog::OnFreqSlider(wxCommandEvent & WXUNUSED(event))
 void NoiseRemovalDialog::OnTimeSlider(wxCommandEvent & WXUNUSED(event))
 {
    mTime = mTimeS->GetValue() / (TIME_MAX*1.0);
-   mTimeT->SetValue(wxString::Format(wxT("%.2f"), mTime));
-}
+   mTimeT->SetValue(wxString::Format(wxT
