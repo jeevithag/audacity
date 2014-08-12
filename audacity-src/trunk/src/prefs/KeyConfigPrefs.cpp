@@ -143,14 +143,17 @@ void KeyConfigPrefs::Populate()
    RefreshBindings();
 
    if (mViewByTree->GetValue()) {
-      mView->SetView(ViewByTree);
+      mVieType = ViewByTree;
    }
    else if (mViewByName->GetValue()) {
-      mView->SetView(ViewByName);
+      mViewType = ViewByName;
    }
    else if (mViewByKey->GetValue()) {
-      mView->SetView(ViewByKey);
+      mViewType = ViewByKey;
+      mFilterLabel->SetLabel(_("&Hotkey:"));
    }
+
+   mView->SetView(mViewType);}
 }
 
 /// Normally in classes derived from PrefsPanel this function 
@@ -1198,14 +1201,4 @@ bool KeyConfigPrefs::Apply()
    return gPrefs->Flush();
 }
 
-void KeyConfigPrefs::Cancel()
-{
-   // Restore original key values
-   for (size_t i = 0; i < mNames.GetCount(); i++) {
-      mManager->SetKeyFromIndex(i, mKeys[i]);
-   }
-
-   return;
-}
-
-#endif
+void KeyConfigPrefs::Canc
