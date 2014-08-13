@@ -279,13 +279,7 @@ void KeyConfigPrefs::PopulateOrExchange(ShuttleGui & S)
       {
          S.Id(ImportButtonID).AddButton(_("&Import..."));
          S.Id(ExportButtonID).AddButton(_("&Export..."));
-         S.Id(AssignDefaultsButtonID).AddButton(_("&Defaults"));
-      }
-      S.EndThreeColumn();
-   }
-   S.EndStatic();
-
-   if (mViewType == ViewByKey) {
+         S.Id(AssignDefaultsButtonID).AddButton(_("&Dype == ViewByKey) {
       mFilterLabel->SetLabel(_("&Hotkey:"));
    }
 
