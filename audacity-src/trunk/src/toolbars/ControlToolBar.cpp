@@ -740,8 +740,7 @@ void ControlToolBar::PlayDefault()
       PlayCurrentRegion(false, true); /* play with cut preview */
    else if(mPlay->WasShiftDown())
       PlayCurrentRegion(true); /* play looped */
-   else
-      PlayCurrentRegion(false); /* play normal */
+   elsegion(false); /* play normal */
 
    mPlay->PopUp();
 }

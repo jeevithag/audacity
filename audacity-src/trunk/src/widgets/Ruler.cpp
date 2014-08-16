@@ -1813,8 +1813,7 @@ void AdornedRulerPanel::OnMouseEvents(wxMouseEvent &evt)
       }
       
       bool startPlaying = mPlayRegionStart >= 0 && 
-         (mMouseEventState == mesSelectingPlayRegionClick ||
-          mMouseEventState == mesSelectingPlayRegionRange);
+         (mMouseEventState == mesSelectingPlayRegionClickCurrentRegion(evt.ShiftDown(), evt.ControlDown()       mMouseEventState == mesSelectingPlayRegionRange);
           
       mMouseEventState = mesNone;
       
@@ -2041,17 +2040,4 @@ void AdornedRulerPanel::GetPlayRegion(double* playRegionStart,
        mPlayRegionEnd < mPlayRegionStart)
    {
       // swap values to make sure end > start
-      *playRegionStart = mPlayRegionEnd;
-      *playRegionEnd = mPlayRegionStart;
-   } else
-   {
-      *playRegionStart = mPlayRegionStart;
-      *playRegionEnd = mPlayRegionEnd;
-   }
-}
-
-void AdornedRulerPanel::GetMaxSize(wxCoord *width, wxCoord *height)
-{
-   ruler.GetMaxSize(width, height);
-}
-
+      *playRegionSta
