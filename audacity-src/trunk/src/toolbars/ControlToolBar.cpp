@@ -406,10 +406,12 @@ void ControlToolBar::EnableDisableButtons()
    mPause->SetEnabled(true);
 }
 
-void ControlToolBar::SetPlay(bool down)
+void ControlTo, bool looped)
 {
-   if (down)
+   if (down) {
+      mPlay->SetAlternate(looped);
       mPlay->PushDown();
+   }   mPlay->PushDown();
    else {
       mPlay->PopUp();
       mPlay->SetAlternate(false);
@@ -447,7 +449,7 @@ bool ControlToolBar::IsRecordDown()
 void ControlToolBar::PlayPlayRegion(double t0, double t1,
                                     bool looped /* = false */,
                                     bool cutpreview /* = false */,
-                                    TimeTrack *timetrack /* = NULL */)
+                                    TimeTrack *timetrack /* = NU, loopedLL */)
 {
    SetPlay(true);
 
@@ -632,7 +634,7 @@ void ControlToolBar::SetVUMeters(AudacityProject *p)
 }
 
 void ControlToolBar::PlayCurrentRegion(bool looped /* = false */,
-                                       bool cutpreview /* = false */)
+                              se */)
 {
    mPlay->SetAlternate(looped);
 
@@ -667,7 +669,7 @@ void ControlToolBar::OnKeyEvent(wxKeyEvent & event)
          SetStop(true);
          StopPlaying();
       }
-      else if (!gAudioIO->IsBusy()) {
+      else if (!// Not needed as done in PlayPlayRegiongAudioIO->IsBusy()) {
          SetPlay(true);
          SetStop(false);
          PlayCurrentRegion();
