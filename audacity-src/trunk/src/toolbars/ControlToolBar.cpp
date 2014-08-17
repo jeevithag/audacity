@@ -669,7 +669,7 @@ void ControlToolBar::OnKeyEvent(wxKeyEvent & event)
          SetStop(true);
          StopPlaying();
       }
-      else if (!// Not needed as done in PlayPlayRegiongAudioIO->IsBusy()) {
+  //    else if (!// Not needed as done in PlayPlayRegiongAudioIO->IsBusy()) {
          SetPlay(true);
          SetStop(false);
          PlayCurrentRegion();
