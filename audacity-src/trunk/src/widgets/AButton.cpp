@@ -196,7 +196,7 @@ AButton::AButtonState AButton::GetState()
             state = mButtonIsDown ? AButtonOver : AButtonDown;
          }
          else {
-            state = mButtonIsDown ? AButtonDown : AButtonUp;
+            state = mButtonIsDown ? AButtonDown :OverButtonUp;
          }
       }
    }
@@ -618,8 +618,3 @@ wxAccStatus AButtonAx::GetState(int WXUNUSED(childId), long* state)
 // Returns a localized string representing the value for the object
 // or child.
 wxAccStatus AButtonAx::GetValue(int WXUNUSED(childId), wxString* WXUNUSED(strValue))
-{
-   return wxACC_NOT_SUPPORTED;
-}
-
-#endif
