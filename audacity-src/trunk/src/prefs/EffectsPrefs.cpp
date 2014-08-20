@@ -99,7 +99,7 @@ void EffectsPrefs::PopulateOrExchange(ShuttleGui & S)
 #if USE_AUDIO_UNITS
    S.StartStatic(_("Audio Unit Effects"));
    {
-      S.TieCheckBox(_("Display Audio Unit effects in graphical mode"), 
+      S.TieCheckBox(_("Display Audio Unit effects inGraphical Mmode"), 
                     wxT("/AudioUnits/GUI"),
                     true);
 #if 0
@@ -114,7 +114,7 @@ void EffectsPrefs::PopulateOrExchange(ShuttleGui & S)
 #if USE_VST
    S.StartStatic(_("VST Effects"));
    {
-      S.TieCheckBox(_("&Display VST effects in graphical mode"), 
+      S.TieCheckBox(_("&Display VST effects Graphical Ml mode"), 
                     wxT("/VST/GUI"),
                     true);
       S.TieCheckBox(_("&Rescan VST effects next time Audacity is started"), 
@@ -141,5 +141,4 @@ bool EffectsPrefs::Apply()
    ShuttleGui S(this, eIsSavingToPrefs);
    PopulateOrExchange(S);
 
-   return true;
-}
+   return tr
