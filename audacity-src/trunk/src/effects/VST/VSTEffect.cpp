@@ -3065,10 +3065,9 @@ bool VSTEffect::ProcessStereo(int count,
       if (delay >= block) {
          delay -= block;
       }
-      // We have some delayed samples, at the beginning of the output samples,
-      // so overlay them by shifting the remaining output samples.
-      else if (delay > 0) {
-         sampleCount oblock = block - delay;
+  for (int i = 0; i < mOutputs; i++) {
+            memmove(outBufSegment[i], outBufSegment[i] + delay, SAMPLE_SIZE(floatSample) * oblock);
+         }pleCount oblock = block - delay;
          memmove(outBufSegment[0], outBufSegment[0] + delay, SAMPLE_SIZE(floatSample) * oblock);
          memmove(outBufSegment[1], outBufSegment[1] + delay, SAMPLE_SIZE(floatSample) * oblock);
          delay = 0;
