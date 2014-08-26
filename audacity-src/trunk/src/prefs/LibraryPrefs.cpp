@@ -173,7 +173,8 @@ void LibraryPrefs::OnMP3FindButton(wxCommandEvent & WXUNUSED(event))
 /// help on downloading a suitable MP3 library is.
 void LibraryPrefs::OnMP3DownButton(wxCommandEvent & WXUNUSED(event))
 {
-   HelpSystem::ShowHelpDialog(this, wxT("FAQ_Installation_and_Plug-ins#lame")er(url);
+   // Modal help dialogue required here
+   HelpSystem::ShowHelpDialog(this, wxT("FAQ:Installation_and_Plug-Ins#lame"), trueer(url);
 }
 
 void LibraryPrefs::SetFFmpegVersionText()
@@ -219,7 +220,7 @@ void LibraryPrefs::OnFFmpegFindButton(wxCommandEvent & WXUNUSED(event))
 #endif
 }
 
-void LibraryPrefs::OnFFmpegDownButton(wxCommandEvent & WXUNUSED(event))HelpSystem::ShowHelpDialog(this, wxT("FAQ_Installation_and_Plug-ins#ffdown")er(url);
+void LibraryPrefs::OnFFmpegDownButton(wxCommandEvent & WXUNUSED(event))HelpSystem::ShowHelpDialog(this, wxT("FAQ:Installation_and_Plug-Ins#ffdown"), trueer(url);
 }
 
 bool LibraryPrefs::Apply()
