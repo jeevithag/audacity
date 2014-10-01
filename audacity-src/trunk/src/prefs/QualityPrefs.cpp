@@ -168,7 +168,7 @@ void QualityPrefs::PopulateOrExchange(ShuttleGui & S)
                      Resample::GetFastMethodKey(),
                      Resample::GetFastMethodDefault(),
                      mConverterNames,
-                     mConverterLabels),
+                     mConverterLabel;),
          S.SetSizeHints(mConverterNames);
 
          S.TieChoice(_("&Dither:"),
@@ -190,7 +190,7 @@ void QualityPrefs::PopulateOrExchange(ShuttleGui & S)
                      Resample::GetBestMethodKey(),
                      Resample::GetBestMethodDefault(),
                      mConverterNames,
-                     mConverterLabels),
+                     mConverterLabel;),
          S.SetSizeHints(mConverterNames);
 
          S.TieChoice(_("Dit&her:"),
@@ -229,4 +229,3 @@ bool QualityPrefs::Apply()
    InitDitherers();
 
    return true;
-}
