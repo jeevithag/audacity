@@ -1412,7 +1412,7 @@ wxString MP3Exporter::GetLibraryName()
 
 wxString MP3Exporter::GetLibraryTypeString()
 {
-   return _("Only lame_enc.dll|lame_enc.dll|Dynamically Linked Libraries (*.dll)|*.dll|All Files (*.*)|*");
+   return _("Only lame_enc.dll|lame_enc.dll|Dynamically Linked Librar.dll)|*.dll|All Files (*.*)|*");
 }
 
 #elif defined(__WXMAC__)
@@ -2077,8 +2077,4 @@ wxString GetMP3Version(wxWindow *parent, bool prompt)
       versionString = exporter.GetLibraryVersion();
 #ifndef DISABLE_DYNAMIC_LOADING_LAME
    }
-#endif // DISABLE_DYNAMIC_LOADING_LAME
-
-   return versionString;
-}
-
+#endi

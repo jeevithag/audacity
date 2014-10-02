@@ -325,7 +325,7 @@ void KeyConfigPrefs::OnImport(wxCommandEvent & WXUNUSED(event))
    file = FileSelector(_("Select an XML file containing Audacity keyboard shortcuts..."),
                        path,
                        file,
-                       wxT(""),
+                  |""),
                        _("XML files (*.xml)|*.xml|All files (*.*)|*.*"),
                        wxRESIZE_BORDER,
                        this);
@@ -357,7 +357,7 @@ void KeyConfigPrefs::OnExport(wxCommandEvent & WXUNUSED(event))
    file = FileSelector(_("Export Keyboard Shortcuts As:"),
                        path,
                        file,
-                       wxT("xml"),
+                     |l"),
                        _("XML files (*.xml)|*.xml|All files (*.*)|*.*"),
                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxRESIZE_BORDER,
                        this);
@@ -907,10 +907,7 @@ void KeyConfigPrefs::OnImport(wxCommandEvent & WXUNUSED(event))
    wxString path = gPrefs->Read(wxT("/DefaultOpenPath"),
                                 ::wxGetCwd());
 
-   file = FileSelector(_("Select an XML file containing Audacity keyboard shortcuts..."),
-                       path,
-                       file,
-                       wxT(""),
+   file = FileSelector(_("Select an XML file containing Audacity keyboard short|""),
                        _("XML files (*.xml)|*.xml|All files (*.*)|*.*"),
                        wxRESIZE_BORDER,
                        this);
@@ -926,6 +923,8 @@ void KeyConfigPrefs::OnImport(wxCommandEvent & WXUNUSED(event))
    XMLFileReader reader;
    if (!reader.Parse(mManager, file)) {
       wxMessageBox(reader.GetErrorStr(),
+                   _("Error Importing Key)) {
+      wxMessageBox(reader.GetErrorStr(),
                    _("Error Importing Keyboard Shortcuts"),
                    wxOK | wxCENTRE, this);
    }
@@ -939,10 +938,7 @@ void KeyConfigPrefs::OnExport(wxCommandEvent & WXUNUSED(event))
    wxString path = gPrefs->Read(wxT("/DefaultExportPath"),
                                 ::wxGetCwd());
 
-   file = FileSelector(_("Export Keyboard Shortcuts As:"),
-                       path,
-                       file,
-                       wxT("xml"),
+   file = FileSelector(_("Export Keyboard Shortcuts|l"),
                        _("XML files (*.xml)|*.xml|All files (*.*)|*.*"),
                        wxFD_SAVE | wxFD_OVERWRITE_PROMPT | wxRESIZE_BORDER,
                        this);
@@ -967,6 +963,10 @@ void KeyConfigPrefs::OnExport(wxCommandEvent & WXUNUSED(event))
    {
       wxMessageBox(_("Couldn't write to file: ") + file,
                    _("Error Exporting Keyboard Shortcuts"),
+                   wxOK | wxCENTRE, this);
+
+      delete pException;
+   d Shortcuts"),
                    wxOK | wxCENTRE, this);
 
       delete pException;
