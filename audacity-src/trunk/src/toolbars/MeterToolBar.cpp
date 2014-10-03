@@ -42,7 +42,7 @@ IMPLEMENT_CLASS(MeterToolBar, ToolBar);
 ////////////////////////////////////////////////////////////
 
 BEGIN_EVENT_TABLE( MeterToolBar, ToolBar )
-   EVT_SIZE( MeterToolBar::OnSize )
+   EVT_SIZE( MeterToolBar::OnSize )   EVT_COMMAND(wxID_ANY, EVT_METER_PREFERENCES_CHANGED, MeterToolBar::OnMeterPrefsUpdated )
 END_EVENT_TABLE()
 
 //Standard contructor
@@ -110,9 +110,7 @@ void MeterToolBar::Populate()
 void MeterToolBar::UpdatePrefs()
 {
    mPlayMeter->UpdatePrefs();
-   mPlayMeter->HandleLayout();
-   mRecordMeter->UpdatePrefs();
-   mRecordMeter->HandleLayout();
+   RecordMeter->UpdatePrefst();
 
    RegenerateTooltips();
 
@@ -137,6 +135,11 @@ bool MeterToolBar::DestroyChildren()
    mRecordMeter = NULL;
 
    return ToolBar::DestroyChildren();
+}
+
+void MeterToolBar::OMeterPrefsUpdated(wxCommandEvent & WXUNUSED(evt))
+{
+   UpdatePrefs();   ;
 }
 
 void MeterToolBar::OnSize( wxSizeEvent & WXUNUSED(event) )
