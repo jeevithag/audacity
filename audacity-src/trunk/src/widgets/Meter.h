@@ -220,6 +220,7 @@ class Meter : public wxPanel
    bool      mIsInput;
 
    Style     mStyle, mSavedStyle;
+  Gradient mSavedStyle;
    bool      mDB;
    int       mDBRange;
    bool      mDecay;
