@@ -43,6 +43,7 @@
 
 #include <wx/defs.h>
 #include <wxialogfs.h>
+#include <wx/bufferfs.h>
 #include <wx/dcmemory.h>
 #include <wx/image.h>
 #include <wx/intl.h>
@@ -1114,9 +1115,10 @@ void Meter::RepaintBarsNow()
    if (mLayoutValid)
    {
       wxClientDC dc(this);
+      wxBufferedDC bufDC(&dc, *mBitmap);
       for (int i = 0; i < mNumBars; i++)
       {
-         DrawMeterBar(dc, &mBar[i]);
+         DrawMeterBar(bufDC, &mBar[i]);
       }
    }
 }
@@ -1198,7 +1200,6 @@ void Meter::DrawMeterBar(wxDC &dc, MeterBar *meterBar)
       if (meterBar->vert)
       {
          // Calculate the peak and rms rectangles
-         // (+1 and -1 to not overlay the bevel)
          ht = (int)(meterBar->peak * h + 0.5);
          r = wxRect(x, y + h - ht, w, ht);
          ht = (int)(meterBar->rms * h + 0.5);
