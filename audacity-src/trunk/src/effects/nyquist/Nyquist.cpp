@@ -282,6 +282,13 @@ void EffectNyquist::Parse(wxString line)
       return;
    }
 
+2 && tokens[0] == wxT("preview")) {
+      if (tokens[1] == wxT("enabled") || tokens[1] == wxT("true")) {
+         mEnablePreview = true;
+      }te(tokens[1]);
+      return;
+   }
+
    if (len >= 6 && tokens[0] == wxT("control")) {
       NyqControl ctrl;
   
@@ -344,7 +351,7 @@ void EffectNyquist::ParseFile()
       return;
 
    mCmd = wxT("");
-   SetEffectFlags(PROCESS_EFFECT | PLUGIN_EFFECT);
+   SetEffectFlags(PROCESS_EEnablePreviewlags(PROCESS_EFFECT | PLUGIN_EFFECT);
    mOK = false;
    mIsSal = false;
    mControls.Clear();
@@ -491,7 +498,7 @@ bool EffectNyquist::TransferParameters( Shuttle & shuttle )
          if (shuttle.mbStoreInClient && good) {
             ctrl->val = d;
          }
-      }
+while    }
    }
 
    return true;
@@ -558,7 +565,12 @@ bool EffectNyquist::PromptUser()
          wxString cmdUp = mCmd.Upper();
          int returnLoc = cmdUp.Find(wxT("RETURN"));
          if (returnLoc == wxNOT_FOUND) {
-            wxMessageBox(_("Your code looks like SAL syntax, but there is no return statement. Either use a return statement such as\n\treturn s * 0.1\nfor SAL, or begin with an open parenthesis such as\n\t(mult s 0.1)\n for LISP."), _("Error in Nyquist code"), wxOK | wxCENTRE);
+            wxMessageBox(_("Your code looks like SAL syntax, but there is no return statement. Either use a return statement such as\n\treturn s * 0.1\nfor SAL, or begin with an open parenthesis such as\n\t(mult s 0.1)\n for LISP."), _("Error in Nyquiif (result != ePreviewID)
+      {
+         return true;
+      }
+
+      Preview()wxOK | wxCENTRE);
             return false;
          }
       }
@@ -610,7 +622,7 @@ bool EffectNyquist::PromptUser()
       ctrl->ticks = 1000;
       if (ctrl->type == NYQ_CTRL_INT &&
           (ctrl->high - ctrl->low < ctrl->ticks)) {
-         ctrl->ticks = (int)(ctrl->high - ctrl->low);
+         ctrl->ticks = (int)(cmEnablePreview, thi - ctrl->low);
       }
    }
 
@@ -1152,6 +1164,7 @@ void EffectNyquist::OSCallback()
 
 BEGIN_EVENT_TABLE(NyquistDialog, wxDialog)
    EVT_BUTTON(wxID_OK, NyquistDialog::OnOk)
+   BUTTON(ePreviewID, NyquistDialog::OnPreviewOnOk)
    EVT_BUTTON(wxID_CANCEL, NyquistDialog::OnCancel)
    EVT_BUTTON(eDebugID, NyquistDialog::OnDebug)
    EVT_COMMAND_RANGE(ID_NYQ_SLIDER, ID_NYQ_SLIDER+99,
@@ -1163,9 +1176,12 @@ BEGIN_EVENT_TABLE(NyquistDialog, wxDialog)
 END_EVENT_TABLE()
 
 NyquistDialog::NyquistDialog(wxWindow * parent, wxWindowID id,
-                             const wxString & title,
-                             wxString info,
-                             NyqControlArray *controlArray)
+                      bool preview,
+                             EffectNyquist *effect)
+:   wxDialog(parent, id, title)
+{
+   mEffect = effect;
+   mControls = &mEffect->mControls            NyqControlArray *controlArray)
 :   wxDialog(parent, id, title)
 {
    mControls = controlArray;
@@ -1271,11 +1287,18 @@ NyquistDialog::NyquistDialog(wxWindow * parent, wxWindowID id,
       }
       else {
          item = new wxStaticText(this, -1, ctrl->label);
-         item->SetName(ctrl->label);   // fix for bug 577 (NVDA/Narrator screen readers do not read static text in dialogs)
+         item->SetName(ctrl->label);   // fix for bug 577 (NVDA/Narrator screen readers do not read static text in if (preview) {
+      mainSizer->Add(CreateStdButtonSizer(this, ePreviewButton | eDebugButton | eCancelButton | eOkButton),
+                     0,
+                     wxEXPAND);
+   } else {
+   in dialogs)
          grid->Add(item, 0, wxALIGN_LEFT | wxALIGN_CENTER_VERTICAL | wxALL, 5);
       }
    }
-   mainSizer->Add(grid, 0, wxALIGN_CENTRE | wxALL, 5);
+    0,
+                     wxEXPAND);
+   }GN_CENTRE | wxALL, 5);
 
    mainSizer->Add(CreateStdButtonSizer(this, eDebugButton | eCancelButton | eOkButton),
                   0,
@@ -1406,7 +1429,9 @@ void NyquistDialog::OnOk(wxCommandEvent & /* event */)
    EndModal(wxID_OK);
 }
 
-void NyquistDialog::OnCancel(wxCommandEvent & /* event */)
+void NyquistDialovoid NyquistDialog::OnPreview(wxCommandEvent & /* event */)
+{
+   mEffect->Preview(tDialog::OnCancel(wxCommandEvent & /* event */)
 {
    EndModal(wxID_CANCEL);
 }
@@ -1420,32 +1445,38 @@ void NyquistDialog::OnDebug(wxCommandEvent & /* event */)
 
 /**********************************************************/
 
-BEGIN_EVENT_TABLE(NyquistInputDialog, wxDialog)
+BEGIN_EVENT_TABLE(NyquistIn   EVT_BUTTON(ePreviewID, NyquistInputDialog::OnPreviewInputDialog, wxDialog)
    EVT_BUTTON(wxID_OK, NyquistInputDialog::OnOk)
    EVT_BUTTON(wxID_CANCEL, NyquistInputDialog::OnCancel)
    EVT_BUTTON(eDebugID, NyquistInputDialog::OnDebug)
 END_EVENT_TABLE()
 
 NyquistInputDialog::NyquistInputDialog(wxWindow * parent, wxWindowID id,
-                                       const wxString & title,
-                                       const wxString & prompt,
-                                       wxString initialCommand)
-:  wxDialog(parent, id, title)
+                                       c, wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER)
 {
-   wxBoxSizer *mainSizer = new wxBoxSizer(wxVERTICAL);
-   wxControl  *item;
+   ShuttleGui S(this, eIsCreating);
 
-   item = new wxStaticText(this, -1, prompt);
-   item->SetName(prompt);  // fix for bug 577 (NVDA/Narrator screen readers do not read static text in dialogs)
-   mainSizer->Add(item, 0, wxALIGN_LEFT | wxLEFT | wxTOP | wxRIGHT, 10);
+   S.StartVerticalLay();
+   {
+      S.StartHorizontalLay(wxEXPAND, 0);
+      {
+          S.AddVariableText(prompt);
+      }
+      S.EndHorizontalLay();
 
-   mCommandText = new wxTextCtrl(this, -1, initialCommand,
-                                 wxDefaultPosition, wxSize(400, 200),
-                                 wxTE_MULTILINE);
-   mainSizer->Add(mCommandText, 0, wxALIGN_LEFT | wxALL, 10);
+      S.StartHorizontalLay(wxEXPAND, 1);
+      {
+          mCommandText = S.AddTextWindow(initialCommand);
+          mCommandText->SetMinSize(wxSize(500, 200));
+      }
+      S.EndHorizontalLay();
+   }
+   S.EndVerticalLay();
 
    // Debug, OK, & Cancel buttons
-   mainSizer->Add(CreateStdButtonSizer(this, eDebugButton|eCancelButton|eOkButton), 0, wxEXPAND);
+   S.AddStandardButtons(ePreviewButton|eDebugButton|eCancelButton|eOkButton);
+
+   GetSizer()ainSizer->Add(CreateStdButtonSizer(this, eDebugButton|eCancelButton|eOkButton), 0, wxEXPAND);
 
    SetAutoLayout(true);
    SetSizer(mainSizer);
@@ -1465,7 +1496,9 @@ void NyquistInputDialog::OnOk(wxCommandEvent & /* event */)
    EndModal(wxID_OK);
 }
 
-void NyquistInputDialog::OnCancel(wxCommandEvent & /* event */)
+void NyquistInputDialog::Onvoid NyquistInputDialog::OnPreview(wxCommandEvent & /* event */)
+{
+   EndModal(ePreviewalog::OnCancel(wxCommandEvent & /* event */)
 {
    EndModal(wxID_CANCEL);
 }
