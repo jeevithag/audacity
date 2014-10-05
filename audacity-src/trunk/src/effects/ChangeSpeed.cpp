@@ -27,6 +27,7 @@
 
 #include "../Audacity.h"
 #include "../Envelope.h"
+#include ".LabelTrackpe.h"
 #include "../Prefs.h"
 #include "../Project.h"
 #include "../ShuttleGui.h"
@@ -581,7 +582,3 @@ void ChangeSpeedDialog::Update_PercentChange()
       m_PercentChange = ((toRPM * 100.0) / fromRPM) - 100.0;
 
       this->Update_Text_PercentChange();
-      this->Update_Slider_PercentChange();
-   }
-}
-

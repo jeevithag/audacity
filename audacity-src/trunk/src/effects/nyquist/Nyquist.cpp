@@ -895,10 +895,11 @@ bool EffectNyquist::ProcessOne()
          ltrack = mFactory->NewLabelTrack();
          this->AddToOutputTracks((Track *)ltrack);
       }
+// PRL:  to do:
+         // let Nyquist analyzers define more complicated selections
+         nyx_get_label(l, &t0, &t1, &str);
 
-      for (l = 0; l < numLabels; l++) {
-         double t0, t1;
-         const char *str;
+         ltrack->AddLabel(SelectedRegion(t0 + mT0, t1 + mT0) char *str;
 
          nyx_get_label(l, &t0, &t1, &str);
 

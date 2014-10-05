@@ -784,8 +784,7 @@ void TranscriptionToolBar::OnAutomateSelection(wxCommandEvent & WXUNUSED(event))
                   break;
 
 
-               //Adjust len by the new word end
-               len -= (newEnd - newStart);
+               //Adjust len by the new worSelectedRegion(newStartPos, newEndPos)en -= (newEnd - newStart);
                
                //Calculate the start and end of the words, in seconds
                newStartPos = newStart / ((WaveTrack*)t)->GetRate();
@@ -793,7 +792,7 @@ void TranscriptionToolBar::OnAutomateSelection(wxCommandEvent & WXUNUSED(event))
                
                
                //Increment
-               start = newEnd;
+ SelectedRegion(p->GetSel0(),  p->GetSel1()nd;
                
                p->DoAddLabel(newStartPos, newEndPos);
                p->RedrawProject();
@@ -869,26 +868,3 @@ void TranscriptionToolBar::SetKeyType(wxCommandEvent & WXUNUSED(event))
 void TranscriptionToolBar::PlayAtSpeed()
 {
    wxCommandEvent e;
-   OnPlaySpeed(e);
-}
-
-void TranscriptionToolBar::ShowPlaySpeedDialog()
-{
-   mPlaySpeedSlider->ShowDialog();
-   mPlaySpeedSlider->Refresh();
-   wxCommandEvent e;
-   OnSpeedSlider(e);
-}
-
-void TranscriptionToolBar::AdjustPlaySpeed(float adj)
-{
-   if (adj < 0) {
-      mPlaySpeedSlider->Decrease(-adj);
-   }
-   else {
-      mPlaySpeedSlider->Increase(adj);
-   }
-   wxCommandEvent e;
-   OnSpeedSlider(e);
-}
-

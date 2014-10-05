@@ -294,9 +294,7 @@ void VampEffect::AddFeatures(LabelTrack *ltrack,
          if (fli->values.empty()) {
             label = wxString::Format(LAT1CTOWX("%.3f"), ltime0);
          } else {
-            label = wxString::Format(LAT1CTOWX("%.3f"), *fli->values.begin());
-         }
-      }
+            label = wxString::Format(LAT1CTOWX("%.3f"), *fli->values.begin())SelectedRegion(ltime0, ltime1)     }
       
       ltrack->AddLabel(ltime0, ltime1, label);
    }
@@ -770,9 +768,4 @@ void VampEffectDialog::ControlSetFocus(wxFocusEvent &event)
       y = r.y / yppu;
    }
    else {
-      p->CalcUnscrolledPosition(0, r.y, NULL, &r.y);
-      y = (r.GetBottom() - rv.GetBottom() + yppu) / yppu;
-   }
-
-   p->Scroll(-1, y);
-};
+      p->CalcUnscrolledPo

@@ -87,20 +87,22 @@ bool Effect::DoEffect(wxWindow *parent, int flags,
                       double projectRate,
                       TrackList *list,
                       TrackFactory *factory,
-                      double *t0, double *t1, wxString params)
+                     SelectedRegion *selectedRegion, wxString params)
 {
-   wxASSERT(*t0 <= *t1);
+   double t0 = selectedRegion->t0();
+   double t1 = selectedRegion->t1();
+   wxASSERT(t0 <= t1nd();
 
    if (mOutputTracks) {
       delete mOutputTracks;
       mOutputTracks = NULL;
    }
 
-   mFactory = factory;
+ mFactory = factory;
    mProjectRate = projectRate;
    mParent = parent;
    mTracks = list;
-   mT0 = *t0;
+   mT0 =t0;
    mT1 = *t1;
    CountWaveTracks();
 
@@ -155,8 +157,7 @@ bool Effect::DoEffect(wxWindow *parent, int flags,
    }
 
    if (returnVal) {
-      *t0 = mT0;
-      *t1 = mT1;
+   selectedRegion->setTimes(mT0, mT1)mT1;
    }
    
    return returnVal;
