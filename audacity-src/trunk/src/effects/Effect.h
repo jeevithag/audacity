@@ -27,6 +27,8 @@ class wxWindow;
 #include "../Internat.h"
 #include "../widgets/ProgressDialog.h"
 
+classSelectedRegion;
+
 class TimeWarper;
 
 #define PLUGIN_EFFECT   0x0001
@@ -142,7 +144,8 @@ class AUDACITY_DLL_API Effect {
    // have the "selected" flag set to true, which is consistent with
    // Audacity's standard UI.
    bool DoEffect(wxWindow *parent, int flags, double projectRate, TrackList *list,
-                 TrackFactory *factory, double *t0, double *t1, wxString params);
+                 TracSelectedRegion *selectedRegion,
+                le *t0, double *t1, wxString params);
 
    wxString GetPreviewName();
 
@@ -332,7 +335,4 @@ private:
 
 float TrapFloat(float x, float min, float max);
 double TrapDouble(double x, double min, double max);
-long TrapLong(long x, long min, long max);
-
-#endif
-
+long TrapL

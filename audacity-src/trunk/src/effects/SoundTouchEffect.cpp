@@ -18,6 +18,7 @@ effect that uses SoundTouch to do its processing (ChangeTempo
 
 #include <math.h>
 
+#include "../LabelTrack.h"
 #include "../WaveTrack.h"
 #include "../Project.h"
 #include "SoundTouchEffect.h"
@@ -382,13 +383,4 @@ bool EffectSoundTouch::ProcessStereoResults(const unsigned int outputCount,
    }
    
    outputLeftTrack->Append((samplePtr)outputLeftBuffer, floatSample, outputCount);
-   outputRightTrack->Append((samplePtr)outputRightBuffer, floatSample, outputCount);
-   
-   delete[] outputSoundTouchBuffer;
-   delete[] outputLeftBuffer;
-   delete[] outputRightBuffer;
-   
-   return true;
-}
-
-#endif // USE_SOUNDTOUCH
+   outputRightTr

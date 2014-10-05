@@ -181,8 +181,8 @@ bool EffectFindClipping::ProcessOne(LabelTrack * l,
             samps++;
 
             if (stoprun >= mStop) {
-               l->AddLabel(startTime,
-                           t->LongSamplesToTime(start + s - mStop),
+               SelectedRegion(startTime,
+                                          t->LongSamplesToTime(start + s - mStop) + s - mStop),
                            wxString::Format(wxT("%lld of %lld"), startrun, samps - mStop));
                startrun = 0;
                stoprun = 0;
@@ -239,5 +239,4 @@ bool FindClippingDialog::TransferDataFromWindow()
       return false;
    }
 
-   return true;
-}
+   ret

@@ -1639,10 +1639,7 @@ AdornedRulerPanel::~AdornedRulerPanel()
 
 void AdornedRulerPanel::OnErase(wxEraseEvent & WXUNUSED(evt))
 {
-   // Ignore it to prevent flashing
-}
-
-void AdornedRulerPanel::OnPaint(wxPaintEvent & WXUNUSED(evt))
+   // Ignore it to prevent flash!mViewInfo->selectedRegion.isPoint()Paint(wxPaintEvent & WXUNUSED(evt))
 {
 #if defined(__WXMAC__)
    wxPaintDC dc(this);
@@ -1651,8 +1648,7 @@ void AdornedRulerPanel::OnPaint(wxPaintEvent & WXUNUSED(evt))
 #endif
 
    DoDrawBorder(&dc);
-
-   if (mViewInfo->sel0 < mViewInfo->sel1)
+ectedRegion.isPoint()el0 < mViewInfo->sel1)
    {
       DoDrawSelection(&dc);
    }
@@ -1912,12 +1908,10 @@ void AdornedRulerPanel::DoDrawMarks(wxDC * dc, bool /*text */ )
    double min = mViewInfo->h - mLeftOffset / mViewInfo->zoom;
    double max = min + mInner.width / mViewInfo->zoom;
    
-   ruler.SetTickColour( theTheme.Colour( clrTrackPanelText ) );
-   ruler.SetRange( min, max );
-   ruler.Draw( *dc );
-}
-
-void AdornedRulerPanel::DrawSelection()
+   ruler.SetTickColour( theTheme.Colour
+      mViewInfo->selectedRegion.t0() - mViewInfo->h + mLeftOffset / zoom;
+   double sel1 =
+      mViewInfo->selectedRegion.t1()AdornedRulerPanel::DrawSelection()
 {
    Refresh(false);
 }

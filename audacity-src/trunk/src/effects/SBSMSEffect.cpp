@@ -18,6 +18,7 @@ effect that uses SBSMS to do its processing (TimeScale)
 #include <math.h>
 
 #include "SBSMSEffect.h"
+#include "../LabelTrack.h"
 #include "../WaveTrack.h"
 #include "../Project.h"
 #include "TimeWarper.h"
@@ -416,18 +417,4 @@ bool EffectSBSMS::Process()
       {
          t->SyncLockAdjust(mCurT1, mCurT0 + (mCurT1 - mCurT0) * mTotalStretch);
       }
-      //Iterate to the next track
-      t = iter.Next();
-   }
-   
-   if (bGoodResult)
-      ReplaceProcessedTracks(bGoodResult); 
-
-   // Update selection
-   mT0 = mCurT0;
-   mT1 = mCurT0 + maxDuration;
-   
-   return bGoodResult;
-}
-
-#endif
+      //Iterate to th
