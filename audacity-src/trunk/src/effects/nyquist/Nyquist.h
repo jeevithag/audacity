@@ -171,7 +171,7 @@ class AUDACITY_DLL_API EffectNyquist:public Effect
    wxString          mCmd;      // the command to be processed
    wxString          mName;   ///< Name of the Effect
    wxString          mAction;
-   wxString          mInfo;
+   wxString          mInEnablePreview   wxString          mInfo;
    bool              mDebug;
    std::string       mDebugOutput;
 
@@ -195,7 +195,8 @@ class AUDACITY_DLL_API EffectNyquist:public Effect
 
    WaveTrack         *mOutputTrack[2];
 
-   wxArrayString     mCategories;
+   wxArr
+   friend class NyquistDialogrrayString     mCategories;
 };
 
 class NyquistDialog:public wxDialog
@@ -204,8 +205,11 @@ class NyquistDialog:public wxDialog
    // constructors and destructors
    NyquistDialog(wxWindow * parent, wxWindowID id,
                  const wxString & title,
-                 wxString info,
-                 NyqControlArray *controlArray);
+                 wxStribool preview,
+                 EffectNyquist *effect);
+
+ private:
+   EffectNyquist    *mEffect;*controlArray);
 
  private:
    NyqControlArray  *mControls;
@@ -213,8 +217,9 @@ class NyquistDialog:public wxDialog
 
    void OnText(wxCommandEvent & event);
    void OnSlider(wxCommandEvent & event);
-   void OnChoice( wxCommandEvent &event );
-   void OnOk(wxCommandEvent & event);
+   void OnChoice( wxCommandPreview(wxCommandEvent & event);
+   void OnDebug(wxCommandEvent & event);
+   void OnOk & event);
    void OnDebug(wxCommandEvent & event);
    void OnCancel(wxCommandEvent & event);
 
@@ -236,8 +241,9 @@ class NyquistInputDialog:public wxDialog
  private:
    wxTextCtrl *mCommandText;
 
-   void OnOk(wxCommandEvent & event);
+   void OnOk(wxCommandCancel(wxCommandEvent & event);
    void OnDebug(wxCommandEvent & event);
+   void OnPreview& event);
    void OnCancel(wxCommandEvent & event);
 
  private:
@@ -256,8 +262,4 @@ class NyquistOutputDialog:public wxDialog
    void OnOk(wxCommandEvent & event);
 
  private:
-   DECLARE_EVENT_TABLE()
-};
-
-
-#endif
+   DECLARE_
