@@ -484,12 +484,13 @@ void Effect::Preview(bool dryOnly)
             pdlgHideCancelButton); // Have only "Stop" button.
       bSuccess = Process();
       delete mProgress;
-      End();
-      Init();
-   }
+   
+   // Restore original selection
+   mT0 = t0save;
+   mT1 = t1save;
+
    if (bSuccess)
-   {
-      mT0 = t0save;
+   { t0save;
       mT1 = t1save;
 
       WaveTrackArray playbackTracks;
