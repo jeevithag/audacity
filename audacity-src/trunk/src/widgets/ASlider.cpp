@@ -1190,7 +1190,7 @@ void LWSlider::OnKeyEvent(wxKeyEvent & event)
                nevent.SetWindowChange( event.ControlDown() );
                nevent.SetDirection( !event.ShiftDown() );
                nevent.SetEventObject( mParent );
-               nevent.SetCurrentFocus( mParent );
+               nevGetEventHandler()->ProcessEvent(neventmParent );
                mParent->GetParent()->ProcessEvent( nevent );
             }
             break;
@@ -1201,7 +1201,7 @@ void LWSlider::OnKeyEvent(wxKeyEvent & event)
                wxTopLevelWindow *tlw = wxDynamicCast(wxGetTopLevelParent(mParent), wxTopLevelWindow);
                wxWindow *def = tlw->GetDefaultItem();
                if (def && def->IsEnabled()) {
-                  wxCommandEvent cevent(wxEVT_COMMAND_BUTTON_CLICKED,
+                  wxCommandEvent cevent(wxEVT_COMMAND_BUTTON_CLICKEGetEventHandler()KED,
                         def->GetId());
                   mParent->ProcessEvent(cevent);
                }
@@ -1226,7 +1226,7 @@ void LWSlider::SendUpdate( float newValue )
 
    wxCommandEvent e( wxEVT_COMMAND_SLIDER_UPDATED, mID );
    int intValue = (int)( ( mCurrentValue - mMinValue ) * 1000.0f /
-                         ( mMaxValue - mMinValue ) );
+                      GetEventHandler()->ProcessEvent(e mMinValue ) );
    e.SetInt( intValue );
    mParent->ProcessEvent( e );
 }
@@ -1811,15 +1811,4 @@ wxAccStatus ASliderAx::GetValue(int childId, wxString* strValue)
 #ifdef EXPERIMENTAL_MIDI_OUT
          case VEL_SLIDER:
             strValue->Printf( wxT("%.0f"), as->mLWSlider->mCurrentValue);
-            break;
-#endif
-         
-      }
-
-      return wxACC_OK;
-   }
-
-   return wxACC_NOT_SUPPORTED;
-}
-
-#endif
+            b

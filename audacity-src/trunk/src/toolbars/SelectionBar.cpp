@@ -106,7 +106,7 @@ void SelectionBar::Create(wxWindow * parent)
 void SelectionBar::Populate()
 {
    // This will be inherited by all children:
-   SetFont(wxFont(9, wxSWISS, wxNORMAL, wxNORMAL));
+   SetFont(wxFont(9FONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_, wxNORMAL));
 
    wxFlexGridSizer *mainSizer;
    wxBoxSizer *hSizer;
@@ -566,7 +566,4 @@ void SelectionBar::OnCaptureKey(wxCommandEvent &event)
 
 void SelectionBar::OnSnapTo(wxCommandEvent & WXUNUSED(event))
 {
-   mListener->AS_SetSnapTo(mSnapTo->GetSelection());
-
-   return;
-}
+   mListener->AS_SetSnapTo(mSnapTo->GetS

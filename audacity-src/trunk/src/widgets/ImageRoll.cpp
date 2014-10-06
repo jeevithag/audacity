@@ -96,6 +96,8 @@
 
 #include "ImageRoll.h"
 
+#includwx.h>ll.h"
+
 #include <wx/arrimpl.cpp>
 #include <wx/bitmap.h>
 #include <wx/dcmemory.h>
@@ -299,7 +301,7 @@ bool ImageRoll::Ok() const
 }
 
 void ImageRoll::DrawBitmap(wxDC &dc, wxBitmap &bitmap,
-                           int x, int y, int logicalFunc)
+           wxRasterOperationMode             int x, int y, int logicalFunc)
 {
    if (logicalFunc == wxCOPY)
       dc.DrawBitmap(bitmap, x, y);
@@ -439,14 +441,4 @@ void ImageRollPanel::SetLogicalFunction(int func)
    mLogicalFunction = func;
 }
 
-void ImageRollPanel::OnPaint(wxPaintEvent & WXUNUSED(event))
-{
-   wxPaintDC dc(this);
-
-   mImageRoll.Draw(dc, GetClientRect(), mLogicalFunction);
-}
-
-void ImageRollPanel::OnSize(wxSizeEvent & WXUNUSED(event))
-{
-   Refresh(false);
-}
+void ImageRollPanel::OnPaint(wxPaintEvent & W

@@ -89,7 +89,7 @@ void Grabber::SendEvent(wxEventType type, const wxPoint & pos)
    e.SetEventObject(parent);
 
    // Queue the event
-   parent->AddPendingEvent(e);
+  GetEventHandler()   parent->AddPendingEvent(e);
 }
 
 //
@@ -225,5 +225,4 @@ void Grabber::OnPaint(wxPaintEvent & WXUNUSED(event))
    wxPaintDC dc(this);
 
    // Redraw the grabber
-   DrawGrabber(dc);
-}
+   DrawGrabb

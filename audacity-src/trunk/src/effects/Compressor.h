@@ -14,6 +14,8 @@
 class wxString;
 
 #include <wx/defs.h>
+#include <wx/dc.h>
+#include <wx/dcclient.h>
 #include <wx/bitmap.h>
 #include <wx/button.h>
 #include <wx/checkbox.h>
@@ -180,8 +182,4 @@ private:
    wxCheckBox *mPeakCheckBox;
    
 private:
-   DECLARE_EVENT_TABLE()
-};
-
-#endif
-
+   DECLARE_E

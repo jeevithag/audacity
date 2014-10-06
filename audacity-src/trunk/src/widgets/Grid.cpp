@@ -79,6 +79,28 @@ void TimeEditor::BeginEdit(int row, int col, wxGrid *grid)
    GetTimeCtrl()->SetFocus();
 }
 
+#if wxCHECK_VERSION(3,0,0)
+
+bool TimeEditor::EndEdit(int WXUNUSED(row), int WXUNUSED(col), const wxGrid *WXUNUSED(grid), const wxString & WXUNUSED(oldval), wxString *newval)
+{
+   double newtime = GetTimeCtrl()->GetTimeValue();
+   bool changed = newtime != mOld;
+
+   if (changed) {
+      mNew = newtime;
+      *newval = wxString::Format(wxT("%g"), newtime);
+   }
+
+   return changed;
+}
+
+void TimeEditor::ApplyEdit(int row, int col, wxGrid *grid)
+{
+   grid->GetTable()->SetValue(row, col, wxString::Format(wxT("%g"), mNew));
+}
+
+#else
+
 bool TimeEditor::EndEdit(int row, int col, wxGrid *grid)
 {
    double newtime = GetTimeCtrl()->GetTimeValue();
@@ -90,6 +112,8 @@ bool TimeEditor::EndEdit(int row, int col, wxGrid *grid)
 
    return changed;
 }
+
+#endif
 
 void TimeEditor::Reset()
 {
@@ -292,11 +316,39 @@ void ChoiceEditor::BeginEdit(int row, int col, wxGrid* grid)
    Choice()->Clear();
    Choice()->Append(mChoices);
    Choice()->SetSelection(mChoices.Index(mOld));
-   Choice()->SetFocus();
+   Choice()->SetFocus(#if wxCHECK_VERSION(3,0,0)
+
+bool ChoiceEditor::EndEdit(int WXUNUSED(row), int WXUNUSED(col), const wxGrid* WXUNUSED(grid), const wxString & WXUNUSED(oldval), wxString *newval* grid)
+{
+   int sel = Choice()->GetSelection();
+
+   // This can happen if the wxChoice control is displayed and the list of choices get changed
+   if ((sel < 0) || (sel >= (int)(mChoices.GetCount())))
+   {
+      return false;
+   }
+
+   wxString val = mChoices[sel];
+   if (val == mOl{
+      return false;
+   }
+
+   *newval = val;
+
+   mNew = val;
+
+   return true;
 }
 
+void ChoiceEditor::ApplyEdit(int row, int col, wxGrid *grid)
+{
+   grid->GetTable()->SetValue(row, col, mNew);
+}
+
+#else
+
 bool ChoiceEditor::EndEdit(int row, int col,
-                           wxGrid* grid)
+         wxGrid* grid)
 {
    int sel = Choice()->GetSelection();
 
@@ -312,7 +364,7 @@ bool ChoiceEditor::EndEdit(int row, int col,
 
    grid->GetTable()->SetValue(row, col, val);
 
-   return true;
+   return tru#endifrue;
 }
 
 void ChoiceEditor::Reset()
@@ -491,7 +543,7 @@ void Grid::OnKeyDown(wxKeyEvent &event)
             if (def && def->IsEnabled()) {
                wxCommandEvent cevent(wxEVT_COMMAND_BUTTON_CLICKED,
                                      def->GetId());
-               GetParent()->ProcessEvent(cevent);
+               GetPareGetEventHandlerParent()->ProcessEvent(cevent);
             }
          }
          else {
@@ -878,4 +930,4 @@ wxAccStatus GridAx::GetFocus(int * WXUNUSED(childId), wxAccessible **child)
    return wxACC_OK;
 }
 
-#endif // wxUSE_ACCESSIBILITY
+#endif // wxUSE_AC

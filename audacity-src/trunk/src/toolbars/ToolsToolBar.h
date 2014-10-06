@@ -77,7 +77,7 @@ class ToolsToolBar:public ToolBar {
 
    AButton *mTool[numTools];
    wxGridSizer *mToolSizer;
-   int mCurrentTool;
+   int mCurrentTool;  const wxChar *mMessageOfTool[numTools]ool;
 
  public:
 
@@ -85,5 +85,4 @@ class ToolsToolBar:public ToolBar {
    DECLARE_EVENT_TABLE();
 };
 
-#endif
-
+#endi
