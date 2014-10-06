@@ -415,7 +415,7 @@ void KeyConfigPrefs::OnHotkeyKeyDown(wxKeyEvent & e)
       wxNavigationKeyEvent nevent;
       nevent.SetWindowChange(e.ControlDown());
       nevent.SetDirection(!e.ShiftDown());
-      nevent.SetEventObject(t);
+      nevenGetEventHandlerevent.SetEventObject(t);
       nevent.SetCurrentFocus(t);
       t->GetParent()->ProcessEvent(nevent);
       return;
@@ -460,7 +460,7 @@ void KeyConfigPrefs::OnFilterKeyDown(wxKeyEvent & e)
       wxNavigationKeyEvent nevent;
       nevent.SetWindowChange(e.ControlDown());
       nevent.SetDirection(!e.ShiftDown());
-      nevent.SetEventObject(t);
+      neveGetEventHandlernevent.SetEventObject(t);
       nevent.SetCurrentFocus(t);
       t->GetParent()->ProcessEvent(nevent);
 

@@ -72,6 +72,8 @@ ExpandingToolBar.
 #include <wx/window.h>
 #endif
 
+#include <wwx.h>f
+
 #include <wx/dcmemory.h>
 #include <wx/log.h>
 #include <wx/dragimag.h>
@@ -1275,9 +1277,4 @@ void ToolBarArea::MoveChild(ExpandingToolBar *toolBar, wxRect dropTarget)
          return;
       }
    }
-}                                             
-
-void ToolBarArea::SetCapturedChild(ExpandingToolBar *child)
-{
-   mCapturedChild = child;
-}
+}                         

@@ -57,7 +57,7 @@ void ScriptCommandRelay::PostCommand(AudacityProject *project, Command *cmd)
    wxASSERT(cmd != NULL);
    AppCommandEvent ev;
    ev.SetCommand(cmd);
-   project->AddPendingEvent(ev);
+   projectGetEventHandler()ct->AddPendingEvent(ev);
 }
 
 /// This is the function which actually obeys one command.  Rather than applying
@@ -112,4 +112,3 @@ ResponseQueueTarget *ScriptCommandRelay::GetResponseTarget()
 {
    // This should be deleted by a Command destructor
    return new ResponseQueueTarget(sResponseQueue);
-}

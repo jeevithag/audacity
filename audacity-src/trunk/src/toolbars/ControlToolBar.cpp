@@ -607,10 +607,15 @@ void ControlToolBar::PlayPlayRegion(double t0, double t1,
          SetVUMeters(p);
       }
       else {
-         // msmeyer: Show error message if stream could not be opened
+         // msmeyer: Show error message if stre
+#if wxCHECK_VERSION(3,0,0)
+            _("Error while opening sound device. "
+            "Please check the playback device settings and the project sample rate."),
+#else
+            _( opened
          wxMessageBox(_(
             "Error while opening soundplaybacke. "
-            wxT("Please check the output device settings and the project sample rate.")),
+            wxT("Please check the output devi#endifice settings and the project sample rate.")),
             _("Error"), wxOK | wxICON_EXCLAMATION, this);
       }
    }

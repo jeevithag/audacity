@@ -55,10 +55,6 @@
 #include <wx/tooltip.h>
 #include <wx/msgdlg.h>
 
-#if defined(__WXMAC__)
-#include <wx/mac/uma.h>
-#endif
-
 #include <math.h>
 
 #include "Meter.h"
@@ -737,9 +733,7 @@ double Meter::ToLinearIfDB(double value)
    return value;
 }
 
-wxFont Meter::GetFont()
-{
-   int fontSize = 10;
+wxFont Meter::GetFFONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_Size = 10;
 #if defined __WXMSW__
    fontSize = 8;
 #endif

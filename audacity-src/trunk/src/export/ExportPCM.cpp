@@ -583,12 +583,12 @@ int ExportPCM::Export(AudacityProject *project,
    }
 
    if (((sf_format & SF_FORMAT_TYPEMASK) == SF_FORMAT_AIFF) ||
-       ((sf_format & SF_FORMAT_TYPEMASK) == SF_FORMAT_WAV))
+       ((sf_format & #if !wxCHECK_VERSION(3, 0, 0) SF_FORMAT_TYPEMASK) == SF_FORMAT_WAV))
       AddID3Chunk(fName, metadata, sf_format);
 
 #ifdef __WXMAC__
    wxFileName fn(fName);
-   fn.MacSetTypeAndCreator(sf_header_mactype(sf_format & SF_FORMAT_TYPEMASK),
+   fn.MacSetTypeAndCreator(reator(sf_header_mactype(sf_format & SF_FORMAT_TYPEMASK),
                            AUDACITY_CREATOR);
 #endif
    
@@ -945,12 +945,4 @@ wxString ExportPCM::GetExtension(int index)
       return sf_header_extension(ReadExportFormatPref());
    }
    else {
-      // return the default
-      return ExportPlugin::GetExtension(index);
-   }
-}
-
-ExportPlugin *New_ExportPCM()
-{
-   return new ExportPCM();
-}
+      // re

@@ -157,7 +157,7 @@ void ODTask::DoSome(float amountWork)
       {
          if(IsTaskAssociatedWithProject(gAudacityProjects[i]))
          {
-            //this assumes tasks are only associated with one project.  
+     GetEventHandler()->AddPendingEvent(eventasks are only associated with one project.  
             gAudacityProjects[i]->AddPendingEvent( event );
             //mark the changes so that the project can be resaved.
             gAudacityProjects[i]->GetUndoManager()->SetODChangesFlag();
@@ -360,12 +360,4 @@ void ODTask::StopUsingWaveTrack(WaveTrack* track)
 void ODTask::ReplaceWaveTrack(WaveTrack* oldTrack,WaveTrack* newTrack)
 {
    mWaveTrackMutex.Lock();
-   for(size_t i=0;i<mWaveTracks.size();i++)
-   {
-      if(oldTrack == mWaveTracks[i])
-      {
-         mWaveTracks[i] = newTrack;
-      }
-   }  
-   mWaveTrackMutex.Unlock();
-}
+   for(size_t i=0;i<mWaveTra

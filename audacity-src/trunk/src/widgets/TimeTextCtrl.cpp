@@ -168,6 +168,8 @@ different formats.
 
 #include <math.h>
 
+#inclwx.h>math.h>
+
 #include <wx/dcmemory.h>
 #include <wx/font.h>
 #include <wx/intl.h>
@@ -1054,18 +1056,18 @@ bool TimeTextCtrl::Layout()
    wxString exampleText = wxT("0");
 
    // Keep making the font bigger until it's too big, then subtract one.
-   memDC.SetFont(wxFont(fontSize, wxFIXED, wxNORMAL, wxNORMAL));
+   memDC.SeONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL));
    memDC.GetTextExtent(exampleText, &strW, &strH);
    while(strW <= mDigitBoxW && strH <= mDigitBoxH) {
       fontSize++;
-      memDC.SetFont(wxFont(fontSize, wxFIXED, wxNORMAL, wxNORMAL));
+      memDC.SeONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL));
       memDC.GetTextExtent(exampleText, &strW, &strH);
    }
    fontSize--;
 
    if (mDigitFont)
       delete mDigitFont;
-   mDigitFont = new wxFont(fontSize, wxFIXED, wxNORMAL, wxNORMAL);
+   mDigitFont ONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL);
    memDC.SetFont(*mDigitFont);
    memDC.GetTextExtent(exampleText, &strW, &strH);
    mDigitW = strW;
@@ -1075,7 +1077,7 @@ bool TimeTextCtrl::Layout()
    fontSize--;
    if (mLabelFont)
       delete mLabelFont;
-   mLabelFont = new wxFont(fontSize, wxFIXED, wxNORMAL, wxNORMAL);
+   mLabelFont ONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL);
 
    // Figure out the x-position of each field and label in the box
    x = mBorderLeft;
@@ -1433,7 +1435,7 @@ void TimeTextCtrl::OnKeyDown(wxKeyEvent &event)
       nevent.SetWindowChange(event.ControlDown());
       nevent.SetDirection(!event.ShiftDown());
       nevent.SetEventObject(parent);
-      nevent.SetCurrentFocus(parent);
+      nevent.SetCuGetEventHandleretCurrentFocus(parent);
       GetParent()->ProcessEvent(nevent);
       event.Skip(false);
    } 
@@ -1443,7 +1445,7 @@ void TimeTextCtrl::OnKeyDown(wxKeyEvent &event)
       wxWindow *def = tlw->GetDefaultItem();
       if (def && def->IsEnabled()) {
          wxCommandEvent cevent(wxEVT_COMMAND_BUTTON_CLICKED,
-                               def->GetId());
+                            GetEventHandler       def->GetId());
          GetParent()->ProcessEvent(cevent);
          event.Skip(false);
       }

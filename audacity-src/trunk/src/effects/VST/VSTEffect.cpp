@@ -3558,7 +3558,7 @@ float VSTEffect::GetSampleRate()
    return mTimeInfo.sampleRate;
 }
 
-int VSTEffect::GetProcessLevel()
+int VSTEffect::GetProcGetEventHandler()ocessLevel()
 {
    return mProcessLevel;
 }
@@ -3568,7 +3568,7 @@ void VSTEffect::SizeWindow(int w, int h)
    // Queue the event to make the resizes smoother
    if (mDlg) {
       wxCommandEvent sw(EVT_SIZEWINDOW);
-      sw.SetInt(w);
+      sGetEventHandler() sw.SetInt(w);
       sw.SetExtraLong(h);
       mDlg->AddPendingEvent(sw);
    }
