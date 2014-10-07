@@ -1056,18 +1056,18 @@ bool TimeTextCtrl::Layout()
    wxString exampleText = wxT("0");
 
    // Keep making the font bigger until it's too big, then subtract one.
-   memDC.SeONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL));
+   memDC.SeONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL));
    memDC.GetTextExtent(exampleText, &strW, &strH);
    while(strW <= mDigitBoxW && strH <= mDigitBoxH) {
       fontSize++;
-      memDC.SeONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL));
+      memDC.SeONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL));
       memDC.GetTextExtent(exampleText, &strW, &strH);
    }
    fontSize--;
 
    if (mDigitFont)
       delete mDigitFont;
-   mDigitFont ONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL);
+   mDigitFont ONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL);
    memDC.SetFont(*mDigitFont);
    memDC.GetTextExtent(exampleText, &strW, &strH);
    mDigitW = strW;
@@ -1077,7 +1077,7 @@ bool TimeTextCtrl::Layout()
    fontSize--;
    if (mLabelFont)
       delete mLabelFont;
-   mLabelFont ONTFAMILY_TELETYPE, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL);
+   mLabelFont ONTFAMILY_SWISS, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_ize, wxFIXED, wxNORMAL, wxNORMAL);
 
    // Figure out the x-position of each field and label in the box
    x = mBorderLeft;
