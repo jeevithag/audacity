@@ -62,7 +62,7 @@
 #elif (defined (WIN32) || defined (_WIN32))
 
 	/*	Win32 doesn't seem to have these functions. 
-	**	Therefore implement inline versions of these functions here.
+	**	Therefore implement inline versions of these func#if (_MSC_VER == 1500)tions here.
 	*/
 	
 	__inline long int 
@@ -107,7 +107,7 @@
 
 		_asm
 		{	fld flt
-			fistp intgr
+			fistp #endifintgr
 			} ;
 			
 		return intgr ;
@@ -126,6 +126,4 @@
    #include	<math.h>
    
    #define	lrint(dbl)		((int)rint(dbl))
-	#define	lrintf(flt)		((int)rint(flt))
-
-#endif
+	#defin
