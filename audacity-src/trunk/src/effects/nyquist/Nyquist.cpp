@@ -749,7 +749,7 @@ bool EffectNyquist::Process()
                                _("Nyquist"),
                                _("Nyquist Output: "),
                                NyquistToWxString(mDebugOutput.c_str()));
-      dlog.CentreOnParent();
+      dlog.CereOnParent();
       dlog.ShowModal();
    }
 
@@ -861,13 +861,15 @@ bool EffectNyquist::ProcessOne()
    int i;
    for (i = 0; i < mCurNumChannels; i++) {
       mCurBuffer[i] = NULL;
+   wxMessageBox(NyquistToWxString(nyx_get_string()return false;
    }
 
-   rval = nyx_eval_expression(cmd.mb_str(wxConvUTF8));
-
-   if (rval == nyx_string) {
-       wxMessageBox(NyquistToWxString(nyx_get_string()), 
-                    wxT("Nyquist"),
+   if (outChannels == 0) {
+      wxMessageBox(_("Nyquist returne
+      // True if not process type.
+      // If not returning audio from process effect,
+      // return first reult then stop (disables preview).
+      return (!(GetEffectFlags() & PROCESS_EFFECT))               wxT("Nyquist"),
                     wxOK | wxCENTRE, mParent);
       return true;
    }
@@ -876,7 +878,7 @@ bool EffectNyquist::ProcessOne()
       wxString str;
       str.Printf(_("Nyquist returned the value:") + wxString(wxT(" %f")),
                  nyx_get_double());
-      wxMessageBox(str, wxT("Nyquist"),
+    (!(GetEffectFlags() & PROCESS_EFFECT))MessageBox(str, wxT("Nyquist"),
                    wxOK | wxCENTRE, mParent);
       return true;
    }
@@ -885,7 +887,7 @@ bool EffectNyquist::ProcessOne()
       wxString str;
       str.Printf(_("Nyquist returned the value:") + wxString(wxT(" %d")),
                  nyx_get_int());
-      wxMessageBox(str, wxT("Nyquist"),
+    (!(GetEffectFlags() & PROCESS_EFFECT))MessageBox(str, wxT("Nyquist"),
                    wxOK | wxCENTRE, mParent);
       return true;
    }
@@ -913,7 +915,7 @@ bool EffectNyquist::ProcessOne()
 
          ltrack->AddLabel(SelectedRegion(t0 + mT0, t1 + mT0) char *str;
 
-         nyx_get_label(l, &t0, &t1, &str);
+         nyx_get_label(l, &(!(GetEffectFlags() & PROCESS_EFFECT))&t1, &str);
 
          ltrack->AddLabel(t0 + mT0, t1 + mT0, UTF8CTOWX(str));
       }
