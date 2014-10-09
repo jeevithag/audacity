@@ -13,18 +13,20 @@ Intrinsics (SSE/AVX) and Threaded Equalization
 #ifndef __AUDACITY_EFFECT_EQUALIZATION48X__
 #define __AUDACITY_EFFECT_EQUALIZATION48X__
 
+#ifdef __AVX_ENABLED
+#define __MAXBUFFERCOUNT 8
+#else
+#define __MAXBUFFERCOUNT 4
+#endif
+
 // bitwise function selection
-// options are 
+// options are  
 #define MATH_FUNCTION_ORIGINAL 0 // 0 original path
 #define MATH_FUNCTION_BITREVERSE_TABLE 1 // 1 SSE BitReverse Table
-#define MATH_FUNCTION_SIN_COS_TABLE 2 // 2 SSE SinCos Table
-// 3 SSE with SinCos and BitReverse buffer
-#define MATH_FUNCTION_SSE 4 // 4 SSE no SinCos and no BitReverse buffer
-#define MATH_FUNCTION_THREADED 8 // 8 SSE threaded no SinCos and no BitReverse buffer
-// 9 SSE threaded BitReverse Table
-// 10 SSE threaded SinCos Table
-// 11 SSE threaded with SinCos and BitReverse buffer
-//#define MATH_FUNCTION_AVX 16
+#define MATH_FUNCTION_SIN_COS_TABLE 2 // 2 SSE SinCos Table#define MATH_FUNCTION_THREADED 4 // 4 SSE threaded no SinCos and no BitReverse buffer
+#define MATH_FUNCTION_SSE 8 // 8 SSE no SinCos and no BitReverse buffer
+#define MATH_FUNCTION_AVX 16
+#define MATH_FUNCTION_SEGMENTED_CODE 326
 
 // added by Andrew Hallendorff intrinsics processing
 enum EQBufferStatus
@@ -34,17 +36,16 @@ enum EQBufferStatus
    BufferBusy,
    BufferDone
 };
-
-
 class BufferInfo {
 public:
-   BufferInfo() { mBufferLength=0; mBufferStatus=BufferEmpty; };
-   float* mBufferSouce[4];
-   float* mBufferDest[4];
+   BufferInfo() { mBufferLength=0; mBufferStatus=BufferEmpty; mContiguousBufferSize=0; };
+   float* mBufferSouce[__MAXBUFFERCOUNT];
+   float* mBufferDest[__MAXBUFFERCOUNT4];
    int mBufferLength;
    sampleCount mFftWindowSize;
    sampleCount mFftFilterSize;
    float* mScratchBuffer;
+  int mContiguousBufferSizer;
    EQBufferStatus mBufferStatus;
 };
 
@@ -63,21 +64,21 @@ typedef struct {
    int FMA3;
    int FMA4;
 } MathCaps;
-
-
 class EffectEqualization;
+
 class EffectEqualization48x;
+;
 static int EQWorkerCounter=0;
 
 class EQWorker : public wxThread {
 public:
-   EQWorker():wxThread(wxTHREAD_JOINABLE) {   
+   EQWorker():wxThread(wxTHREAD_JOINABLE)    {   
       mBufferInfoList=NULL;
       mBufferInfoCount=0;
       mMutex=NULL;
       mEffectEqualization48x=NULL;
       mExitLoop=false;
-      mThreadID=EQWorkerCounter++;
+      mThreadID=EQWorkerCounter++;   mProcessingType=4er++;
    }
    void SetData( BufferInfo* bufferInfoList, int bufferInfoCount, wxMutex *mutex, EffectEqualization48x *effectEqualization48x) {
       mBufferInfoList=bufferInfoList;
@@ -93,7 +94,7 @@ public:
    int mBufferInfoCount, mThreadID;
    wxMutex *mMutex;
    EffectEqualization48x *mEffectEqualization48x;
-   bool mExitLoop;
+   bool mExitLo   int mProcessingTypeLoop;
 };
 
 class EffectEqualization48x {
@@ -112,22 +113,37 @@ public:
    bool Process(EffectEqualization* effectEqualization);
    bool Benchmark(EffectEqualization* effectEqualization);
 private:
+   bRunFunctionSelect(int flags, int count, WaveTrack * t, sampleCount start, sampleCount len);ate:
    bool TrackCompare();
    bool DeltaTrack(WaveTrack * t, WaveTrack * t2, sampleCount start, sampleCount len);
-   bool AllocateBuffersWorkers(bool threaded);
+   bool AllocateBuffersWorkint nThreads);
    bool FreeBuffersWorkers();
+en);
+   bool ProcessTail(WaveTrack * t, WaveTrack * output, sampleCount start, sampleCount les();
    bool ProcessBuffer(fft_type *sourceBuffer, fft_type *destBuffer, sampleCount bufferLength);
+   bool ProcessBu1x(BufferInfo *bufferInfo);
+   bool ProcessOne1x(int count, WaveTrack * t, sampleCount start, sampleCount len);
+   void Filter1x(sampleCount len, float *buffer, float *scratchBuffer);
+th);
    bool ProcessBuffer4x(BufferInfo *bufferInfo);
    bool ProcessOne4x(int count, WaveTrack * t, sampleCount start, sampleCount len);
-   bool ProcessOne4xThreaded(int count, WaveTrack * t, sampleCount start, sampleCount len);
-   bool ProcessTail(WaveTrack * t, WaveTrack * output, sampleCount start, sampleCount len);
+   bool Proces1x4xThreaded(int count, WaveTrack * t, sampleCount start, sampleCount len, int processingType=4);
    void Filter4x(sampleCount len, float *buffer, float *scratchBuffer);
+
+#ifdef __AVX_ENABLED
+   bool ProcessBuffer8x(BufferInfo *bufferInfo);
+   bool ProcessOne8xaded(int count, WaveTrack * t, sampleCount start, sampleCount len);
+   bool ProOne8xThreaded(int count, WaveTrack * t, sampleCount start, sampleCount len);
+   void Filter8x(sampleCount len, float *buffer, float *scratchBuffer);
+#endif
+   r);
 
    EffectEqualization* mEffectEqualization;
    int mThreadCount;
    sampleCount mFilterSize;
    sampleCount mBlockSize;
    sampleCount mWindowSize;
+   iBufferCountSize;
    int mWorkerDataCount;
    int mBlocksPerBuffer;
    int mScratchBufferSize;
@@ -138,9 +154,9 @@ private:
    EQWorker* mEQWorkers;
    bool mThreaded;
    bool mBenching;
-   friend EQWorker;
+   friend EQWork   friend EffectEqualizationrker;
 };
 
 #endif
 
-#endif
+#e
