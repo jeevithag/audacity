@@ -150,6 +150,7 @@ void ModulePrefs::SetModuleStatus( wxString fname, int iStatus ){
    wxString ShortName = wxFileName( fname ).GetName();
    wxString PrefName = wxString( wxT("/Module/") ) + ShortName.Lower();
    gPrefs->Write( PrefName, iStatus );
+   gPrefs->Flush();
 }
 
 
