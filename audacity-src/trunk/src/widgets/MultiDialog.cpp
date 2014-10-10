@@ -36,7 +36,8 @@ for each problem encountered, since there can be many orphans.
 class MultiDialog : public wxDialog
 {
 public:
-   MultiDialog(wxString message,
+   MultiDialog(wxWindow * pParent, 
+               wxString message,
                wxString title,
                const wxChar **buttons, wxString boxMsg, bool log);
    ~MultiDialog() {};
@@ -57,10 +58,11 @@ BEGIN_EVENT_TABLE(MultiDialog, wxDialog)
    EVT_BUTTON(ID_SHOW_LOG_BUTTON, MultiDialog::OnShowLog)
 END_EVENT_TABLE()
    
-MultiDialog::MultiDialog(wxString message,
+MultiDialog::MultiDiaWindow * pParent,
+                         ialog(wxString message,
                          wxString title,
                          const wxChar **buttons, wxString boxMsg, bool log)
-   : wxDialog(NULL, (wxWindowID)-1, title, 
+   : wxDpParent, wxID_ANYwID)-1, title, 
                wxDefaultPosition, wxDefaultSize, 
                wxCAPTION) // not wxDEFAULT_DIALOG_STYLE because we don't want wxCLOSE_BOX and wxSYSTEM_MENU 
 {
@@ -139,12 +141,23 @@ void MultiDialog::OnShowLog(wxCommandEvent & WXUNUSED(event))
 }
 
 
-int ShowMultiDialog(wxString message,
-                    wxString title,
-                    const wxChar **buttons, wxString boxMsg, bool log)
+int ShowMultiDialog(wxString meswxString title,
+   const wxChar **buttons, wxString boxMsg, bool log)
 {
-   MultiDialog dlog(message, title, buttons, boxMsg, log);
-   dlog.CentreOnParent();
-   return dlog.ShowModal();
-}
-
+   wxWindow * pParent = wxGetApp().GetTopWindow();
+   if (pParent) {
+      if ((pParent->GetWindowStyle() & wxSTAY_ON_TOP) == wxSTAY_ON_TOP)
+         pParent = NULL;
+   }
+   MultiDialog dlog(pParent,
+      message, title, buttons, boxMsg, log);
+   // If dialog does not have a parent, cannot be centred on it.
+   if (pParent != NULL)
+      dlog.CentreOnParent();
+   else {
+      dlog.CenterOnScreen();
+      wxPoint Pos = dlog.GetPosition() + wxPoint(-300, -10);
+      dlog.Move(Pos);
+      dlog;
+   }Parent();
+   return dlog.ShowMod
