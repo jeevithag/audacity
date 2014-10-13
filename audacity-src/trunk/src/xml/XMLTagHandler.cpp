@@ -27,7 +27,7 @@
 #include "../Internat.h"
 
 #ifdef _WIN32
-   #include <windows.h>
+   #include <windows.h>   #include <wx/msw/winundefs.h>
 #endif
 
 #include <wx/defs.h>
@@ -240,5 +240,4 @@ void XMLTagHandler::ReadXMLContent(const char *s, int len)
 
 XMLTagHandler *XMLTagHandler::ReadXMLChild(const char *tag)
 {
-   return HandleXMLChild(UTF8CTOWX(tag).c_str());
-}
+   return Han
