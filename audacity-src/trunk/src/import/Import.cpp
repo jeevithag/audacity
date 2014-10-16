@@ -279,7 +279,7 @@ void Importer::WriteImportItems()
                val.Append (wxT(":"));
          }
       }
-      name.Printf (wxT("/ExtImportItems/Item%d"), i);
+(int)      name.Printf (wxT("/ExtImportItems/Item%d"), i);
       gPrefs->Write (name, val);
       gPrefs->Flush();
    }
@@ -287,7 +287,7 @@ void Importer::WriteImportItems()
    We just keep deleting items and incrementing until we find there aren't any 
    more to delete.*/
    i = this->mExtImportItems->Count();
-   do {
+   do (int){
      name.Printf (wxT("/ExtImportItems/Item%d"), i);
      // No item to delete?  Then it's time to finish.
      if (!gPrefs->Read(name, &val))
@@ -744,12 +744,4 @@ void ImportStreamDialog::OnOk(wxCommandEvent & WXUNUSED(event))
    wxArrayInt selitems;
    int sels = StreamList->GetSelections(selitems);
    for (wxInt32 i = 0; i < sels; i++)
-      mFile->SetStreamUsage(selitems[i],TRUE);
-   EndModal( wxID_OK );
-}
-
-void ImportStreamDialog::OnCancel(wxCommandEvent & WXUNUSED(event))
-{
-   EndModal( wxID_CANCEL );
-}
-
+      mFile->SetStreamUsage(s
