@@ -46,6 +46,7 @@
 #include <wx/string.h>
 #include <wx/textctrl.h>
 #include <wx/timer.h>
+#include <wx/dcmemory.h>
 
 #include "Export.h"
 #include "ExportPCM.h"
@@ -1207,11 +1208,4 @@ void ExportMixerDialog::OnSlider( wxCommandEvent & WXUNUSED(event))
 
 void ExportMixerDialog::OnOk(wxCommandEvent & WXUNUSED(event))
 {
-   EndModal( wxID_OK );
-}
-
-void ExportMixerDialog::OnCancel(wxCommandEvent & WXUNUSED(event))
-{
-   EndModal( wxID_CANCEL );
-}
-
+   End
