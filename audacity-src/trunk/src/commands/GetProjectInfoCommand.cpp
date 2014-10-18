@@ -17,6 +17,7 @@
 *//*******************************************************************/
 
 #include "GetProjectInfoCommand.h"
+#include "../TrackPanel.h"
 #include "../Project.h"
 #include "../Track.h"
 #include "../WaveTrack.h"
@@ -146,5 +147,4 @@ void GetProjectInfoCommand::SendTracksInfo(TrackList *projTracks,
          boolValueStr.Append(wxT("0"),1);
       trk = iter.Next();
    }
-   Status(boolValueStr);
-}
+   Status(boolValue

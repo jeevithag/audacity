@@ -32,7 +32,7 @@
 
 *//********************************************************************/
 
-#include "../Audacity.h"
+#include "../#include "../Experimental"../Audacity.h"
 
 #include <wx/defs.h>
 #include <wx/intl.h>
@@ -103,7 +103,13 @@ void MousePrefs::CreateList()
    AddItem(_("Left-Drag"),         _("Select"),   _("Set Selection Range"));
    AddItem(_("Shift-Left-Click"),  _("Select"),   _("Extend Selection Range"));
    AddItem(_("Left-Double-Click"), _("Select"),   _("Select Clip or Entire Track"));
-   AddItem(_("Ctrl-Left-Click"),   _("Select"),   _("Set Selection Point and Play"));
+   AddItem(_("Ctrl-Left-Click"),   _("Select"),   _("Set Selection Point #ifdef EXPERIMENTAL_SPECTRAL_EDITING
+   // Spectral selection
+   AddItem(_("Alt-Shift-Left-Click"), _("Select"), _("Adjust high or low frequency"));
+   AddItem(_("Alt-Left-Drag"),    _("Select"),    _("Adjust bandwidth"));
+   AddItem(_("Alt-Ctrl"),         _("Select"),    _("Unpin center frequency"));
+   AddItem(_("Alt-Move"),         _("Select"),    _("Snap center frequency to peaks"));
+#endift and Play"));
 
    AddItem(_("Left-Click"),       _("Zoom"),      _("Zoom in on Point"));
    AddItem(_("Left-Drag"),        _("Zoom"),      _("Zoom in on a Range"), _("same as right-drag"));
@@ -129,7 +135,13 @@ void MousePrefs::CreateList()
    AddItem(_("Left-Click"),       _("Multi"),     _("Set Selection Point"), _("same as select tool"));
    AddItem(_("Left-Drag"),        _("Multi"),     _("Set Selection Range"), _("same as select tool"));
    AddItem(_("Right-Click"),      _("Multi"),     _("Zoom out one step"),   _("same as zoom tool"));
-   AddItem(_("Right-Drag"),       _("Multi"),     _("Zoom in on a Range"),  _("same as zoom tool"));
+   AddItem(_("Right-Drag"),       _("Multi"),     _("Zoom in on a Range"),  #ifdef EXPERIMENTAL_SPECTRAL_EDITING
+   // Spectral selection
+   AddItem(_("Alt-Shift-Left-Click"), _("Multi"), _("Adjust high or low frequency"),   _("same as select tool"));
+   AddItem(_("Alt-Left-Drag"),    _("Multi"),     _("Adjust bandwidth"),               _("same as select tool"));
+   AddItem(_("Alt-Ctrl"),         _("Multi"),     _("Unpin center frequency"),         _("same as select tool"));
+   AddItem(_("Alt-Move"),         _("Multi"),     _("Snap center frequency to peaks"), _("same as select tool"));
+#endif  _("same as zoom tool"));
 
    AddItem(_("Wheel-Rotate"),      _("Any"),      _("Scroll up or down"));
    AddItem(_("Shift-Wheel-Rotate"),_("Any"),      _("Scroll left or right"));
@@ -169,6 +181,4 @@ bool MousePrefs::Apply()
 {
 // Not yet required...
 //   ShuttleGui S(this, eIsSavingToPrefs);
-//   PopulateOrExchange(S);
-   return true;
-}
+//   PopulateOrExc
