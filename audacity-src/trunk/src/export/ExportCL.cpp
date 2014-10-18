@@ -18,6 +18,7 @@
 #include <wx/combobox.h>
 #include <wx/log.h>
 #include <wx/process.h>
+#include <wx/sizer.h>
 #include <wx/textctrl.h>
 #include <FileDialog.h>
 #include "Export.h"
@@ -530,6 +531,4 @@ bool ExportCL::DisplayOptions(wxWindow *parent, int WXUNUSED(format))
 
 ExportPlugin *New_ExportCL()
 {
-   return new ExportCL();
-}
-
+   retur

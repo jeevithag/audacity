@@ -21,6 +21,8 @@
 class wxDialog;
 class wxWindow;
 
+#include "..Experimental.h"
+
 #include "../WaveTrack.h"
 #include "../Shuttle.h"
 #include "../ShuttleGui.h"
@@ -214,7 +216,10 @@ class AUDACITY_DLL_API Effect {
    TrackFactory   *mFactory;
    TrackList      *mTracks;      // the complete list of all tracks
    TrackList      *mOutputTracks; // used only if CopyInputTracks() is called.
-   double         mT0;
+   double        #ifdef EXPERIMENTAL_SPECTRAL_EDITING
+   double         mF0;
+   double         mF1;
+#endif  mT0;
    double         mT1;
    TimeWarper     *mWarper;
 

@@ -771,7 +771,23 @@ bool EffectNyquist::ProcessOne()
       nyx_set_audio_params(mCurTrack[0]->GetRate(), mCurLen);
 
       nyx_set_input_audio(StaticGetCallback, (void *)this,
-                          mCurNumChannels,
+                          mCurNumCha#ifdef EXPERIMENTAL_SPECTRAL_EDITING
+   {
+      static const wxString varName(wxT("*F0*"));
+      if (mF0 < 0)
+         cmd += wxString::Format(wxT("(setf %s nil)\n"), varName);
+      else
+         cmd += wxString::Format(wxT("(setf %s (float %g))\n"), varName, mF0);
+   }
+
+   {
+      static const wxString varName(wxT("*F1*"));
+      if (mF1 < 0)
+         cmd += wxString::Format(wxT("(setf %s nil)\n"), varName);
+      else
+         cmd += wxString::Format(wxT("(setf %s (float %g))\n"), varName, mF1);
+   }
+#endifhannels,
                           mCurLen, mCurTrack[0]->GetRate());
    }
 

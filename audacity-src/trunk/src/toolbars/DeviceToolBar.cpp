@@ -32,7 +32,7 @@
 #include "../AudacityApp.h"
 
 #include "DeviceToolBar.h"
-#include "ToolDock.h"
+#include "ToolDock.h"#include "../TrackPanelk.h"
 
 #include "../AColor.h"
 #include "../AllThemeResources.h"
