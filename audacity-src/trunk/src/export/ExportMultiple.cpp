@@ -786,7 +786,8 @@ int ExportMultiple::ExportMultipleByTrack(bool byName,
 
       if (byName) {
          name = title;
-         if (addNumber) {
+  
+				       if (addNumber) {
             name.Prepend(wxString::Format(wxT("%02d-"), l+1));
          }
       }

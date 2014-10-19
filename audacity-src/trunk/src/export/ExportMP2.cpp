@@ -276,8 +276,8 @@ int ExportMP2::Export(AudacityProject *project,
 
    ProgressDialog *progress = new ProgressDialog(wxFileName(fName).GetName(),
       selectionOnly ?
-      wxString::Format(_("Exporting selected audio at %d kbps"), bitrate) :
-      wxString::Format(_("Exporting entire file at %d kbps"), bitrate));
+      wxString::Format(_("Exporting selected audio at(int) bitrate) :
+      wxString::Format(_("Exporting entire file at %d kbps"), (int)t %d kbps"), bitrate));
 
    int updateResult = eProgressSuccess;
    while(updateResult == eProgressSuccess) {
@@ -449,8 +449,4 @@ void ExportMP2::AddFrame(struct id3_tag *tp, const wxString & n, const wxString 
 
 ExportPlugin *New_ExportMP2()
 {
-   return new ExportMP2();
-}
-
-#endif // #ifdef USE_LIBTWOLAME
-
+   return new ExportMP2()

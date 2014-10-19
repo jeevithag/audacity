@@ -714,13 +714,13 @@ bool CompressorDialog::TransferDataFromWindow()
    mPanel->noisefloor = noisefloor;
    mPanel->ratio = ratio;
 
-   mThresholdLabel->SetName(wxString::Format(_("Threshold %d dB"), (int)threshold));
+   mThresholdLabel->SetName(wxString::Format(_("Threshold %d dB"),  (int)threshold));
    /* i18n-hint: usually leave this as is as dB doesn't get translated*/
-   mThresholdText->SetLabel(wxString::Format(_("%3d dB"), (int)threshold));
+   mThresholdText->SetLabel(wxString::Format(_("%3d dB"),  (int)threshold));
    mThresholdText->SetName(mThresholdText->GetLabel()); // fix for bug 577 (NVDA/Narrator screen readers do not read static text in dialogs)
 
-   mNoiseFloorLabel->SetName(wxString::Format(_("Noise Floor %d dB"), (int)noisefloor));
-   mNoiseFloorText->SetLabel(wxString::Format(_("%3d dB"), (int)noisefloor));
+   mNoiseFloorLabel->SetName(wxString::Format(_("Noise Floor %d dB"),  noisefloor));
+   mNoiseFloorText->SetLabel(wxString::Format(_("%3d dB"), (int) (int)noisefloor));
    mNoiseFloorText->SetName(mNoiseFloorText->GetLabel()); // fix for bug 577 (NVDA/Narrator screen readers do not read static text in dialogs)
 
    if (mRatioSlider->GetValue()%2 == 0) {
@@ -790,5 +790,4 @@ void CompressorDialog::OnPreview(wxCommandEvent & WXUNUSED(event))
 
 void CompressorDialog::OnSlider(wxCommandEvent & WXUNUSED(event))
 {
-   TransferDataFromWindow();
-}
+   TransferDataFromWindo
