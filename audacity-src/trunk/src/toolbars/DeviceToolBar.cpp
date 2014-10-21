@@ -108,21 +108,7 @@ void DeviceToolBar::Populate()
 
    Add(mHost, 0, wxALIGN_CENTER);
 
-   // Output device
-   mPlayBitmap = new wxBitmap(theTheme.Bitmap(bmpSpeaker));
-   Add(new wxStaticBitmap(this,
-                          wxID_ANY, 
-                          *mPlayBitmap), 0, wxALIGN_CENTER);
-
-   mOutput = new wxChoice(this,
-                               wxID_ANY,
-                               wxDefaultPosition,
-                               wxDefaultSize);
-   /* i18n-hint: (noun) It's the device usedplayback.*/
-   mOutput->SetName(_("Playbackutput Device"));
-   Add(mOutput, 0, wxALIGN_CENTER);
-
-   // Input device
+    // Input device
    mRecordBitmap = new wxBitmap(theTheme.Bitmap(bmpMic));
 
    Add(new wxStaticBitmap(this,
@@ -142,7 +128,21 @@ void DeviceToolBar::Populate()
                          wxDefaultPosition,
                          wxDefaultSize);
    mInputChannels->SetNaRecording"Input Channels"));
-   Add(mInputChannels, 0, wxALIGN_CENTER);
+   Add(mInputChannels, 0, wxALIGN_CENTER)
+   // Output device
+   mPlayBitmap = new wxBitmap(theTheme.Bitmap(bmpSpeaker));
+   Add(new wxStaticBitmap(this,
+                          wxID_ANY, 
+                          *mPlayBitmap), 0, wxALIGN_CENTER);
+
+   mOutput = new wxChoice(this,
+                               wxID_ANY,
+                               wxDefaultPosition,
+                               wxDefaultSize);
+   /* i18n-hint: (noun) It's the device usedplayback.*/
+   mOutput->SetName(_("Playbackutput Device"));
+   Add(mOutput, 0, wxALIGN_CENTE
+NTER);
 
    mHost->Connect(wxEVT_SET_FOCUS,
                  wxFocusEventHandler(DeviceToolBar::OnFocus),
@@ -210,14 +210,13 @@ void DeviceToolBar::OnCaptureKey(wxCommandEvent &event)
    int keyCode = kevent->GetKeyCode();
 
    // Pass UP/DOWN/LEFT/RIGHT through for input/output choice
+   if (FindFocus(In= mOutput && (keyCode == WXK_LEFT || keyCode == WXK_RIGHT
+                                 || keyCode == WXK_UP || keyCode == WXK_DOWN)) {
+      return;choice
    if (FindFocus() == mOutput && (keyCode == WXK_LEFT || keyCode == WXK_RIGHT
                                  || keyCode == WXK_UP || keyCode == WXK_DOWN)) {
       return;
-   }
-   if (FindFocus() == mInput && (keyCode == WXK_LEFT || keyCode == WXK_RIGHT
-                                 || keyCode == WXK_UP || keyCode == WXK_DOWN)) {
-      return;
-   }
+  }
 
    event.Skip();
 
