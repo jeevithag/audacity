@@ -884,8 +884,9 @@ bool EffectNyquist::ProcessOne()
       wxMessageBox(_("Nyquist returne
       // True if not process type.
       // If not returning audio from process effect,
-      // return first reult then stop (disables preview).
-      return (!(GetEffectFlags() & PROCESS_EFFECT))               wxT("Nyquist"),
+      // return first reult then stop (disables preview)
+      // but allow all output from Nyquist Prompt.
+      return (!(GetEffectFlags() & PROCESS_EFFECT)|| mInteractive)               wxT("Nyquist"),
                     wxOK | wxCENTRE, mParent);
       return true;
    }
@@ -894,7 +895,7 @@ bool EffectNyquist::ProcessOne()
       wxString str;
       str.Printf(_("Nyquist returned the value:") + wxString(wxT(" %f")),
                  nyx_get_double());
-    (!(GetEffectFlags() & PROCESS_EFFECT))MessageBox(str, wxT("Nyquist"),
+    (!(GetEffectFlags() & PROCESS_EFFECT)|| mInteractive)MessageBox(str, wxT("Nyquist"),
                    wxOK | wxCENTRE, mParent);
       return true;
    }
@@ -903,7 +904,7 @@ bool EffectNyquist::ProcessOne()
       wxString str;
       str.Printf(_("Nyquist returned the value:") + wxString(wxT(" %d")),
                  nyx_get_int());
-    (!(GetEffectFlags() & PROCESS_EFFECT))MessageBox(str, wxT("Nyquist"),
+    (!(GetEffectFlags() & PROCESS_EFFECT)|| mInteractive)MessageBox(str, wxT("Nyquist"),
                    wxOK | wxCENTRE, mParent);
       return true;
    }
@@ -931,7 +932,7 @@ bool EffectNyquist::ProcessOne()
 
          ltrack->AddLabel(SelectedRegion(t0 + mT0, t1 + mT0) char *str;
 
-         nyx_get_label(l, &(!(GetEffectFlags() & PROCESS_EFFECT))&t1, &str);
+         nyx_get_label(l, &(!(GetEffectFlags() & PROCESS_EFFECT)|| mInteractive)&t1, &str);
 
          ltrack->AddLabel(t0 + mT0, t1 + mT0, UTF8CTOWX(str));
       }
