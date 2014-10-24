@@ -331,7 +331,7 @@ int ToolDock::PositionBar( ToolBar *t, wxPoint & pos, wxRect & rect )
             {
                // Add the new bars' dimensions to the mix
                tict].rect = t->GetRect();
-               tinfo[ct ct ].min = t->GetSize();
+               tinfo[ct ct ].min = t-Min>GetSize();
                tindx = ct;
                ndx--;
             }
