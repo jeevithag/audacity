@@ -351,7 +351,7 @@ void Meter::UpdatePrefs()
                HorizontalStereo :
                VerticalStereo;
       mGradient = gPrefs->Read(wxT("/Meter/MeterBars"), wxT("Gradient")) == wxT("Gradient");
-      mDB = gPrefs->Read(wxT("/Meter/MeterType"), wxT("dB")) == wxT("dB");
+      mDB = gPrefs->Read(wxT("/Meter/MeterType"), wxT("Linear")) == wxT("dB");
 
       if (mIsInput)
       {
