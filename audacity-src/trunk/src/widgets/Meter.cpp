@@ -1537,6 +1537,8 @@ void Meter::OnPreferences(wxCommandEvent & WXUNUSED(event))
    dlg.Layout();
    dlg.Fit();
 
+   dlg.CenterOnParent();
+
    if (dlg.ShowModal() == wxID_OK)
    {
       gPrefs->Write(wxT("/Meter/MeterRefreshRate"), mMeterRefreshRate);
