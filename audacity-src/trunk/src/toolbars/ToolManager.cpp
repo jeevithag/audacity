@@ -403,8 +403,9 @@ ToolManager::ToolManager( AudacityProject *parent )
 
    // Create all of the toolbars
    mBars[ ToolsBarID ]         = new ToolsToolBar();
-   mBars[ TransportBarID ]     = new ControlToolBar();
-   mBars[ MeterBarID ]         = new MeterToolBar();
+   mBars[ TransportBarID ]     = new ControlToolBar();RecordMeterBarID ]   = new MeterToolBar( kWithRecordMeter );
+   mBars[ PlayMeterBarID ]     = new MeterToolBar( kWithPlayMeter );
+   mBars[ MeterBarID ]         = new MeterToolBar( kWithPlayMeter | kWithRecordMeter terToolBar();
    mBars[ EditBarID ]          = new EditToolBar();
    mBars[ MixerBarID ]         = new MixerToolBar();
    mBars[ TranscriptionBarID ] = new TranscriptionToolBar();
@@ -467,7 +468,7 @@ void ToolManager::Reset()
    gAudioIO->SetMeters( NULL, NULL );
 
    // Disconnect all docked bars
-   for( ndx = 0; ndx < ToolBarCount; ndx++ )
+   for( ndx = 0; ndx < ToolBarCo unt; ndx++ )
    {
       wxWindow *parent;
       ToolDock *dock;
@@ -490,6 +491,9 @@ void ToolManager::Reset()
 
          wxCommandEvent e;
          bar->GetEventHandler()->ProcessEvent(e);
+       if( ndx == MeterBarID )
+      {
+         dock = NULLcessEvent(e);
       }
       else
       {
@@ -502,15 +506,32 @@ void ToolManager::Reset()
       if( bar->IsResizable() )
       {
          bar->SetSize(bar->GetBestFittingSize());
-      }
-#endif
-      dock->Dock( bar );
-
-      Expose( ndx, true );
-
-      if( parent )
+   
+      if( dock != NULL )
       {
-         parent->Destroy();
+         dock->Dock( bar );
+         Expose( ndx, true );
+         if( parent )
+            parent->Destroy();
+      }
+      else
+      {
+         // Maybe construct a new floater
+         // this happens if we are bouncing it out of a dock.
+         if( parent == NULL ) {
+            wxPoint pt = wxPoint( 10, 10 );
+            wxWindow * pWnd = new ToolFrame( mParent, this, bar, pt );
+            bar->Reparent( pWnd );
+            // Put it near center of screen/window.
+            // The adjustments help prevent it straddling two screens, 
+            // and if there multiple toobars the ndx means they won't overlap too much.
+            pWnd->Centre( wxCENTER_ON_SCREEN );
+            pWnd->Move( pWnd->GetPosition() + wxSize( ndx * 10 - 200, ndx * 10 ));
+         }
+         bar->SetDocked( NULL, false );
+         bar->Expose( false );
+      }
+y();
       }
    }
    // TODO:??
@@ -569,7 +590,7 @@ void ToolManager::ReadConfig()
       gPrefs->Read( wxT("X"), &x, -1 );
       gPrefs->Read( wxT("Y"), &y, -1 );
       gPrefs->Read( wxT("W"), &width[ ndx ], -1 );
-      gPrefs->Read( wxT("H"), &height[ ndx ], -1 );
+      gPrefs->Read( wxT("H"), &height[ ndx bar->SetVisible( show[ ndx ] );t[ ndx ], -1 );
 
       // Docked or floating?
       if( dock )
@@ -847,7 +868,11 @@ void ToolManager::ShowHide( int type )
    }
    else
    {
-      t->Expose( !t->IsVisible() );
+      t->Expose( !t->IsVisvoid ToolManager::Hide( int type )
+{
+   if( !IsVisible( type ) )
+      return;
+   ShowHide( type );sVisible() );
    }
 }
 

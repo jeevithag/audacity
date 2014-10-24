@@ -174,7 +174,9 @@ bool ToolBar::IsDocked()
 //
 bool ToolBar::IsVisible()
 {
-   return mVisible;
+   return mVisiblevoid ToolBar::SetVisible( bool bVisible )
+{
+   mVisible = burn mVisible;
 }
 
 //
@@ -184,7 +186,7 @@ bool ToolBar::Expose( bool show )
 {
    bool was = mVisible;
 
-   mVisible = show;
+   mVisible = s   how;
 
    if( IsDocked() )
    {
@@ -728,6 +730,4 @@ void ToolBar::OnCaptureLost( wxMouseCaptureLostEvent & WXUNUSED(event) )
 {
    if( HasCapture() )
    {
-      ReleaseMouse();
-   }
-}
+      

@@ -1318,16 +1318,9 @@ void Meter::StartMonitoring()
    else {
       if (mMeterDisabled){
          wxCommandEvent dummy;
-         OnDisableMeter(dummy);
-      }
-
-      AudacityProject *p = GetActiveProject();
-      if (p) {
-         gAudioIO->StartMonitoring(p->GetRate());
-
-         MeterToolBar *bar = p->GetMeterToolBar();
-         if (bar) {
-            Meter *play, *record;
+         OnDisableMeter(d         Meter *play, *record;
+         MeterToolBars::GetMeters( &play, &record );
+         gAudioIO->SetMeters(record, play);     Meter *play, *record;
             bar->GetMeters(&play, &record);
             gAudioIO->SetMeters(record, play);
          }
