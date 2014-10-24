@@ -106,6 +106,13 @@ bool Effect::DoEffect(wxWindow *parent, int flags,
    mT1 = *t1;#ifdef EXPERIMENTAL_SPECTRAL_EDITING
    mF0 = selectedRegion->f0();
    mF1 = selectedRegion->f1();
+   wxArrayString Names;
+   if( mF0 != SelectedRegion::UndefinedFrequency )
+      Names.Add(wxT("control-f0"));
+   if( mF1 != SelectedRegion::UndefinedFrequency )
+      Names.Add(wxT("control-f1"));
+   SetPresetParameters( &Names, NULL );
+
 #endif;
    CountWaveTracks();
 

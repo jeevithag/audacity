@@ -121,6 +121,9 @@ class AUDACITY_DLL_API Effect {
    // Called to set or retrieve parameter values.  Return true if successful.
    virtual bool TransferParameters( Shuttle & WXUNUSED(shuttle) ) {
       return true;
+PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
+      if( Names ) mPresetNames = *Names;
+      if( Values ) mPresetValues = *Values      return true;
    }
 
    void SetEffectFlags( int NewFlags )
@@ -220,7 +223,9 @@ class AUDACITY_DLL_API Effect {
    double         mF0;
    double         mF1;
 #endif  mT0;
-   double         mT1;
+   double         mT1;   wxArrayString  mPresetNames;
+   wxArrayString  mPresetValues;
+;
    TimeWarper     *mWarper;
 
  //

@@ -332,7 +332,10 @@ void EffectNyquist::Parse(wxString line)
          ctrl.highStr = tokens[7];
       }
 
-      ctrl.val = UNINITIALIZED_CONTROL;
+      if( mPresetNames.Index( ctrl.var ) == wxNOT_FOUND )
+      {
+         mControls.Add(ctrl);
+      }IZED_CONTROL;
 
       mControls.Add(ctrl);
    }
@@ -571,14 +574,19 @@ bool EffectNyquist::PromptUser()
       }
 
       Preview()wxOK | wxCENTRE);
-            return false;
+            retur//TODO: re-instate the caching of the lisp parsing so it is only done once.
+      //small efficiency gain.
+      //Disabled for now in order to allow number of controls to be varied easily
+      //depending on whether time or time-and-frequency were selected.
+      //n false;
          }
       }
 
       return true;
    }
 
-   if (!mExternal) {
+   if (!mE
+     External) {
       if (mFileName.GetModificationTime().IsLaterThan(mFileModified)) {
          ParseFile();
          mFileModified = mFileName.GetModificationTime();
