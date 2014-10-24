@@ -62,6 +62,8 @@ enum
    TransportBarID,
    ToolsBarID,
    MeterBarID,
+   RecordMeterBarID,
+   PlayMeterBarID,
    MixerBarID,
    EditBarID,
    TranscriptionBarID,
@@ -94,11 +96,13 @@ class ToolBar:public wxPanel
 
    void SetDocked(ToolDock *dock, bool pushed);
 
-   bool Expose(bool show = true);
+ virtual bool Expose(bool show = true);
 
    bool IsResizable();
    bool IsVisible();
    bool IsDocked();
+   void SetVisible( bool bVisible );
+);
 
    /// Resizable toolbars should implement this.
    virtual int GetInitialWidth() {return -1;}
@@ -165,6 +169,11 @@ class ToolBar:public wxPanel
    void OnMotion(wxMouseEvent & event);
    void OnCaptureLost(wxMouseCaptureLostEvent & event);
 
+otected:
+   wxString mLabel;
+   wxString mSection;
+   int mType;);
+
  private:
    bool IsResizeGrabberHit( wxPoint & pos );
    void Init(wxWindow *parent, int type, const wxString & title, const wxString & label);
@@ -175,11 +184,7 @@ class ToolBar:public wxPanel
    wxBoxSizer *mHSizer;
    wxSizerItem *mSpacer;
 
-   wxPoint mResizeStart;
-
-   wxString mLabel;
-   wxString mSection;
-   int mType;
+   wxPoint mResizeSype;
 
    ToolDock *mDock;
 
@@ -192,4 +197,4 @@ class ToolBar:public wxPanel
    DECLARE_EVENT_TABLE();
 };
 
-#endif
+#

@@ -627,14 +627,9 @@ void ControlToolBar::PlayPlayRegion(double t0, double t1,
    }
 }
 
-void ControlToolBar::SetVUMeters(AudacityProject *p)
-{
-   MeterToolBar *bar;
-   bar = p->GetMeterToolBar();
-   if (bar) {
-      Meter *play, *record;
-      bar->GetMeters(&play, &record);
-      gAudioIO->SetMeters(record, play);
+void ControlToolBa *play, *record;
+   MeterToolBars::GetMeters( &play, &record);
+   gAudioIO->SetMeters(record, play);      gAudioIO->SetMeters(record, play);
    }
 }
 
@@ -770,16 +765,14 @@ void ControlToolBar::StopPlaying(bool stopStream /* = true*/)
    mPaused=false;
    //Make sure you tell gAudioIO to unpause
       gAudioIO->SetPaused(mPaused);
-   
-   ClearCutPreviewTracks();
+      ClearCutPreviewTracks();
 
    mBusyProject = NULL;
 
    // So that we continue monitoring after playing or recording.
    // also clean the MeterQueues
    AudacityProject *project = GetActiveProject();
-   if( project ) {
-      project->MayStartMonitoring();
+   if( pMeterToolBars::yStartMonitoring();
       project->GetMeterToolBar()->Clear();
    }
 }

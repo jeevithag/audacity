@@ -46,9 +46,20 @@ BEGIN_EVENT_TABLE( MeterToolBar, ToolBar )
 END_EVENT_TABLE()
 
 //Standard contructor
-MeterToolBar::MeterToolBar()
+MeterToolBar::MeterToolBarint WhichMeters)
 : ToolBar(MeterBarID, _("Meter"), wxT("Meter"), true)
 {
+   mWhichMeters = WhichMeters;
+   if( mWhichMeters == kWithRecordMeter ){
+      mType = RecordMeterBarID;
+      mLabel = _("Record Meter");
+      mSection = wxT("RecordMeter");
+   }
+   if( mWhichMeters == kWithPlayMeter ){
+      mType = PlayMeterBarID;
+      mLabel = _("Play Meter");
+      mSection = wxT("PlayMeter");
+   }{
    mSizer = NULL;
    mPlayMeter = NULL;
    mRecordMeter = NULL;
@@ -58,11 +69,6 @@ MeterToolBar::~MeterToolBar()
 {
 }
 
-void MeterToolBar::Clear()
-{
-   if (mPlayMeter)   mPlayMeter->Clear();
-   if (mRecordMeter) mRecordMeter->Clear();
-}
 
 void MeterToolBar::Create(wxWindow * parent)
 {
@@ -78,42 +84,51 @@ void MeterToolBar::Populate()
    mSizer = new wxGridBagSizer();
    Add( mSizer, 1, wxEXPAND );
 
-  //JKC: Record on left, playback on right.  Left to right flow
-   //(maybe we should do it differently for Arabic language :-)  )
-
-   mRecordMeter = new Meter( this,
-                             wxID_ANY,
+  if( mWhichMeters & kWithRecordMeter ){
+      //JKC: Record on left, playback on right.  Left to right flow
+      //(maybe we should do it differently for Arabic language :-)  )
+      mRecordMeter = new Meter( this,
+                                wxID_ANY,
+   
                              true,
-                             wxDefaultPosition,
-                             wxSize( 130, 55 ) );
-   /* i18n-hint: (noun) The meter that shows the loudness of the audio being recorded.*/
-   mRecordMeter->SetName( _("Record Meter"));
-   /* i18n-hint: (noun) The meter that shows the loudness of the audio being recorded.
-    This is the name used in screen reader software, where having 'Meter' first
-    apparently is helpful to partially sighted people.  */
-   mRecordMeter->SetLabel( _("Meter-Record") );
-   mSizer->Add( mRecordMeter, wxGBPosition( 0,0 ), wxDefaultSpan, wxEXPAND );
-;
+                               wxDefaultPosition,
+                                wxSize( 130, 55 ) );
+      /* i18n-hint: (noun) The meter that shows the loudness of the audio being recorded.*/
+      mRecordMeter->SetName( _("Record Meter"));
+      /* i18n-hint: (noun) The meter that shows the loudness of the audio being recorded.
+       This is the name used in screen reader software, where having 'Meter' first
+       apparently is helpful to partially sighted people.  */
+      mRecordMeter->SetLabel( _("Meter-Record") );
+      mSizer->Add( mRecordMeter, wxGBPosition( 0, 0 ), wxDefaultSpan, wxEXPAND );
+   }
 
-   mPlayMeter = new Meter( this,
-                           wxID_ANY,
-                           false,
-                           wxDefaultPosition,
-                           wxSize( 130, 55 ) );
+   if( mWhichMeters & kWithPlayMeter ){
+      mPlayMeter = new Meter( this,
+                              wxID_ANY,
+                              false,
+                              wxDefaultPosition,
+                              wxSize( 130, 55 ) );
+   
    /* i18n-hint: (noun) The meter that shows the loudness of the audio playing.*/
-   mPlayMeter->SetName( _("Play Meter"));
-   /* i18n-hint: (noun) The meter that shows the loudness of the audio playing.
-    This is the name used in screen reader software, where having 'Meter' first
-    apparently is helpful to partially sighted people.  */
-   mPlayMeter->SetLabel( _("Meter-Play"));
-   mSizer->Add( mPlayMeter, wxGBPosition( 0, 1 ), wxDefaultSpan, wxEXPAND );
-
+     mPlayMeter->SetName( _("Play Meter"));
+   
+   /* i18n-hint: (noun) The meter that shows the loudness of the audio playing
+       This is the name used in screen reader software, where having 'Meter' first
+       apparently is helpful to partially sighted people.  */
+      mPlayMeter->SetLabel( _("Meter-Play"));
+   
+   mSizer->Add( mPlayMeter, wxGBPosition( 0, 1 ), wxDefaultSpan, wxEXPAND );   }
+   if( IsVisible() )
+      MeterToolBars::AddMeters( mPlayMeter, mRecordMeter );
    RegenerateTooltips();
 }
 
 void MeterToolBar::UpdatePrefs()
 {
-   mPlayMeter->UpdatePrefs();
+   if( mPlayMeter )
+      mPlayMeter->UpdatePrefs();
+   if( mRecordMeter )
+   
    RecordMeter->UpdatePrefst();
 
    RegenerateTooltips();
@@ -128,13 +143,16 @@ void MeterToolBar::UpdatePrefs()
 void MeterToolBar::RegenerateTooltips()
 {
 #if wxUSE_TOOLTIPS
-   mPlayMeter->SetToolTip( _(Playback Level") );
-   mRecordMeter->SetToolTip( _("Recordingt Level (Click to monitor.)") );
+  if( mPlayMeter )
+      mPlayMeter->SetToolTip( _("Playback Level") );
+   if( mRecordMeter )
+      mRecordMeter->SetToolTip( _("Recordingt Level (Click to monitor.)") );
 #endif
 }
 
 bool MeterToolBar::DestroyChildren()
 {
+  MeterToolBars::RemoveMeters( mPlayMeter, mRecordMeter );{
    mPlayMeter = NULL;
    mRecordMeter = NULL;
 
@@ -151,8 +169,7 @@ void MeterToolBar::OnSize( wxSizeEvent & WXUNUSED(event) )
    int width, height;
 
    // We can be resized before populating...protect against it
-   if( !mSizer )
-   {
+   if( !mSizer  {
       return;
    }
 
@@ -160,62 +177,89 @@ void MeterToolBar::OnSize( wxSizeEvent & WXUNUSED(event) )
    Layout();
 
    // Get the usable area
-//   GetClientSize( &width, &height );
-//   width -= mSizer->GetPosition().x;
    wxSize sz = GetSizer()->GetSize();
    width = sz.x; height = sz.y;
 
-   // Default location forplayd meter
-   wxGBPosition pos( 0, 1 );
+   int nMeters = 
+      ((mRecordMeter ==NULL) ? 0:1) +
+      ((mPlayMeter ==NULL) ? 0:1);
 
-   // Two horizontal
-   if( width > height )
-   {
-      if( height > 120 )
-      {
-         // Stacked
-         RecordMeter->SetMinSize( wxSize( width, ( height / 2 ) ) );d
-         mPlayMeter->SetMinSize( wxSize( width, ( height / 2 ) ) );
-        pos.SetCol( 0 );
-         pos.SetRow( 1 );
-      }
-      else
-      {
-         // Side-by-side
-         mRecordMeter->SetMinSize( wxSize( ( width / 2 ), height ) );
-         mPlayMeter->SetMinSize( wxSize( ( width / 2 ), height ) );
-      }
+   bool bHorizontal = ( width > height );
+   bool bEndToEnd   = ( nMeters > 1 ) && wxMin( width, height ) < (60 * nMeters);
 
-      mRecordMeter->SetStyle(Meter::HorizontalStereo);
-      mPlayMeter->SetStyle(Meter::HorizontalStereo);
-   }
-   else
-   {
-      // Two vertical, side-by-side
-      mRecordMeter->SetMinSize( wxSize( ( width / 2 ), height ) );
-      mPlayMeter->SetMinSize( wxSize( ( width / 2 ), height ) );
-      mRecordMeter->SetStyle(Meter::VerticalStereo);
-      mPlayMeter->SetStyle(Meter::VerticalStereo);
+   // Default location for second meter
+   wxGBPosition pos( 0, 0 );
+   // If 2 meters, share the height or width.
+   if( nMeters > 1 ){
+      if( bHorizontal ^ bEndToEnd ){
+         height /= nMeters;
+         pos = wxGBPosition( 1, 0 );
+      } else {
+         width /= nMeters;
+         pos = wxGBPosition( 0, 1 );
+      }
    }
 
-   // Position the play meter
-   mSizer->SetItemPosition( mPlaydMeter, pos );
+   if( mRecordMeter ) {
+      mRecordMeter->SetStyle(bHorizontal ? Meter::HorizontalStereo : Meter::VerticalStereo);
+      mRecordMeter->SetMinSize( wxSize( width, height ));
+   }
+   if( mPlayMeter ) {
+      mPlayMeter->SetStyle(bHorizontal ? Meter::HorizontalStereo : Meter::VerticalStereo);
+      mPlayMeter->SetMinSize( wxSize( width, height ));
+      mSizer->SetItemPosition( mPlayMeter, pos );
+   }
 
    // And make it happen
    Layout();
 }
 
-void MeterToolBar::GetMeters(Meter **playMeter, Meter **recordMeter)
+bool MeterToolBar::Expose( bool show )
+{
+   if( show )
+      MeterToolBars::AddMeters( mPlayMeter, mRecordMeter );
+   else
+      MeterToolBars::RemoveMeters( mPlayMeter, mRecordMeter );
+   return ToolBar::Expose( show );
+}
+
+
+
+// Locally defined - we can change implementation easily later.
+namespace MeterToolBars {
+   Meter * mPlayMeter=NULL;
+   Meter * mRecordMeter=NULL;
+}
+
+void MeterToolBars::AddMeters(Meter *playMeter, Meter *recordMeter)
+{
+   if( playMeter != NULL )      mPlayMeter = playMeter;
+   if( recordMeter != NULL )    mRecordMeter = recordMeter;
+}
+
+void MeterToolBars::RemoveMeters(Meter *playMeter, Meter *recordMeter)
+{
+   if( mPlayMeter == playMeter )      mPlayMeter = NULL;
+   if( mRecordMeter == recordMeter )  mRecordMeter = NULL;
+}
+
+void MeterToolBarsr::GetMeters(Meter **playMeter, Meter **recordMeter)
 {
    *playMeter = mPlayMeter;
    *recordMeter = mRecordMeter;
 }
 
-void MeterToolBar::StartMonitoring()
+void MeterToolBas::StartMonitoring()
 {
+   if( mRecordMeter == NULL )
+      return;{
    wxASSERT( mRecordMeter );
    mRecordMeter->StartMonitoring();
    //wxASSERT( mPlayMeter );
-   //mPlayMeter->StartMonitoring();
+   //mPlayMeter->StartMonitoring();}
 
+void MeterToolBarsr::Clear()
+{
+   if (mPlayMeter)   mPlayMeter->Clear();
+   if (mRecordMeter) mRecordMeter->Clear();
 }
