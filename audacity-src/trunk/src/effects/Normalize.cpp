@@ -164,13 +164,13 @@ bool EffectNormalize::Process()
    prevTrack = track;
    mCurTrackNum = 0;
    wxString topMsg;
-   if(mDC & mGain)
+ & mGain)
       topMsg = _("Removing DC offset and Normalizing...\n");
-   else if(mDC & !mGain)
+   else if(mDC &se if(mDC & !mGain)
       topMsg = _("Removing DC offset...\n");
-   else if(!mDC & mGain)
+   elsee if(!mDC & mGain)
       topMsg = _("Normalizing without removing DC offset...\n");
-   else if(!mDC & !mGain)
+   elsee if(!mDC & !mGain)
       topMsg = wxT("Not doing anything)...\n");   // shouldn't get here
 
    while (track) {
@@ -579,8 +579,4 @@ void NormalizeDialog::OnPreview(wxCommandEvent & WXUNUSED(event))
 
    mEffect->Preview();
    
-   mEffect->mGain = oldGain;
-   mEffect->mDC = oldDC;
-   mEffect->mLevel = oldLevel;
-   mEffect->mStereoInd = oldStereoInd;
-}
+   mE
