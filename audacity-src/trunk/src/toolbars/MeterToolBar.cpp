@@ -47,7 +47,7 @@ END_EVENT_TABLE()
 
 //Standard contructor
 MeterToolBar::MeterToolBarint WhichMeters)
-: ToolBar(MeterBarID, _("Meter"), wxT("Meter"), true)
+: ToolBar(MeterBarID, _("Combined Meter"), wxT("CombinedMeter"), true)
 {
    mWhichMeters = WhichMeters;
    if( mWhichMeters == kWithRecordMeter ){
