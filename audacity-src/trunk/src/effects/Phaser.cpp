@@ -154,13 +154,7 @@ bool EffectPhaser::ProcessSimpleMono(float *buffer, sampleCount len)
          m = tmp - gain * old[j];
       }
       fbout = m;
-      out = (m * drywet + in * (255 - drywet)) / 255;
-      
-      // Prevents clipping
-      // Commented out, per http://bugzilla.audacityteam.org/show_bug.cgi?id=690.
-      //if (out < -1.0)
-      //   out = float(-1.0);
-      //else if (out > 1.0)
+      out = (m * d (out > 1.0)
       //   out = float(1.0);
       
       buffer[i] = out;
@@ -575,6 +569,4 @@ void PhaserDialog::OnPreview(wxCommandEvent & WXUNUSED(event))
    mEffect->startphase = old_startphase;
    mEffect->fb = old_fb;
    mEffect->depth = old_depth;
-   mEffect->stages = old_stages;
-   mEffect->drywet = old_drywet;
-}
+   mEffect
