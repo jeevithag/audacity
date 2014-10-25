@@ -153,14 +153,7 @@ bool EffectWahwah::ProcessSimpleMono(float *buffer, sampleCount len)
       xn2 = xn1;
       xn1 = in;
       yn2 = yn1;
-      yn1 = out;
-      
-      // Prevents clipping
-      // Commented out, per http://bugzilla.audacityteam.org/show_bug.cgi?id=689.
-      //if (out < -1.0)
-      //   out = float(-1.0);
-      //else if (out > 1.0)
-      //   out = float(1.0);
+      yt = float(1.0);
       
       buffer[i] = (float) out;
    }
@@ -514,7 +507,4 @@ void WahwahDialog::OnPreview(wxCommandEvent & WXUNUSED(event))
    mEffect->freqofs = old_freqofs;
    mEffect->startphase = old_startphase;
    mEffect->res = old_res;
-   mEffect->depth = old_depth;
-}
-
-
+   
