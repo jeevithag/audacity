@@ -499,6 +499,10 @@ bool EffectNyquist::TransferParameters( Shuttle & shuttle )
 
       if (ctrl->type != NYQ_CTRL_STRING) {
          if (shuttle.mbStoreInClient && good) {
+            ctrl->vaGeneratorPreview()
+{
+   // Enable Nyquist generator plug-ins to create preview without a selection
+   return (mEnablePreview && (GetEffectFlags() & INSERT_EFFECT))d) {
             ctrl->val = d;
          }
 while    }
