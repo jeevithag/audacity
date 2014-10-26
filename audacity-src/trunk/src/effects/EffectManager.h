@@ -17,12 +17,15 @@ registers and unregisters effects and can return filtered lists of
 effects.
 
 *//*******************************************************************/
-
-
 #ifndef __AUDACITY_EFFECTMANAGER__
 #define __AUDACITY_EFFECTMANAGER__
 
 #include <map>
+#include <string>
+#include <vector>
+
+#include "audacity/EffectInterface.h"
+#include "../PluginManager.h"
 
 #include "Effect.h"
 
@@ -31,9 +34,15 @@ effects.
 #endif
 
 WX_DEFINE_USER_EXPORTED_ARRAY(Effect *, EffectArray, class AUDACITY_DLL_API);
+#if defined(EXPERIMENTAL_EFFECTS_RACK)
+class EffectRack;
+#endif
 
-
-class AUDACITY_DLL_API EffectManager {
+class AUDACITY_DLL_API EffectManager
+{
+#if defined(EXPERIMENTAL_EFFECTS_RACK)
+ friend class EffectRack;
+#endif{
    
  public:
    
@@ -58,20 +67,45 @@ class AUDACITY_DLL_API EffectManager {
    void RegisterEffect(Effect *f, int AdditionalFlags=0);
    
    /** Unregister all effects. */
-   void UnregisterEffects();
-   
-   /** Return an effect by its numerical ID. */
-   Effect *GetEffect(int ID);
-   
-   Effect* GetEffectByIdentifier(const wxString strTarget, const int kFlags = ALL_EFFECTS);
+   void UnregisterEffeun an effect given the plugin ID */
+   // Returns true on success.  Will only operate on tracks that
+   // have the "selected" flag set to true, which is consistent with
+   // Audacity's standard UI.
+   bool DoEffect(const PluginID & ID,
+                 wxWindow *parent,
+                 int flags,
+                 double projectRate,
+                 TrackList *list,
+                 TrackFactory *factory,
+                 SelectedRegion *selectedRegion,
+                 wxString params);
 
-   /** Return the number of registered effects. */
-   int GetNumEffects();
-   
-   /** Returns a sorted array of effects, which may be filtered
-       using the flags parameter.  The caller should dispose
-       of the array when done. */
-   EffectArray *GetEffects(int flags = ALL_EFFECTS);
+   wxString GetEffectName(const PluginID & ID);
+   wxString GetEffectIdentifier(const PluginID & ID);
+   wxString GetEffectDescription(const PluginID & ID);
+
+   /** Support for batch commands */
+   wxString GetEffectParameters(const PluginID & ID);
+   bool SetEffectParameters(const PluginID & ID, const wxString & params);
+   bool PromptUser(const PluginID & ID, wxWindow *parent);
+
+#if defined(EXPERIMENTAL_REALTIME_EFFECTS)
+   // Realtime effect processing
+   void RealtimeInitialize(int numChannels, float sampleRate);
+   void RealtimeFinalize();
+   void RealtimeSuspend();
+   void RealtimeResume();
+   void RealtimeProcessMono(float *buffer, sampleCount numSamples);
+   void RealtimeProcessStereo(float *buffer, sampleCount numSamples);
+   void SetRealtime(const EffectArray & mActive);
+   int GetRealtimeLatency();
+#endif
+
+#if defined(EXPERIMENTAL_EFFECTS_RACK)
+   void ShowRack();
+#endif
+
+   const PluginID & GetEffectByIdentifier(const wxString & strTargets(int flags = ALL_EFFECTS);
 
 #ifdef EFFECT_CATEGORIES   
 
@@ -99,12 +133,30 @@ class AUDACITY_DLL_API EffectManager {
    const CategorySet& GetRootCategories() const;
    
    /** Return the set of all uncategorised effects. */
-   EffectSet GetUnsortedEffects(int flags = ALL_EFFECTS) const;
+   EffectSet GetUnsortedEffects(int fla   /** Return an effect by its ID. */
+   Effect *GetEffect(const PluginID & ID);
 
+#if defined(EXPERIMENTAL_EFFECTS_RACK)
+   EffectRack *GetRack();
 #endif
 
- private:
-   
+private:
+   wxArrayString mEffectPlugins;
+
+   int mNumEffects;
+
+#if defined(EXPERIMENTAL_EFFECTS_RACK)
+   EffectRack *mRack;
+#endif
+
+#if defined(EXPERIMENTAL_REALTIME_EFFECTS)
+   wxMutex mRealtimeMutex;
+   Effect **mRealtimeEffects;
+   int mRealtimeCount;
+   int mRealtimeLatency;
+   bool mRealtimeActive;
+   bool mRealtimeSuspended;
+#endif  
    EffectArray mEffects;
    int mNumEffects;
 
@@ -117,12 +169,7 @@ class AUDACITY_DLL_API EffectManager {
    // These are the root categories, i.e. the ones without parents.
    CategorySet *mRootCategories;
    
-   // Special category that all effects with unknown category URIs
-   // are placed in.
-   EffectSet *mUnsorted;
-#endif
-
-};
+   // Special category that all effects with unknown category UR};
 
 
 #endif

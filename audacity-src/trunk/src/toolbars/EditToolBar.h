@@ -49,7 +49,9 @@ enum {
    #endif
 
    ETBZoomSelID,
-   ETBZoomFitID,
+   ETBZoomFitID#if defined(EXPERIMENTAL_EFFECTS_RACK)
+   ETBEffectsID,
+#endifID,
 
    ETBNumButtons
 };
@@ -93,5 +95,4 @@ class EditToolBar:public ToolBar {
    DECLARE_EVENT_TABLE();
 };
 
-#endif
-
+#e

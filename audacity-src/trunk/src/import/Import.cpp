@@ -64,9 +64,33 @@ and ImportLOF.cpp.
 WX_DEFINE_LIST(ImportPluginList);
 WX_DEFINE_LIST(UnusableImportPluginList);
 WX_DEFINE_LIST(FormatList);
-WX_DEFINE_OBJARRAY(ExtImportItems);
+WX_DEFINE_OBJARRAY(ExtImportItems// ============================================================================
+//
+// Return reference to singleton
+//
+// (Thread-safe...no active threading during construction or after destruction)
+// ============================================================================
+Importer Importer::mInstance;
+Importer & Importer::Get()
+{
+   return mInstance;
+}
 
 Importer::Importer()
+{
+   mExtImportItems = NULL;
+}
+
+Importer::~Importer()
+{
+   if (mExtImportItems != NULL)
+   {
+      delete mExtImportItems;
+      mExtImportItems = NULL;
+   }
+}
+
+bool Importer::Initializerter()
 {
    mImportPluginList = new ImportPluginList;
    mUnusableImportPluginList = new UnusableImportPluginList;
@@ -91,18 +115,18 @@ Importer::Importer()
    GetGStreamerImportPlugin(mImportPluginList, mUnusableImportPluginList);
    #endif
 
-   ReadImportItems();
+   ReadImportItems
+   return true;
 }
 
-Importer::~Importer()
+bool Importer::Terminaterter()
 {
    WriteImportItems();
    mImportPluginList->DeleteContents(true);
    delete mImportPluginList;
    mUnusableImportPluginList->DeleteContents(true);//JKC
-   delete mUnusableImportPluginList;
-   if (this->mExtImportItems != NULL)
-      delete this->mExtImportItems;
+   delete mUnusableImportPluginLi
+   return truetems;
 }
 
 void Importer::GetSupportedImportFormats(FormatList *formatList)

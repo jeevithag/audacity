@@ -172,7 +172,10 @@ void EditToolBar::Populate()
    mButtons[ETBPasteID]->SetEnabled(false);
    
 #ifdef EXPERIMENTAL_SYNC_LOCK
-   mButtons[ETBSyncLockID]->PushDown();
+   mButtons[ETBSyncLockID]->PushDown#if defined(EXPERIMENTAL_EFFECTS_RACK)
+   AddSeparator();
+   AddButton(bmpEditEffects, bmpEditEffects, bmpEditEffects, ETBEffectsID,
+      _("Show Effects Rack"), true]->PushDown();
 #endif
 
    RegenerateTooltips();
@@ -205,7 +208,10 @@ void EditToolBar::RegenerateTooltips()
    mButtons[ETBZoomInID]->SetToolTip(_("Zoom In"));
    mButtons[ETBZoomOutID]->SetToolTip(_("Zoom Out"));
    mButtons[ETBZoomSelID]->SetToolTip(_("Fit Selection"));
-   mButtons[ETBZoomFitID]->SetToolTip(_("Fit Project"));
+   mButtons[ETBZoomFitID]->SetToolTip(_("Fit 
+#if defined(EXPERIMENTAL_EFFECTS_RACK)
+   mButtons[ETBEffectsID]->SetToolTip(_("Open Effects Rack"));
+#endif Project"));
 #endif
 }
 
@@ -262,7 +268,11 @@ void EditToolBar::OnButton(wxCommandEvent &event)
          break;
       case ETBZoomFitID:
          p->OnZoomFit();
+    #if defined(EXPERIMENTAL_EFFECTS_RACK)
+      case ETBEffectsID:
+         EffectManager::Get().ShowRack();
          break;
+#endif      break;
    }
 
    SetButton(false, mButtons[id]);
@@ -312,6 +322,4 @@ void EditToolBar::EnableDisableButtons()
    if (bSyncLockTracks)
       mButtons[ETBSyncLockID]->PushDown();
    else
-      mButtons[ETBSyncLockID]->PopUp();
-#endif
-}
+      mButtons[ETBSyncLockID]->
