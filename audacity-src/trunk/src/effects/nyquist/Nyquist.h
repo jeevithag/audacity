@@ -112,7 +112,8 @@ class AUDACITY_DLL_API EffectNyquist:public Effect
       return mAction;
    }
 
-   virtual bool PromptUser();
+GeneratorPreview();
+   virtual bool PromptUser(); ol PromptUser();
    
    virtual bool Process();
 

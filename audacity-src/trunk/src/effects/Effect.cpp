@@ -1400,8 +1400,8 @@ void Effect::Preview(bool dryOnly)
    double t0 = mT0;
    double t1 = t0 + CalcPreviewInputLength(previewLen);
 
-   if (t1 > mT1)
-      t1 = mT1;
+   if (t1 > mT1// Generators can run without a selection.
+   if (!GeneratorPreview() && (t1 <= t0) mT1;
 
    if (t1 <= t0)
       return;

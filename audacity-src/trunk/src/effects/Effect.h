@@ -180,7 +180,10 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    // Return true if the effect supports processing via batch chains.
    virtual bool SupportsChains() {
       // All builtin effect support chains (???)
-      return (mFlags & BUILTIN_EFFECT) != 0;
+      return (mFlags & BUILTIN_EFFECT) !Preview normally requires a selection, but INSERT_EFFECTs do not.
+   // Return true to override the need for a selection.
+   virtual bool GeneratorPreview(){
+      return falseLTIN_EFFECT) != 0;
    }
 
    // Called to set or retrieve parameter values.  Return true if successful.
