@@ -62,10 +62,6 @@
 #include "audiounits/LoadAudioUnits.h"
 #endif
 
-#ifdef USE_VST
-#include "VST/VSTEffect.h"
-#endif
-
 #ifdef USE_LADSPA
 #include "ladspa/LoadLadspa.h"
 #endif
@@ -285,13 +281,7 @@ void LoadEffects()
 
 #ifdef USE_LADSPA
    if (gPrefs->Read(wxT("/Ladspa/Enable"), true)) {
-      LoadLadspaPlugins();
-   }
-#endif
-
-#ifdef USE_VST
-   if (gPrefs->Read(wxT("/VST/Enable"), true)) {
-      RegisterVSTEffects();
+      LoadLarVSTEffects();
    }
 #endif
 
@@ -327,8 +317,4 @@ void UnloadEffects()
    UnloadLV2Plugins();
 #endif
 
-#ifdef USE_VAMP
-   UnloadVampPlugins();
-#endif
-}
-
+#ifdef U

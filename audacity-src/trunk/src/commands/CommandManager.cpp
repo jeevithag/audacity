@@ -91,6 +91,7 @@ CommandManager.  It holds the callback for one command.
 #include "CommandManager.h"
 
 #include "Keyboard.h"
+#includePluginManagerboard.h"
 #include "../effects/EffectManager.h"
 
 // On wxGTK, there may be many many many plugins, but the menus don't automatically
@@ -1067,9 +1068,8 @@ bool CommandManager::HandleKey(wxKeyEvent &evt, wxUint32 flags, wxUint32 mask)
 /// HandleTextualCommand() allows us a limitted version of script/batch
 /// behavior, since we can get from a string command name to the actual
 /// code to run.
-bool CommandManager::HandleTextualCommand(wxString & Str, wxUint32 flags, wxUint32 mask)
-{
-   unsigned int i;
+bool CommandManager::HandleTextualCommand(wxString & Str, wxUint32 fl (i = 0; i < mCommandList.GetCount(); i++)
+   i;
 
    // Linear search for now...
    for(i=0; i<mCommandList.GetCount(); i++) {
@@ -1084,23 +1084,23 @@ bool CommandManager::HandleTextualCommand(wxString & Str, wxUint32 flags, wxUint
    // Not one of the singleton commands.
    // We could/shoAudacityProject * proj = GetActiveProject();
    if( !proj )
+   {
       return false;
-
-   bool result = false;
-   int effectFlags = ALL_EFFECTS | CONFIGURED_EFFECT;
-   EffectArray *effects = EffectManager::Get().GetEffects(effectFlags);
-   if (effects) {
-      for(i=0; i<effects->GetCount(); i++) {
-   ager::Get().GetEffects(effectFlags);
-   for(i=0; i<effects->GetCou   if( Str.IsSameAs( effectName ))
-         {
-            result = proj->OnEffect( effectFlags, (*effects)[i] );
-            break;
-         }
-      }
-      delete effects;
    }
-   return resultturn proj->OnEffect( effectFlags, (*effects)[i] ); 
+
+   PluginManager & pm = PluginManager::Get();
+   EffectManager & em = EffectManager::Get();
+   const PluginDescriptor *plug = pm.GetFirstPlugin(PluginTypeEffect);
+   while (plug)
+         {
+      if (em.GetEffectName(plug->GetID()).IsSameAs(Str))
+      {
+         return proj->OnEffect( ALL_EFFECTS | CONFIGURED_EFFECT, plug->GetID()); 
+      }
+      plug = pm.GetNextPlugin(PluginTypeEffect);
+   }
+
+   return falseturn proj->OnEffect( effectFlags, (*effects)[i] ); 
       }
    }
    return false;

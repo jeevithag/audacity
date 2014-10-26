@@ -113,7 +113,7 @@ AudioUnitEffect::~AudioUnitEffect()
 
 wxString AudioUnitEffect::GetEffectName()
 {
-   return mName;
+   return mName + wxT("...");
 }
 
 std::set<wxString> AudioUnitEffect::GetEffectCategories()
@@ -946,12 +946,4 @@ void AudioUnitDialog::OnOK(wxCommandEvent &event)
    EndModal(wxID_OK);
 }
 
-void AudioUnitDialog::OnCancel(wxCommandEvent &event)
-{
-   EndModal(wxID_CANCEL);
-}
-
-void AudioUnitDialog::OnPreview(wxCommandEvent &event)
-{
-   mEffect->Preview();
-}
+void AudioUnitDialog::OnCancel(wxC

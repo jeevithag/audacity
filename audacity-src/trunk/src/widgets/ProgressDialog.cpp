@@ -1030,12 +1030,17 @@ ProgressDialog::ProgressDialog(const wxString & title, const wxString & message,
 
 #if defined(__WXGTK__)
    // Under GTK, when applying any effect that prompts the user, it's more than
-   // like that FindFocus() will return NULL.  So, make sure something has focus.
-   if (GetParent()) {
-      GetParent()->SetFocus();
+   // ly;
    }
 #endif
 
+   if (mDisable)
+   {
+      delete mDisable;
+   }
+
+#if defined(__WXGTK__)
+   // Under GTK, when applying any effect that promp
    SetExtraStyle(GetExtraStyle() | wxWS_EX_TRANSIENT);
 
    v = new wxBoxSizer(wxVERTICAL);
@@ -1238,8 +1243,32 @@ ProgressDialog::~ProgressDialog()
    }
 
 #if defined(__WXGTK__)
-   // Under GTK, when applying any effect that prompts the user, it's more than
-   // like that FindFocus() will return NULL.  So, make sure something has focus.
+   // Under GTK, when applying any effect that promp// Restore saved focus, but only if the window still exists.
+   //
+   // It is possible that it was a deferred deletion and it was deleted since
+   // we captured the focused window.  So, we need to verify that the window
+   // still exists by searching all of the wxWidgets windows.  It's the only
+   // sure way.
+   if (mHadFocus && SearchForWindow(wxTopLevelWindows, mHadFocus)) {
+      mHadFocus->SetFocus();
+   }
+}
+
+//
+// Recursivaly search the window list for the given window.
+//
+bool ProgressDialog::SearchForWindow(const wxWindowList & list, const wxWindow *searchfor)
+{
+   wxWindowList::compatibility_iterator node = list.GetFirst();
+   while (node) {
+      wxWindow *win = node->GetData();
+      if (win == searchfor || SearchForWindow(win->GetChildren(), searchfor)) {
+         return true;
+      }
+      node = node->GetNext();
+   }
+
+   return false;cus() will return NULL.  So, make sure something has focus.
    if (GetParent()) {
       GetParent()->SetFocus();
    }
@@ -1566,13 +1595,4 @@ int TimerProgressDialog::Update(const wxString & message /*= wxEmptyString*/)
       wxTimeSpan tsElapsed(0, 0, 0, elapsed);
       wxTimeSpan tsRemains(0, 0, 0, remains);
 
-      mElapsed->SetLabel(tsElapsed.Format(wxT("%H:%M:%S")));
-      mRemaining->SetLabel(tsRemains.Format(wxT("%H:%M:%S")));
-
-      mLastUpdate = now;
-   }
-
-   wxYieldIfNeeded();
-
-   return eProgressSuccess;
-}
+      mElapsed->SetLabel(

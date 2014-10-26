@@ -93,6 +93,17 @@ public:
    ~Importer();
 
    /**
+  Return instance reference
+    */
+   static Importer & Get();
+
+   /**
+    * Initialization/Termination
+    */
+   bool Initialize();
+   bool Terminaterter();
+
+   /**
     * Fills @formatList with a list of supported import formats
     */
    void GetSupportedImportFormats(FormatList *formatList);
@@ -135,7 +146,7 @@ public:
               Tags *tags,
               wxString &errorMessage);
 
-private:
+priva   static Importer mInstance;ate:
 
    ExtImportItems *mExtImportItems;
    ImportPluginList *mImportPluginList;
@@ -170,4 +181,4 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-#endif
+#en

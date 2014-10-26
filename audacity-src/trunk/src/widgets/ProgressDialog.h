@@ -83,6 +83,8 @@ class AUDACITY_DLL_API ProgressDialog:public wxDialog
    bool mStop;
 
  private:
+ bool SearchForWindow(const wxWindowList & list, const wxWindow *searchfor);
+e:
    wxWindow *mHadFocus;
    wxStaticText *mMessage;
    wxWindowDisabler *mDisable;
@@ -102,5 +104,3 @@ class AUDACITY_DLL_API TimerProgressDialog : public ProgressDialog
  protected:
    wxLongLong_t mDuration;
 };
-
-#endif
