@@ -3041,7 +3041,13 @@ static intptr_t audioMaster(AEffect * effect,
 
 #if defined(__WXDEBUG__)
 #if defined(__WXMSW__)
-         wxLogDebug(wxT("VST canDo: %s"), wxString::FromAscii((char *)ptr).c_str());
+         wxLogDebug(wxT("V#if defined(EXPERIMENTAL_REALTIME_EFFECTS)
+      case audioMasterAutomate:
+         if (vst)
+            vst->Automate(index, opt);
+         return 0;
+
+#elseVST canDo: %s"), wxString::FromAscii((char *)ptr).c_str());
 #else
          wxPrintf(wxT("VST canDo: %s\n"), wxString::FromAscii((char *)ptr).c_str());
 #endif
@@ -3050,7 +3056,7 @@ static intptr_t audioMaster(AEffect * effect,
          return 0;
       }
 
-      // These are not needed since we don't need the parameter values until after the editor
+      // These are not needed since we don't need the parameter values until after#endif the editor
 're always connected (sort of)
       case audioMasterPinConnecteder the editor
       // has already been closed.  If we did realtime effects, then we'd need these.
@@ -3068,10 +3074,11 @@ VST_DEBUGe don't do MIDI yet
 #if defined(__WXDEBUG__)
 #if defined(__WXMSW__)
    wxLogDebug(wxT("vst: %p opcode: %d index: %d value: %d ptr: %p opt: %f user: %p"),
-              effect, opcode, index, value, ptr,VSTEffect::VSTEffect(const wxString & path)
-:  mHost(NULL),
-   mPath(path)
+              effect, opcode, index, value, ptr,VSTEffect::VSTEffect(const wxString & path, VSTEffect *master)
+:  mPath(path),
+   mMaster(master)
 {
+   mHost = NULL;
    mModule = NULL;
    mAEffect = NULL;
    mDlg = NULL;
@@ -3105,7 +3112,12 @@ VST_DEBUGe don't do MIDI yet
    memset(&mTimeInfo, 0, sizeof(mTimeInfo));
    mTimeInfo.samplePos = 0.0;
    mTimeInfo.sampleRate = 44100.0;  // this is a bogus value, but it's only for the display
-   mTimeInfo.nanoSecond}
+   mTimeInfo.nanoSecond
+   // If we're a slave then go ahead a load immediately
+   if (mMaster)
+   {
+      Load();
+   }d}
 
 VSTEffect::~VSTEffect()
 {
@@ -3362,15 +3374,33 @@ sampleCount VSTEffect::ProcessBlock(float **inbuf, float **outbuf, sampleCount s
    return size;
 }
 
-bool VSTEffect::RealtimeInitialize(int numChannels, float sampleRate)
+bool VSTEffect::RealtimeInitialize()
 {
-   SetSampleRate(sampleRate);
+   // This is really just a dummy value and one to make the dialog happy since
+   // all processing is handled by slaves.
+   SetSampleRate(44100);
+
+   return ProcessInitialize();
+}
+
+bool VSTEffect::RealtimeAddProcessor(int numChannels, float sampleRate)
+{
+   VSTEffect *slave = new VSTEffect(mPath, this);
+   mSlaves.Add(slave);
+
+   slave->SetSampleRate(sampleRate);
 
    return ProcessInitialize();
 }
 
 bool VSTEffect::RealtimeFinalize()
 {
+   for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
+   {
+      delete mSlaves[i];
+   }
+   mSlaves.Clear();
+
    return ProcessFinalize();
 }
 
@@ -3388,9 +3418,14 @@ bool VSTEffect::RealtimeResume()
    return true;
 }
 
-sampleCount VSTEffect::RealtimeProcess(float **inbuf, float **outbuf, sampleCount size)
+sampleCount VSTEffect::RealtimeProcess(int index, float **inbuf, float **outbuf, sampleCount size)
 {
-   return ProcessBlock(inbuf, outbuf, size)n != rlen) {
+   if (index < 0 || index >= mSlaves.GetCount())
+   {
+      return 0;
+   }
+
+   return mSlaves[index]->ProcessBlock(inbuf, outbuf, size)n != rlen) {
             wxMessageBox(_("Both channels of a stereo track must be the same length."));
             return false;
          }
@@ -3963,6 +3998,18 @@ void VSTEffect::SizeWindow(int w, int h)
       sGetEventHandler() sw.SetInt(w);
       sw.SetE
    return;ExtraLong(h);
+      Automate(int index, float value)
+{
+   // Just ignore it if we're a slave
+   if (mMaster)
+   {
+      return;
+   }
+
+   for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
+   {
+      mSlaves[i]->callSetParameter(index, value sw.SetE
+   return;ExtraLong(h);
       mDlg->AddPendingEvent(sw);
    }
 
@@ -4015,13 +4062,29 @@ void VSTEffect::SetString(int opcode, const wxString & str, int index)// Needed 
 
 void VSTEffect::callProcess(float **inputs, float **outputs, int sampleframes)
 {
-   mAEffect->process(mAEffect, inputs, outputs, sampleframes);
+   mAEffect->procesfloat VSTEffect::callGetParameter(int index)
+{
+   return mAEffect->getParameter(mAEffect, index);
 }
 
-void VSTEffect::callProcessReplacing(float **inputs,
-                                     float **outputs, int sampleframes)
+void VSTEffect::callSetParameter(int index, float value)
 {
-   mAEffect->processReplacing(mAEffect, inputs, ////////////////////////////////////////////////////////////////////////////////
+   mAEffect->setParameter(mAEffect, index, value);
+
+   for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
+   {
+      mSlaves[i]->callSetParameter(index, value);
+   }
+}
+
+void VSTEffect::callSetProgram(int index)
+{
+   callDispatcher(effSetProgram, 0, index, NULL, 0.0);
+
+   for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
+   {
+      mSlaves[i]->callSetProgram(index);
+   }ts, ////////////////////////////////////////////////////////////////////////////////
 // Base64 en/decoding
 //
 // Original routines marked as public domain and found at:

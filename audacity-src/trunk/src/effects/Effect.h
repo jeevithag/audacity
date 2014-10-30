@@ -235,11 +235,12 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
    // shortcut from the string ('E&qualizer' becomes 'Equalizer'). This is
    // important for sorting.
    static wxString StripAmpersand(con  // Realtime Effect Processing
-   bool RealtimeInitialize(int numChannels, float sampleRate);
+   bool RealtimeInitialize();
+   bool RealtimeAddProcessor(int numChannels, float sampleRate);
    bool RealtimeFinalize();
    bool RealtimeSuspend();
    bool RealtimeResume();
-   sampleCount RealtimeProcess(float **inbuf, float **outbuf, sampleCount sized(const wxString& str);
+   sampleCount RealtimeProcess(int index, float **inbuf, float **outbuf, sampleCount sized(const wxString& str);
 
  //
  // protected virtual methods
