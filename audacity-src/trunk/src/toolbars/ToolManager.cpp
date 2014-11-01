@@ -1015,7 +1015,9 @@ void ToolManager::OnMouse( wxMouseEvent & event )
       br.SetPosition( mBotDock->GetParent()->ClientToScreen( br.G
       // Add half the bar height.  We could use the actual bar height, but that would be confusing as a 
       // bar removed at a place might not dock back there if just let go.
-      pos +=  wxPoint( 0, 20 ); .GetPosition() ) );
+      // Also add 5 pixels in horizontal direction, so that a click without a move (or a very small move) 
+      // lands back where we started.
+      pos +=  wxPoint( 5, 20 ); .GetPosition() ) );
 
       // Is mouse pointer within either dock?
       ToolDock *dock = NULL;
