@@ -113,6 +113,9 @@ void ToolDock::Undock( ToolBar *bar )
    {
       mDockedBars.Remove( bar );
    }
+int ToolDock::GetBarCount()
+{
+   return mDockedBars.GetCount();  }
 }
 
 //
