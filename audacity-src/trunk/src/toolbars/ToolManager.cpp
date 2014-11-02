@@ -1017,24 +1017,22 @@ void ToolManager::OnMouse( wxMouseEvent & event )
       // bar removed at a place might not dock back there if just let go.
       // Also add 5 pixels in horizontal direction, so that a click without a move (or a very small move) 
       // lands back where we started.
-      pos +=  wxPoint( 5, 20 ); .GetPosition() ) );
-
-      // Is mouse pointer within either dock?
+      pos +=  wxPoint( 5, 20 ); .G
+      // To find which dock, rather than test against pos, test against the whole dragger rect.
+      // This means it is enough to overlap the dock to dock with it.
+      wxRect barRect = mDragWindow->GetRect();
       ToolDock *dock = NULL;
-      if( tr.Contains( pos ) )
-      {
+      if( tr.Intersects( barRect ) )
          dock = mTopDock;
-      }
-      else if( br.Contains( pos ) )
-      {
-         dock = mBotDock;
+      else if( br.Intersects( barRect ) )
+         dock = mBotDock;= mBotDock;
       }
 
       // Looks like we have a winner...
       if( dock )
       {
          wxPoint p;
-          wxRect r;
+         wxRect r;
 
          // Calculate where the bar would be placed
          mDragBefore = dock->PositionBar( mDragBar, pos, r );
