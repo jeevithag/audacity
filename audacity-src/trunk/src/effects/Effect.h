@@ -406,6 +406,9 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
    sampleCount mBlockSize;
    int mNumChannels;
 
+   int mCurrentGroup;
+   int mHighGroup;
+
    friend class EffectManager;// so it can call PromptUser in support of batch commands.
    friend class EffectRack;
 };it can delete effects and access mID.
