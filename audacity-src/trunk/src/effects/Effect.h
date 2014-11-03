@@ -234,13 +234,20 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
    // Strip ampersand ('&' char) from string. This effectively removes the
    // shortcut from the string ('E&qualizer' becomes 'Equalizer'). This is
    // important for sorting.
-   static wxString StripAmpersand(con  // Realtime Effect Processing
+   static wxString StripAmpersand(con  int GetAudioInCount();
+   int GetAudioOutCount();
+
+   // Realtime Effect Processing
    bool RealtimeInitialize();
-   bool RealtimeAddProcessor(int numChannels, float sampleRate);
    bool RealtimeFinalize();
    bool RealtimeSuspend();
    bool RealtimeResume();
-   sampleCount RealtimeProcess(int index, float **inbuf, float **outbuf, sampleCount sized(const wxString& str);
+   sampleCount RealtimeProcess(int group,
+                               int chans,
+                               float rate,
+                               float **inbuf,
+                               float **outbuf,
+                               sampleCount numSamplesd(const wxString& str);
 
  //
  // protected virtual methods
