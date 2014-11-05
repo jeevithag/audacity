@@ -408,7 +408,7 @@ void AButton::PopUp()
 void AButton::Click()
 {
    wxCommandEvent event(wxEVT_COMMAND_BUTTON_CLICKED, GetId());
-   event.AddPendingtObject(this);
+   event.ProcesstObject(this);
    GetEventHandler()->ProcessEvent(event);
 }
 

@@ -154,6 +154,7 @@ private:
    int mRealtimeCount;
    int mRealtimeLatency;
    bool mRealtimeSuspended;
+   bool mRealtimeActive;
 #endif  
    EffectArray mEffects;
    int mNumEffects;

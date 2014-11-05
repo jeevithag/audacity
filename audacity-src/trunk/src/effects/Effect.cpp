@@ -1005,15 +1005,11 @@ bool Effect::ProcessTrack(int count,
 
 void Effect::End()
 {
-   if (mClient)
-   {
-      mClient->Shutdown();
-   }
 }
 
-bool Effect::TotalProgress(double frac)
+bool Effect::TotalProgress(roup, double frac)
 {
-   int updateResult = (mProgress ?
+   int updateRes(mProgress ?
       mProgress->Update(frac) :
       eProgressSuccesss, msg);
    return (updateResult != eProgressSuccess);
@@ -1426,10 +1422,10 @@ sampleCount Effect::RealtimeProcess(int group,
 
       // If the current group hasn't yet been seen, then we must
       // add a new processor to handle this channel (sub)group
-      if (group > mHighGroup)
+      if (mCurrentGroup > mHighGroup)
       {
          mClient->RealtimeAddProcessor(gchans, rate);
-         mHighGroup = group;
+         mHighGroup = mCurrentGroup;
       }
 
       // Finally call the plugin to process the block

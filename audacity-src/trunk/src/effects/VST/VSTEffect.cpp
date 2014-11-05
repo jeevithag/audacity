@@ -3185,7 +3185,7 @@ wxString VSTEffect::GetDescription()
    // description, but most do not or they just return the name again.  So,
    // try to provide some sort of useful information.
    mDescription = _("Audio In: ") +
-                  wxString::Format(wxT("%d"), mAudioIns),
+                  wxString::Format(wxT("%d"), mAudioIns) +
                   _(", Audio Out: ") +
                   wxString::Format(wxT("%d"), mAudioOuts);
 
@@ -3259,7 +3259,13 @@ bool VSTEffect::Startup()
       return false;
    }
 
-   // mHost will be null when running in the subprocess
+   // If we have a master then there's no need to load settings since the master will feed
+   // us everything we need.
+   if (mMaster)
+   {
+      return true;
+   }
+
    if (mHost)
    {
       mHost->GetSharedConfig(wxT("Settings"), wxT("BufferSize"), mUserBlockSize, 8192);
@@ -3283,6 +3289,12 @@ bool VSTEffect::Startup()
 
 bool VSTEffect::Shutdown()
 {
+   // The master will save the settings.
+   if (mMaster)
+   {
+      return true;
+   }
+
    SaveParameters(wxT("Current"));
 
    return true;
@@ -3419,37 +3431,6 @@ bool VSTEffect::RealtimeInitialize()
    return ProcessInitialize();
 }
 
-bool VSTEffect::RealtimeAddProcessor(int numChannels, float sampleRate)
-{
-   VSTEffect *slave = new VSTEffect(mPath, this);
-   mSlaves.Add(slave);
-
-   slave->SetChannelCount(numChannels);
-   slave->SetSampleRate(sampleRate);
-
-   int clen = 0;
-   if (mAEffect->flags & effFlagsProgramChunks)
-   {
-      void *chunk = NULL;
-
-      clen = (int) callDispatcher(effGetChunk, 1, 0, &chunk, 0.0);
-      if (clen != 0)
-      {
-         slave->callDispatcher(effSetChunk, 1, clen, chunk, 0.0);
-      }
-   }
-
-   if (clen == 0)
-   {
-      for (int i = 0; i < mAEffect->numParams; i++)
-      {
-         slave->callSetParameter(i, callGetParameter(i));
-      }
-   }
-
-   return slave->RealtimeInitialize();
-}
-
 bool VSTEffect::RealtimeFinalize()
 {
    for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
@@ -3564,7 +3545,38 @@ sampleCount VSTEffect::RealtimeProcess(int group, float **inbuf, float **outbuf,
       ProcessBlock(mMasterIn, mMasterOut, size);
    }
 
-   return mSlaves[group]->ProcessBlock(inbuf, outbuf, size)n != rlen) {
+   return mSlaves[group]->ProcessBlock(inbuf, outbuf, size)n != bool VSTEffect::RealtimeAddProcessor(int numChannels, float sampleRate)
+{
+   VSTEffect *slave = new VSTEffect(mPath, this);
+   mSlaves.Add(slave);
+
+   slave->SetChannelCount(numChannels);
+   slave->SetSampleRate(sampleRate);
+
+   int clen = 0;
+   if (mAEffect->flags & effFlagsProgramChunks)
+   {
+      void *chunk = NULL;
+
+      clen = (int) callDispatcher(effGetChunk, 1, 0, &chunk, 0.0);
+      if (clen != 0)
+      {
+         slave->callDispatcher(effSetChunk, 1, clen, chunk, 0.0);
+      }
+   }
+
+   if (clen == 0)
+   {
+      for (int i = 0; i < mAEffect->numParams; i++)
+      {
+         slave->callSetParameter(i, callGetParameter(i));
+      }
+   }
+
+   return slave->RealtimeInitialize();
+}
+
+rlen) {
             wxMessageBox(_("Both channels of a stereo track must be the same length."));
             return false;
          }
@@ -3862,14 +3874,10 @@ bool VSTEffect::Load()
 
 #endif
 
-   // Initialize the plugin
-   mAEffect = pluginMain(audioMaster);
-
-   // Was it successful?
-   if (mAEffect) {
-      //
-      mAEffect->user = this;
-      !(mAEffect->flags & effFlagsIsSynth) &&
+   /ks like a plugin and can deal with ProcessReplacing
+      // calls.  Also exclude synths for now.
+      if (mAEffect->magic == kEffectMagic &&
+         !(mAEffect->flags & effFlagsIsSynth) &&
          mAEffect->flags & effFlagsCanReplacing)
       {
          mName = GetString(effGetEffectName);

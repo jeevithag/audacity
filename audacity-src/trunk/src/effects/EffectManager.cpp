@@ -178,6 +178,7 @@ EffectManager::EffectManager()
    mRealtimeLock.Enter();
    mRealtimeEffects = NULL;
    mRealtimeCount = 0;
+   mRealtimeActive = false;
    mRealtimeSuspended = true;
    mRealtimeLatency = 0;
    mRealtimeLock.Leave();
@@ -416,7 +417,7 @@ void EffectManager::RealtimeSetEffects(const EffectArray & effects)
       }
 
       // Must not have been in the new chain, so tell it to cleanup
-      if (e)
+      if (e && mRealtimeActive)
       {
          e->RealtimeFinalize();
       }
@@ -438,7 +439,7 @@ void EffectManager::RealtimeSetEffects(const EffectArray & effects)
       }
 
       // Must not have been in the old chain, so tell it to initialize
-      if (e)
+      if (e && mRealtimeActive)
       {
          e->RealtimeInitialize();
       }
@@ -470,6 +471,10 @@ void EffectManager::RealtimeInitialize()
    // The audio thread should not be running yet, but protect anyway
    RealtimeSuspend();
 
+   // RealtimeSetEffects() needs to know when we're active so it can
+   // initialize newly added effects
+   mRealtimeActive = true;
+
    // Tell each effect to get ready for action
    for (int i = 0; i < mRealtimeCount; i++)
    {
@@ -493,6 +498,8 @@ void EffectManager::RealtimeFinalize()
    {
       mRealtimeEffects[i]->RealtimeFinalize();
    }
+
+   mRealtimeActive = false;
 }
 
 void EffectManager::RealtimeSuspend()
