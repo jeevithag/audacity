@@ -76,8 +76,7 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    //
  protected:
    // The constructor is called once by each subclass at the beginning of the program.
-   // Avoid allocating memory or doing time-consuming processin   Effect(EffectClientInterface *client);
-   virtual ~Effect();
+   // Avoid allocating memory or doing time-consuming processin   virtual ~Effect();
 
    // IdentInterface implementation
 
@@ -132,7 +131,7 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    virtual bool SetPrivateConfig(const wxString & group, const wxString & key, const double & value);
    virtual bool SetPrivateConfig(const wxString & group, const wxString & key, const sampleCount & value);
 
-   // Effect implementation 0;
+   // Effect implementation    virtual bool Startup(EffectClientInterface *client); 0;
 
    // Each subclass of Effect should override this method.
    // Thname will go in the menu bar;
