@@ -62,10 +62,6 @@
 #include "audiounits/LoadAudioUnits.h"
 #endif
 
-#ifdef USE_LADSPA
-#include "ladspa/LoadLadspa.h"
-#endif
-
 #ifdef USE_LV2
 #include "lv2/LoadLV2.h"
 #endif
@@ -275,13 +271,7 @@ void LoadEffects()
 
 #ifdef USE_NYQUIST
    if (gPrefs->Read(wxT("/Nyquist/Enable"), true)) {
-      LoadNyquistPlugins();
-   }
-#endif
-
-#ifdef USE_LADSPA
-   if (gPrefs->Read(wxT("/Ladspa/Enable"), true)) {
-      LoadLarVSTEffects();
+      LoadNyquVSTEffects();
    }
 #endif
 
@@ -307,10 +297,7 @@ void LoadEffects()
 
 void UnloadEffects()
 {
-   EffectManager::Get().UnregisterEffects();
-
-#ifdef USE_LADSPA
-   UnloadLadspaPlugins();
+   EffectManagernloadLadspaPlugins();
 #endif
 
 #ifdef USE_LV2
