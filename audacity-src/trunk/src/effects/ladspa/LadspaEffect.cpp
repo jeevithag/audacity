@@ -139,7 +139,7 @@ void LadspaEffectsModule::Terminate()
    return;
 }
 
-bool LadspaEffectsModule::AutoRegisterPlugins(PluginManagerInterface & pm)
+bool LadspaEffectsModule::AutoRegisterPlugins(PluginManagerInterface & WXUNUSED(pm))
 {
    return false;
 }
@@ -308,7 +308,7 @@ bool LadspaEffectsModule::RegisterPlugin(PluginManagerInterface & pm, const wxSt
    int index = 0;
    LADSPA_Descriptor_Function mainFn = NULL;
    wxDynamicLibrary lib;
-   if (lib.Load(path, wxDL_LAZY)) {
+   if (lib.Load(path, wxDL_NOW)) {
       wxLogNull logNo;
 
       mainFn = (LADSPA_Descriptor_Function) lib.GetSymbol(wxT("ladspa_descriptor"));
@@ -367,11 +367,14 @@ LadspaEffect::LadspaEffect(const wxString & path, int index)
    mAudioIns = 0;
    mAudioOuts = 0;
    mNumInputControls = 0;
+   mSampleRate = 44100;
 
    mInputPorts = NULL;
    mOutputPorts = NULL;
    mInputControls = NULL;
    mOutputControls = NULL;
+
+   mLatencyPort = -1;
 
    mDlg = NULL;
 }
@@ -440,6 +443,11 @@ wxString LadspaEffect::GetDescription()
 //
 EffectType LadspaEffect::GetType()
 {
+   if (mAudioIns == 0 && mAudioOuts == 0)
+   {
+      return EffectTypeNone;
+   }
+
    if (mAudioIns == 0)
    {
       return EffectTypeGenerate;
@@ -475,7 +483,7 @@ bool LadspaEffect::IsLegacy()
 
 bool LadspaEffect::IsRealtimeCapable()
 {
-   return true;
+   return GetType() == EffectTypeProcess;
 }
 
 //
@@ -502,7 +510,7 @@ bool LadspaEffect::Startup()
   ed long [mData->PortCount];
 
    unsigned long p;
-   for(p=0; p<mData->PortCount; p++) {AUDIO(d))
+   for(p=0; p<mData// Collect the audio portsp<mData->PortCount; p++) {AUDIO(d))
       {
          if (LADSPA_IS_PORT_INPUT(d)) 
          {
@@ -513,8 +521,8 @@ bool LadspaEffect::Startup()
             mOutputPorts[mAudioOuts++] = p;
          }
       }
-
-      if (LADSPA_IS_PORT_CONTROL(d) && LADSPA_IS_PORT_INPUT(d))
+      // Determine the port's default value
+      else if (LADSPA_IS_PORT_CONTROL(d) && LADSPA_IS_PORT_INPUT(d))
       {
          mInteractive = truerols++;
 
@@ -584,6 +592,16 @@ bool LadspaEffect::Startup()
          mNumInputControls++;
          mInputControls[p] = val;
       }
+      // Ladspa effects have a convention of providing latency on an output
+      // control port whose name is "latency".
+      else if (LADSPA_IS_PORT_CONTROL(d) && LADSPA_IS_PORT_OUTPUT(d))
+      {
+         if (strcmp(mData->PortNames[p], "latency") == 0)
+         {
+            mLatencyPort = p;
+            mOutputControls[p] = 0;
+         }
+      }
    }
 
    // mHost will be null during registration
@@ -608,12 +626,6 @@ bool LadspaEffect::Startup()
 
 bool LadspaEffect::Shutdown()
 {
-   // mHost will be null during registration
-   if (mHost)
-   {
-      SaveParameters(wxT("Current"));
-   }
-
    if (mInputPorts)
    {
       delete [] mInputPorts;
@@ -685,8 +697,12 @@ sampleCount LadspaEffect::GetBlockSize(sampleCount maxBlockSize)
 
 sampleCount LadspaEffect::GetLatency()
 {
-   // Ladspa effects have a convention of providing latency on an output
-   // control port name "latency".
+   if (mLatencyPort >= 0 && !mLatencyDone)
+   {
+      mLatencyDone = true;
+      return mOutputControls[mLatencyPort] * 2;
+   }
+
    return 0;
 }
 
@@ -706,8 +722,14 @@ bool LadspaEffect::ProcessInitialize()
    if (!mReady)
    {
       mMaster = InitInstance(mSampleRate);
+      if (!mMaster)
+      {
+         return false;
+      }
       mReady = true;
    }
+
+   mLatencyDone = false;
 
    return true;
 }
@@ -796,6 +818,11 @@ sampleCount LadspaEffect::RealtimeProcess(int group,
 bool LadspaEffect::RealtimeAddProcessor(int numChannels, float sampleRate)
 {
    LADSPA_Handle slave = InitInstance(sampleRate);
+   if (!slave)
+   {
+      return false;
+   }
+
    mSlaves.Add(slave);
    mSlaveChannels.Add(numChannels);
 
@@ -808,7 +835,12 @@ bool LadspaEffect::ShowInterface(void *parent)
       return false;
    }
 
-   double length = 0; //mT1 > mT0 ? mT1 - mT0 : sDefaultGenerateLen;
+   double length = 0;
+   
+   if (!IsRealtimeCapable())
+   {
+      length = mHost->GetDuration();
+   }
 
    if (!mDlg)
    {
@@ -816,18 +848,23 @@ bool LadspaEffect::ShowInterface(void *parent)
       mDlg->CentreOnParent();
    }
 
-#if defined(EXPERIMENTAL_REALTIME_EFFECTS)
-   mDlg->Show(!mDlg->IsShown());
+   if (IsRealtimeCapable())
+   {
+      mDlg->Show(!mDlg->IsShown());
+      return true;
+   }
 
-   return true;
-#else
    mDlg->ShowModal();
    bool ret = mDlg->GetReturnCode() != 0;
+   if (ret)
+   {
+      mHost->SetDuration(mDlg->GetLength());
+   }
    mDlg->Destroy();
    mDlg = NULL;
 
+
    return ret;
-#endif
 }
 
 //
@@ -841,7 +878,7 @@ bool LadspaEffect::Load()
    }
 
    LADSPA_Descriptor_Function mainFn = NULL;
-   if (mLib.Load(mPath, wxDL_LAZY))
+   if (mLib.Load(mPath, wxDL_NOW))
    {
       wxLogNull logNo;
 
@@ -907,6 +944,10 @@ LADSPA_Handle LadspaEffect::InitInstance(float sampleRate)
 {
    /* Instantiate the plugin */
    LADSPA_Handle handle = mData->instantiate(mData, sampleRate);
+   if (!handle)
+   {
+      return NULL;
+   }
 
    for (unsigned long p = 0; p < mData->PortCount; p++)
   ed long [mData->PortCount];
@@ -960,14 +1001,14 @@ class Slider:public wxSlider
           const wxValidator& validator = wxDefaultValidator,
           const wxString& name = wxSliderNameStr)
    : wxSlider(parent, id, value, minValue, maxValue,
-              pos, size, style, validator, name)
+          ev pos, size, style, validator, name)
    {
    };
 
    void OnSetFocus(wxFocusEvent &event)
    {
       wxScrolledWindow *p = (wxScrolledWindow *) GetParent();
-      wxRect r = GetRect();
+    wxRect r = GetRect();
       wxRect rv = p->GetRect();
       rv.y = 0;
 
@@ -1010,14 +1051,14 @@ class TextCtrl:public wxTextCtrl
             const wxValidator& validator = wxDefaultValidator,
             const wxString& name = wxTextCtrlNameStr)
    : wxTextCtrl(parent, id, value,
-                pos, size, style, validator, name)
+            ev pos, size, style, validator, name)
    {
    };
 
    void OnSetFocus(wxFocusEvent &event)
    {
       wxScrolledWindow *p = (wxScrolledWindow *) GetParent();
-      wxRect r = GetRect();
+    wxRect r = GetRect();
       wxRect rv = p->GetRect();
       rv.y = 0;
 
@@ -1038,9 +1079,8 @@ class TextCtrl:public wxTextCtrl
       else {
          p->CalcUnscrolledPosition(0, r.y, NULL, &r.y);
          y = (r.GetBottom() - rv.GetBottom() + yppu) / yppu;
-      }
-
-      p->Scroll(-1, y);
+   TextCtrl, wxTextCtrl)
+1, y);
    };
 
    DECLARE_EVENT_TABLE();
@@ -1050,15 +1090,14 @@ BEGIN_EVENT_TABLE(TextCtrl, wxTextCtrl)
     EVT_SET_FOCUS(TextCtrl::OnSetFocus)
 END_EVENT_TABLE()
 
-c#if defined(EXPERIMENTAL_REALTIME_EFFECTS)
-    EVT_BUTTON(wxID_APPLY, LadspaEffectDialog::OnApply)
-#elseconst int LADSPA_SECONDS_ID = 13101;
-
-BEGIN_EVENT_TABLE(LadspaEffectDialog, wxDialog)
-    EVT_BUTTON(wxID_OK, LadspaEffectDialog::OnOK)
-    EVT_BUTTON(wxID_CANCEL, LadspaEffe#endifectDialog::OnCancel)
-    EVT_BUTTON(ID_EFFECT_PREVIEW, LadspaEffectDialog::OnPreview)
-    EVT_SLIDER(wxID_ANY, LadspaEffectDialog::OnSlider)
+c   EVT_BUTTON(wxID_APPLY, LadspaEffectDialog::OnApply)
+   EVT_BUTTON(wxID_OK, LadspaEffectDialog::OnOK)
+   EVT_BUTTON(wxID_CANCEL, LadspaEffectDialog::OnCancel)
+   EVT_BUTTON(ePreviewID, LadspaEffectDialog::OnPreview)
+   EVT_BUTTON(eDefaultsID, LadspaEffectDialog::OnDefaults)
+   EVT_SLIDER(wxID_ANY, LadspaEffectDialog::OnSlider)
+   EVT_TEXT(wxID_ANY, LadspaEffectDialog::OnTextCtrl)
+adspaEffectDialog::OnSlider)
     EVT_TEXT(wxID_ANY, LadspaEffectDialog::OnTextCtrl)
     EVT_CHECKBOX(wxID_ANY, LadspaEffectDialog::OnCheckBox)
 END_EVENT_TABLE()
@@ -1072,35 +1111,34 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
                                        int sampleRate,
                                        double length)
    :wxDialog(parent, -1, LAT1CTOWX(data->Name),
-             wxDefaultPosition, wxDefaultSize,
-             wxDEFAULT_DIALOG_SmData = data;
+             wxDefaultmEffect(eff)
+{
+   mNumParams = 0;
+   mData = data;
    mInputControls = inputControls;
-   mParams = 0;
+   mSParams = 0;
    this->mData = data;
    this->inputControls = inputControls;
    this->sampleRate = sampleRate;
    #ifdef __WXMSW__
       // On Windows, for some reason, wxWidgets calls OnTextCtrl during creation
-      // of the text control, and LadspaEffectDialog::OnTextCtrl calls HandleText,
+      // of the text control,mFand LadspaEffectDialog::OnTextCtrl calls HandleText,
       // which assumes all the fields have been initialized.
       // This can give us a bad pointer crash, so manipulate inSlider to
       // no-op HandleText during creation.
-      inSlider = true;
-   #else
-      inSlider = false;
-   #endif
-   inText = false;
-
-   toggles = new wxCheckBox*[mData->PortCount];
-   sliders = new wxSlider*[mData->PortCount];
-   fields = new wxTextCtrl*[mData->PortCount];
+    mToggles = new wxCheckBox*[mData->PortCount];
+   mSliders = new wxSlider*[mData->PortCount];
+   mFields = new wxTextCtrl*[mData->PortCount];
+   mLabels = new wxStaticText*[mData->PortCount];
+   mP wxTextCtrl*[mData->PortCount];
    labels = new wxStaticText*[mData->PortCount];
    ports = new unsigned long [mData->PortCount];
 
    unsigned long p;
    for(p=0; p<mData->PortCount; p++) {
       LADSPA_PortDescriptor d = mData->PortDescriptors[p];
-      if (LADSPA_IS_PORT_CONTROL(d) &&
+mPorts[mNumParams] = p;
+         mN(d) &&
           LADSPA_IS_PORT_INPUT(d)) {
          ports[numParams] = p;
          numParams++;
@@ -1138,11 +1176,12 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
    w->SetMinSize(wxSize(
       wxMax(600, parent->GetSize().GetWidth() * 2/3),
       parent->GetSize().GetHeight() / 2));
-    #if defined(EXPERIMENTAL_REALTIME_EFFECTS)
-   vSizer->Add(CreateStdButtonSizer(this, eApplyButton | eDefaultsButton), 0, wxEXPAND);
-#else
-   vSizer->Add(CreateStdButtonSizer(this, ePreviewButton | eDefaultsButton |eCancelButton | eOkButton), 0, wxEXPAND);
-#endifPAND|wxALL, 5);
+       if (mEffect->IsRealtimeCapable()) {
+      vSizer->Add(CreateStdButtonSizer(this, eApplyButton | eCancelButton | eDefaultsButton), 0, wxEXPAND);
+   }
+   else {
+      vSizer->Add(CreateStdButtonSizer(this, ePreviewButton | eDefaultsButton | eCancelButton | eOkButton), 0, wxEXPAND);
+   }PAND|wxALL, 5);
 
    // Preview, OK, & Cancel buttons
    vSizer->Add(CreateStdButtonSizer(this, ePreviewButton|eCancelButton|eOkButton), 0, wxEXPAND);
@@ -1150,38 +1189,24 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
    SetSizer(vSizer);
 
    wxSizer *paramSizer =
-      new wxStaticBoxSizer(wxVERTICAL, w, _("Effect Settings"));
-
-   wxFlexGridSizer *gridSizer =
-      new wxFlexGridSizer(5, 0, 0);
+      new wxStaticBoxSizer(wxVERTICAL,mNumParams; p++) {
+      wxString labelText = LAT1CTOWX(mData->PortNames[mPlexGridSizer(5, 0, 0);
    gridSizer->AddGrowableCol(3);
 
    for (p = 0; p < numParams; p++) {
       wxString labelText = LAT1CTOWX(mData->PortNames[ports[p]]);
       item = new wxStaticText(w, 0, labelText + wxT(":"));
-      gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
+      gridSizer->mPorts[p]];
 
-      wxString fieldText;
-      LADSPA_PortRangeHint hint = mData->PortRangeHints[ports[p]];
-
-      if (LADSPA_IS_HINT_TOGGLEDmIhint.HintDescriptor)) {
-         toggles[p] = new wxCheckBox(w, p, wxT(""));
-         toggles[p]->SetName(labelText);
+      if (LADSPA_IS_HINT_TOGGLED(hint.HintDescriptor)) {
+         mToggles[p] = new wxCheckBox(w, p, wxT(""));
+         mToggles[p]->SetName(labelText);
+         mToggles[p]->SetValue(mInputControls[mPorts[p]] > 0);
+         gridSizer->Add(mToggles[p], 0, wxALL, 5);
+         ConnectFocus(mTame(labelText);
          toggles[p]->SetValue(inputControls[ports[p]] > 0);
          gridSizer->Add(toggles[p], 0, wxALL, 5);
-         ConnectFocus(toggles[p]);
-
-         gridSizer->Add(1, 1, 0);
-         gridSizer->Add(1, 1, 0);
-         gmInputControls[ports[p]] + 0.5));
-         else
-            fieldText = Internat::ToDisplayString(mIor))
-            fieldText.Printf(wxT("%d"), (int)(inputControls[ports[p]] + 0.5));
-         else
-            fieldText = Internat::ToDisplayString(inputControls[ports[p]]);
-
-         fields[p] = new wxTextCtrl(w, p, fieldText);
-         fields[p]->SetName(labelText);
+         ConnectFocields[p]->SetName(labelText);
          gridSizer->Add(fields[p], 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
          ConnectFocus(fields[p]);
 
@@ -1197,10 +1222,21 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
             haslo = true;
          }
          if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
-            upper = hint.UpperBound;
-            hashi = true;
+          mSampleRate;
+            upper *= mSampleRate;
+            forceint = true;
          }
-         if (LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor)) {
+
+         if (LADSPA_IS_HINT_INTEGER(hint.HintDescriptor) || forceint)
+            fieldText.Printf(wxT("%d"), (int)(mInputControls[mPorts[p]] + 0.5));
+         else
+            fieldText = Internat::ToDisplayString(mIor))
+        mPorts[p]]);
+
+         mFields[p] = new wxTextCtrl(w, p, fieldText);
+         mFields[p]->SetName(labelText);
+         gridSizer->Add(mFields[p], 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+         ConnectFocus(mFields[p]);_SAMPLE_RATE(hint.HintDescriptor)) {
             lower *= sampleRate * 1000;
             upper *= sampleRate;
             forceint = true;
@@ -1213,18 +1249,16 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
             else
                str = Internat::ToDisplayString(lower);
             item = new wxStaticText(w, 0, str);
-            gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
+            gridSizer->AdmS(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
          }
          else {
             gridSizer->Add(1, 1, 0);
          }
 
          sliders[p] =
-             new wxSlider(w, p,
-                          0, 0, 1000,
-                          wxDefaultPosition,
-                          wxSize(200, -1));
-         sliders[p]->SetName(labelText);
+             new wxmSliders[p]->SetName(labelText);
+         gridSizer->Add(mSliders[p], 0, wxALIGN_CENTER_VERTICAL | wxEXPAND | wxALL, 5);
+         ConnectFocus(mS       sliders[p]->SetName(labelText);
          gridSizer->Add(sliders[p], 0, wxALIGN_CENTER_VERTICAL | wxEXPAND | wxALL, 5);
          ConnectFocus(sliders[p]);
 
@@ -1234,58 +1268,63 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
             else
                str = Internat::ToDisplayString(upper);
             item = new wxStaticText(w, 0, str);
-            gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_LEFT | wxType() == EffectTypeGenerateelse {
+            gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGmE_LEFT | wxType() == EffectTypeGenerateelse {
             gridSizer->Add(1, 1, 0);
          }
-      }
-   }
-
-   // Now add the length control
-   if (effect->GetEffectFlags() & INSERT_EFFECT) {
-      item = new wxStaticText(w, 0, _("Length (seconds)"));
-      gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+    :"));
+      gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
+      mSeconds = new TimeTextCtrl(w,
+                                  wxID_ANY,
+                                  _("hh:mm:ss + milliseconds"),
+                                  length,
+                                  mSampleRate,
+ow *w = new wxScrolledWindow(this,
+                                              wxID_AwxDefaultSize,
+                                  true);
+      mSeconds->SetName(_("Duration"));
+      mSeconds->EnableMenu( | wxALL, 5);
       mSeconds = new wxTextCtrl(w, LADSPA_SECONDS_ID, Internat::ToDisplayString(length));
       mSeconds->SetName(_("Length (seconds)"));
       gridSizer->Add(mSeconds, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-      gridSizer->Add(1, 1, 0);
-      gridSizer->Add(1, 1, 0);
+ mSliders based on the value in the
+   // text mF>Add(1, 1, 0);
       gridSizer->Add(1, 1, 0);
       ConnectFocus(mSeconds);
    }
 
-   // Set all of the sliders based on the value in the
+   // SemEffect->LoadParameters(wxT("Current"));
+// Set all of the sliders based on the value in the
    // text fields
    inSlider = false; // Now we're ready for HandleText to actually do something.
    HandleText();
    
-   paramSizer->Add(gridSizer, 1, wxEXPAND | wxALL, 5);
-   w->SetSizer(paramSizer);
-
-   Layout();
-   Fit();
-   SetSizeHints(GetSize());
+   paramSizer->Add(gridSizer, 1, wxEXPANDmToggles;
+   delete[]mSliders;
+   delete[]mFields;
+   delete[]mLabels;
+   delete[]mPorts;
 }
 
-LadspaEffectDialog::~LadspaEffectDialog()
+void LadspaEffectDialog::OnCheckBox(wxCommandEvent & evt)
 {
-   delete[]toggles;
-   delete[]slidersmI
-   delete[]fields;
-   delete[]labels;
-   delete[]ports;
+   int p = evt.GetId();
+
+   mInputControls[mPorts[p]] = mToggles[p]->GetValue();
 }
 
-void LadspaEffectDialog::OnCheckBox(wxCommandEvent &event)
+void LadspaEffectDialog::OnSlider(wxCommandEvent & evt)
 {
-   int p = event.GetId();
-
-   inputControls[ports[p]] = toggles[p]->GetValue();
+   int p = evt.GetId();
+inSlider = false;
 }
 
-void LadspaEffectDialog::OnSlider(wxCommandEvent &event)
+void LadspaEffectDialog::OnTextCtrl(wxCommandEvent & WXUNUSED(event))
 {
-   int p = event.GetId();
+   HandleText();
+}
 
+void LadspaEffectDialog::HandleText()
+{
    // if we don't add the following three lines, changing
    // the value of the slider will change the text, which
    // will change the slider, and so on.  This gets rid of
@@ -1295,7 +1334,7 @@ void LadspaEffectDialog::OnSlider(wxCommandEvent &event)
    inSlider = true;
 
    float val;
-   float lower = float(0.0);
+   mPloat lower = float(0.0);
    float upper = float(10.0);
    float range;
    bool forceint = false;
@@ -1303,9 +1342,14 @@ void LadspaEffectDialog::OnSlider(wxCommandEvent &event)
    LADSPA_PortRangeHint hint = mData->PortRangeHints[ports[p]];
    if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor))
       lower = hint.LowerBound;
-   if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor))
-      upper = hint.UpperBound;
-   if (LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor)) {
+   if (LADmSampleRate;
+      upper *= mSampleRate;
+      forceint = true;
+   }
+
+   range = upper - lower;
+
+   val = (mSE_RATE(hint.HintDescriptor)) {
       lower *= sampleRate;
       upper *= sampleRate;
       forceint = true;
@@ -1316,12 +1360,14 @@ void LadspaEffectDialog::OnSlider(wxCommandEvent &event)
    val = (sliders[p]->GetValue() / 1000.0) * range + lower;
 
    wxString str;
-   if (LADSPA_IS_HINT_INTEGER(hint.HintDescrimItor) || forceint)
-      str.Printf(wxT("%d"), (int)(val + 0.5));
-   else
-      str = Internat::ToDisplayString(val);
+   if (LADSPA_ImFields[p]->SetValue(str);
 
-   fields[p]->SetValue(str);
+   mInputControls[mPorts[p]] = val;
+
+   inSlider = false;
+}
+
+void LadspaEffectDialog::OnTextCtrl(wxCommandEvent & WXUNUSED(evfields[p]->SetValue(str);
 
    inputControls[ports[p]] = val;
 
@@ -1337,7 +1383,7 @@ void LadspaEffectDialog::HandleText()
 {
    // if we don't add the following three lines, changing
    // the value of the slider will change the text, which
-   // will change the slider, and so on.  This gets rid of
+   // will chanmNe the slider, and so on.  This gets rid of
    // the implicit loop.
 
    if (inSlider)
@@ -1345,12 +1391,12 @@ void LadspaEffectDialog::HandleText()
    inText = true;
    for (unsigned long p = 0; p < numParams; p++) {
       double dval;
-      float val;
+      mPloat val;
       float lower = float(0.0);
       float upper = float(10.0);
       float range;
 
-      LADSPA_PortRangeHint hint = mData->PortRangeHints[ports[p]];
+      LADSPA_PortRangeHint hint = mData->PmFrtRangeHints[ports[p]];
       if (LADSPA_IS_HINT_TOGGLED(hint.HintDescriptor)) {
          continue;
       }
@@ -1360,44 +1406,104 @@ void LadspaEffectDialog::HandleText()
 
       if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor))
          lower = hint.LowerBound;
-      if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor))
+      if (LADSPA_IS_HImSampleRate;
+         upper *= mSiptor))
          upper = hint.UpperBound;      
       if (LADSPA_IS_HINT_SAMPLE_RATE(hint.HintDescriptor)) {
          lower *= sampleRate;
-       mI upper *= sampleRate;
-      }         
+       mI upper *= sammPorts[p]] = val;
+
+      mS
       range = upper - lower;
 
       if (val < lower)
          val = lower;
-      if (val > #if defined(EXPERIMENTAL_REALTIME_EFFECTS)
-void LadspaEffectDialog::OnApply(wxCommandEvent & WXUNUSED(evt))
+      if (val > void LadspaEffectDialog::OnApply(wxCommandEvent & WXUNUSED(evt))
 {
 #if defined(__WXMAC__)
    Close();
 #else
    Show(false);
 #endif
+   mEffect->SaveParameters(wxT("Current"));
 
-   effect->mHost->Apply();
-}
-#else upper)
-         val = upper;
-
-      inputControls[ports[p]] = val;
-
-      sliders[p]->SetValue((int)(((val-lower)/range) * 1000.0 + 0.5));      
-   }
-
-   inText = false;
+   mEffect->mHost->Apply();
 }
 
-void LadspaEffectDialog::OnOK(wxCommandEvent & WXUNUSED(event))
+void LadspaEffectDialog::OnOK(wxCommandEvent & WXUNUSED(evt))
 {
+   mEffect->SaveParameters(wxT("Current"));
+
    EndModal(TRUE);
 }
 
-void LadspaEffe#endifectDialog::OnCancel(wxCommandEvent & WXUNUSED(event))
+void LadspaEffectDialog::OnCancel(wxCommandEvent & WXUNUSED(evt))
+{
+   if (IsModal())
+   {
+      EndModal(FALSE);
+   }
+   else
+   {
+#if defined(__WXMAC__)
+      Close();
+#else
+      Show(false);
+#endif
+   }
+}
+
+void LadspaEffectDialog::OnPreview(wxCommandEvent & WXUNUSED(evt))
+{
+   mEffect->mHost->Preview();
+}
+
+void LadspaEffectDialog::OnDefaults(wxCommandEvent & WXUNUSED(evt))
+{
+   mEffect->LoadParameters(wxT("Default"));
+   RefreshParaemters();
+}
+
+void LadspaEffectDialog::RefreshParaemters()
+{
+   for (unsigned long p = 0; p < mNumParams; p++) {
+      LADSPA_PortRangeHint hint = mData->PortRangeHints[mPorts[p]];
+
+      if (LADSPA_IS_HINT_TOGGLED(hint.HintDescriptor)) {
+         mToggles[p]->SetValue(mInputControls[mPorts[p]] > 0);
+      }
+      else {         fields[p]->SetName(labelText);
+         gridSizer->Add(fields[p], 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
+         ConnectFocus(fields[p]);
+
+         wxString bound;
+         double lower = 0.0;
+         double upper = 0.0;
+         bool haslo = false;
+         bool hashi = false;
+         bool forceint = false;
+
+         if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor)) {
+            lower = hint.LowerBound;
+            haslo = true;
+         }
+         if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor)) {
+          mSampleRate;
+            upper *= mSampleRate;
+            forceint = true;
+         }
+
+         wxString fieldText;
+         if (LADSPA_IS_HINT_INTEGER(hint.HintDescriptor) || forceint)
+            fieldText.Printf(wxT("%d"), (int)(mInputControls[mPorts[p]] + 0.5));
+         else
+            fieldText = Internat::ToDisplayString(mIor))
+        mPorts[p]]);
+         mFields[p]->ChangeValue(fieldText);
+      }
+   }
+   HandleText();
+}ectDialog::OnCancel(wxCommandEvent & WXUNUSED(event))
 {
    EndModal(FALSE);
 }
@@ -1415,13 +1521,14 @@ void LadspaEffectDialog::ConnectFocus(wxControl *c)
 
 void LadspaEffectDialog::DisconnectFocus(wxControl *c)
 {
-   c->GetEventHandler()->Disconnect(wxEVT_SET_FOCUS,
-                                 wxFocusEventHandler(LadspaEffectDialog::ControlSetFocus));
+   c->GetEventHandler()->Disco evt)
+{
+   wxControl *c = (wxControl *) ev           wxFocusEventHandler(LadspaEffectDialog::ControlSetFocus));
 }
 
 void LadspaEffectDialog::ControlSetFocus(wxFocusEvent &event)
 {
-   wxControl *c = (wxControl *) event.GetEventObject();
+   wxControl *c = (wxntrol *) event.GetEventObject();
    wxScrolledWindow *p = (wxScrolledWindow *) c->GetParent();
    wxRect r = c->GetRect();
    wxRect rv = p->GetRect();
@@ -1442,10 +1549,9 @@ void LadspaEffectDialog::ControlSetFocus(wxFocusEvent &event)
       y = r.y / yppu;
    }
    else {
-      p->CalcUnscrolledPositType() == EffectTypeGenerate  y = (r.GetBottom() - rv.GetBottom() + yppu) / yppu;
+      p->CalcUnscmEffect->GetType() == EffectTypeGenerate) {
+      return mSeconds->GetTimeValue();
    }
 
-   p->Scroll(-1, y);
-};
-
-double LadspaE
+   return 0;
+}
