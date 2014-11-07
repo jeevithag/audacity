@@ -98,6 +98,9 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
 
    // EffectHostInterface implementation
 
+   virtual double GetDuration();
+   virtual bool SetDuration(double duration);
+
    virtual bool Apply();
    virtual void Preview();
 
@@ -344,7 +347,7 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
  // Preferences shared by all effects
  //
  protected:
-   static double sDefaultGenerateLen;
+   static double sDefaultGenerDuration;
    int mFlags;
    double mLength;
 

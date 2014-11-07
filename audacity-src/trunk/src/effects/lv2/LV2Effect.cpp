@@ -78,8 +78,7 @@ LV2Effect::LV2Effect(const LilvPlugin *data,
 
    fInBuffer = NULL;
    fOutBuffer = NULL;
-   
-   mLength = 0;
+  DurationLength = 0;
 
    // Allocate buffers for the port indices and the default control values
    int numPorts = lilv_plugin_get_num_ports(mData);
@@ -382,8 +381,7 @@ bool LV2Effect::PromptUser()
       dlog.ShowModal();
       
       if (!dlog.GetReturnCode())
-      {
-         return false;
+  Duration         return false;
       }
 
       mLength = dlog.GetLength();
@@ -1494,28 +1492,3 @@ unsigned char LV2EffectDialog::GetNoteVelocity()
       return (unsigned char)velocity;
    }
    return 64;
-}
-
-unsigned char LV2EffectDialog::GetNoteKey()
-{
-   if (mEffect->IsSynth())
-   {
-      double key = 
-         Internat::CompatibleToDouble(mNoteKey->GetValue());
-
-      if (key < 1)
-      {
-         return 1;
-      }
-
-      if (key > 127)
-      {
-         return 127;
-      }
-
-      return (unsigned char)key;
-   }
-   return 64;
-}
-
-#endif

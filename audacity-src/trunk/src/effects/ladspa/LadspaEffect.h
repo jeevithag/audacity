@@ -19,6 +19,8 @@ class wxCheckBox;
 #include "audacity/ModuleInterface.h"
 #include "audacity/PluginInterface.h"
 
+#include "../../widgets/TimeTextCtrl.h"
+
 #include "ladspa.h"
 
 #define LADSPAEFFECTS_VERSION wxT("1.0.0.0");
@@ -126,6 +128,9 @@ private:
    float *mInputControls;
    float *mOutputControls;
 
+   int mLatencyPort;
+   bool mLatencyDone;
+
    // Realtime processing
    LadspaSlaveArray mSlaves;
    wxArrayInt mSlaveChannels;
@@ -183,41 +188,38 @@ lic wxDialog {
          sampleCou            int sampleRate,
                       double length);
 
-   ~LadspaEffectDialog();
-
-   void OnCheckBox(wxCommandEvent & event);
-   void OnSlider(wxCommandEvent & event);
-   void OnTextCtrl(wxCommandEve#if defined(EXPERIMENTAL_REALTIME_EFFECTS)
-   void OnApply(wxCommandEvent & evt);
-#else
-   void OnOk(wxCommandEvent & evt);
-   void OnCancel(wxCommandEvent & evt);
-   void OnPreview(wxCommandEvent & evt);
-#endif   
-   void ControlSetFocus(wxFocusEvent & event);
-
-   double GetLength();
+   ~LadspaEffectDdouble GetLength();
 
    DECLARE_EVENT_TABLE()
 
-NT_TABLE()
+private:
+   void OnCheckBox(wxCommandEvent & evt);
+   void OnSlider(wxCommandEvent & evt);
+   void OnTextCtrl(wxCommandEvent & evt);
+   void OnApply(wxCommandEvent & evt);
+   void OnOK(wxCommandEvent & evt);
+   void OnCancel(wxCommandEvent & evt);
+   void OnPreview(wxCommandEvent & evt);
+   void OnDefaults(wxCommandEvent & evt);
 
- private:
    void HandleText();
+   void RefreshParaemtersid HandleText();
    void ConnectFocus(wxControl *c);
-   void DisconnectFocus(wxControl *c);
+   void DisconnectFocus(wxConvoid ControlSetFocus(wxFocusEvent & evt);
+
+private:
    bool inSlider;
    bool inText;
 
-   double mLength;
-   int sampleRate;
+   int mSampleRate;
    const LADSPA_Descriptor *mData;
-   wxSlider **sliders;
-   wxTextCtrl **fields;
-   wxStaticText **labels;
-   wxCheckBox **toggles;
-   unsigned long *ports;
-   unsigned long numParammI;
-   float *inputControls;
-   LadspaEffect *effect;
+   wxSlider **mSliders;
+   wxTextCtrl **mFields;
+   wxStaticText **mLabels;
+   wxCheckBox **mToggles;
+   unsigned long *mPorts;
+   unsigned long mNumParams;
+   float *mInputControls;
+   LadspaEffect *mEffect;
+   Timeeffect;
    wxTextCtrl *
