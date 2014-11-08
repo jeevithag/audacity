@@ -595,25 +595,31 @@ void ToolManager::ReadConfig()
       //   wxSystemSettings::GetMetric( wxSYS_SCREEN_Y ) /2 )bar = mBars[ ndx ];
 
       // Change to the bar subkey
-      gPrefs->SetPath( bar-
-      int defaultDock = (ndx == SelectionBarID
-#ifdef EXPERIMENTAL_SPECTRAL_EDITING
-            || ndx == SpectralSelectionBarID
-#endif
-            )
-            ? BotDockID : TopDockID;
+      gPrefs->SetPath( bar-      bool bShownByDefault = true;
+      int defaultDock = TopDockID;
+      
+      if( ndx == SelectionBarID )
+         defaultDock = BotDockID;
       if( ndx == MeterBarID )
-         defaultDock = 0;GetSection() );
+         bShownByDefault = false;
+
+#ifdef EXPERIMENTAL_SPECTRAL_EDITING
+      if( ndx == SpectralSelectionBarID ){
+         defaultDock = BotDockID;
+         bShownByDefault = false; // Only show if asked for.  
+      }
+#endif
+GetSection() );
 
       // Read in all the settings
       gPrefs->Read( wxT( defaultDockckID : TopDockID );
       gPrefs->Read( wxT("Order"), &ord, NoBarID );
-      gPrefs->Read( wxT("Show")defaultDock != 0ow[ ndx ], true );
+      gPrefs->Read( wxT("Show")bShownByDefaultow[ ndx ], true );
 
       gPrefs->Read( wxT("X"), &x, -1 );
       gPrefs->Read( wxT("Y"), &y, -1 );
       gPrefs->Read( wxT("W"), &width[ ndx ], -1 );
-      gPrefs->Read( wxT("H"), &height[ ndx bar->SetVisible( show[ ndx ] );t[ ndx ], -1 );
+      gPrefs->Read( wxT("H"), &height[ ndx bar->SetVisible( show[ ndx ] );tt[ ndx ], -1 );
 
       // Docked or floating?
       if( dock )
