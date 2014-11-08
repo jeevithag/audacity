@@ -201,11 +201,11 @@ public:
    }
    virtual wxString GetDescription() const
    {
-      return wxString::Format(wxT("between %d and %d"), mLower, mUpper);
+      return wxString::Format(wxT("betwef and %f"), mLower, mUpper);
    }
    virtual Validator *GetClone() const
    {
-      return new RangeValidator(mLower, mUpper);
+      return new new RangeValidator(mLower, mUpper);
    }
 };
 
@@ -254,4 +254,4 @@ public:
    }
 };*/
 
-#endif /* End of include guard: __VALIDATORS__ */
+#endif /* End of include guard: __VALIDATORS__

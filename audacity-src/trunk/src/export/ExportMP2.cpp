@@ -276,8 +276,8 @@ int ExportMP2::Export(AudacityProject *project,
 
    ProgressDialog *progress = new ProgressDialog(wxFileName(fName).GetName(),
       selectionOnly ?
-      wxString::Format(_("Exporting selected audio at(int) bitrate) :
-      wxString::Format(_("Exporting entire file at %d kbps"), (int)t %d kbps"), bitrate));
+      wxString::Format(_("Exporting selecteld kbps"), bitrate) :
+      wxString::Format(_("Exporting entire file at %ld kbps"),t %d kbps"), bitrate));
 
    int updateResult = eProgressSuccess;
    while(updateResult == eProgressSuccess) {

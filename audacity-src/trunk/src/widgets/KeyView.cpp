@@ -622,8 +622,8 @@ KeyView::RefreshBindings(const wxArrayString & names,
          {
             KeyNode node;
 
-            // Fill in the node infonfo
-            node.name = wxEmptyString;    // don't associate branches with a comm
+            // Fill in the node info
+            node.name = wxEmptyString;    // don't associate branches with a command
             node.category = cat;
             node.prefix = pfx;
             node.label = cat;
@@ -661,8 +661,8 @@ KeyView::RefreshBindings(const wxArrayString & names,
          {
             KeyNode node;
 
-            // Fill in the node infonfo
-            node.name = wxEmptyString;    // don't associate branches with a comm
+            // Fill in the node info
+            node.name = wxEmptyString;    // don't associate branches with a command
             node.category = cat;
             node.prefix = pfx;
             node.label = pfx;
@@ -731,7 +731,7 @@ KeyView::RefreshBindings(const wxArrayString & names,
    // For debugging
    for (int j = 0; j < mNodes.GetCount(); j++)
    {
-      KeyNode & node = mNodes[j];Nodes[j];
+      KeyNode & node = mNodes[j];Nodes[j];
       wxLogDebug(wxT("NODE line %4d index %4d depth %1d open %1d parent %1d cat %1d pfx %1d name %s STR %s | %
          node.line,
          node.index,
@@ -831,8 +831,8 @@ KeyView::RefreshLines()
 
             // This node is a category or prefix node, so always mark them
             // as open.
-            //       //
-            // What this is really doing is resolving a situation 
+            //
+            // What this is really doing is resolving a situation where the
             // the filter matches a parent node and nothing underneath.  In
             // this case, the node would never be marked as open.
             if (node.isparent)
@@ -850,7 +850,7 @@ KeyView::RefreshLines()
                   // ancestors need to be added prior to adding this node.
                   bool found = false;
                   for (int k = (int) mLines.GetCount() - 1; k >= 0; k--)
-                  {k--)
+                  {k--)
                   {
                      // The node indexes match, so we've
                      // child node.
@@ -861,7 +861,7 @@ KeyView::RefreshLines()
                      }
                   }
 
-                  // The parent wasn't found so remember it for laterso remember it for later
+                  // The parent wasn't found so remember it for laterso remember it for later
                   // addition.  Can't add direct
                   // they will wind up in reverse order.
                   if (!found)
@@ -911,9 +911,8 @@ KeyView::RefreshLines()
             // Add the node
             node.line = linecnt++;
             mLines.Add(&node);
-     mLines.Add(&node);
 
-            // If this node is not open, then ski
+            // If this node is not open, then skip all of it's decendants
             if (!node.isopen)
             {
                bool iscat = node.iscat;
@@ -974,7 +973,7 @@ KeyView::RefreshLines()
    // For debugging
    for (int j = 0; j < mLines.GetCount(); j++)
    {
-      KeyNode & node = *mLines[j];ode & node = *mLines[j];
+      KeyNode & node = *mLines[j];ode & node = *mLines[j];
       wxLogDebug(wxT("LINE line %4d index %4d depth %1d open %1d parent %1d cat %1d pfx %1d nam
          node.line,
          node.index,
@@ -1059,7 +1058,7 @@ KeyView::IndexToLine(int index) const
 
 //
 // Draw the background for a given line
-//   }
+//   }
 }
 
 //
@@ -1067,10 +1066,8 @@ KeyView::IndexToLine(int index) const
 //
 // This is called by the listbox when 
 //
-voidto redraw the view.
-//
 void
-KeyView::OnDrawBackground(wxDC & dc, const wxRect
+KeyView::OnDrawBackground(wxDC & dc, const wxRect & rect, size_t line) const
 {
    const KeyNode *node = mLines[line];
    wxRect r = rect;
@@ -1120,7 +1117,7 @@ KeyView::OnDrawBackground(wxDC & dc, const wxRect
 
 //
 // Draw a line
-//   }
+//   }
 }
 
 //
@@ -1139,18 +1136,12 @@ KeyView::OnDrawItem(wxDC & dc, const wxRect & rect, size_t line) const
 
    // Set the text color based on selection and focus
    if (IsSelected(line) && FindFocus() == this)
-   {GHTTEXT));
+   {
+      dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXHIGHLIGHTTEXT));
    }
    else
    {
-      dc.SetTextForeground(wxSystemSettings::GeHIGHLIGHTTEXT));
-   }
-   else
-   {GHTTEXT));
-   }
-   else
-   {
-      dc.SetTextForeground(wxSystemSettings::GetColour
+      dc.SetTextForeground(wxSystemSettings::GetColour(wxSYS_COLOUR_LISTBOXTEXT));
    }
 
    // Tree views get bitmaps
@@ -1166,8 +1157,8 @@ KeyView::OnDrawItem(wxDC & dc, const wxRect & rect, size_t line) const
       }
       else if (node->ispfx)
       {
-         // Draw prefix bitmap to the right of the category bitmapright of the category bitmap
-         dc.DrawBitmap(node->isopen ? *mOpen : *mClosed, 
+         // Draw prefix bitmap to the right of the category bitmap
+         dc.DrawBitmap(node->isopen ? *mOpen : *mClosed, x + KV_BITMAP_SIZE, rect.y);
       }
 
       // Indent text
@@ -1192,7 +1183,7 @@ KeyView::OnDrawItem(wxDC & dc, const wxRect & rect, size_t line) const
       if(mViewType == ViewByName)
       {
          // Draw command column and then key column
-         dc.DrawText(label, x, rect.y);.DrawText(label, x, rect.y);
+         dc.DrawText(label, x, rect.y);.DrawText(label, x, rect.y);
          dc.DrawText(node->key, x + mCommandWidth 
       }
       else if(mViewType == ViewByKey)
@@ -1208,7 +1199,7 @@ KeyView::OnDrawItem(wxDC & dc, const wxRect & rect, size_t line) const
 
 //
 // Provide the height of the given line
-//   }
+//   }
 }
 
 //
@@ -1407,7 +1398,8 @@ KeyView::OnKeyDown(wxKeyEvent & event)
             {
                // Node is now open
                node->isopen = true;
-        node->isopen = true;
+
+       node->isopen = true;
 
                // Don't want the view to scroll vertic
                // top line.
@@ -1476,9 +1468,8 @@ KeyView::OnKeyDown(wxKeyEvent & event)
 
          // A match wasn't found
          if (!found)
-         {       if (!found)
          {
-            // So scan from the start of
+            // So scan from the start of the list to the current node
             for (int i = 0; i < line; i++)
             {
                wxString label;
@@ -1552,7 +1543,9 @@ KeyView::OnLeftDown(wxMouseEvent & event)
          // Toggle state
          node->isopen = !node->isopen;
 
-         // Don't want the view to scroll vertically, so remember the current
+ node->isopen = true;
+
+               // Don't want the view to scroll vertic
          // top line.
          size_t topline = GetVisibleBegin();
 
@@ -1605,7 +1598,7 @@ KeyView::CmpKeyNodeByTree(KeyNode ***n1, KeyNode ***n2)
    else
    {
       // A "menu" node, so prepend the line number
-      k1.Printf(wxT("%08x%s"), t1->line, t1->label.c_str());
+      k1.Printf(wxT("%08x%s"), (unsigned int) t1->line, t1->label.c_str());
    }
 
    // See above for explanation
@@ -1617,7 +1610,7 @@ KeyView::CmpKeyNodeByTree(KeyNode ***n1, KeyNode ***n2)
    else
    {
       // A "menu" node, so prepend the line number
-      k2.Printf(wxT("%08x%s"), t2->line, t2->label.c_str());
+      k2.Printf(wxT("%08x%s"), (unsigned int) t2->line, t2->label.c_str());
    }
 
    // See wxWidgets documentation for explanation of comparison results.
@@ -1865,12 +1858,8 @@ KeyViewAx::ListUpdated()
                0);
 }
 
-//LIENT,
-               0);
-}
-
 //
-// Inform accessibility a new line has be
+// Inform accessibility a new line has been selected and/or a previously
 // selected line is being unselected
 //
 void
@@ -2007,9 +1996,9 @@ KeyViewAx::GetChildCount(int *childCount)
 // Gets the default action for this object (0) or > 0 (the action for a child).
 // Return wxACC_OK even if there is no action. actionName is the action, or the empty
 // string if there is no action.
-// The retrieved string describes the action that is performed on an object,that is performed on an object,
-// not what the object does as a result. For example, a toolbar button that prints
-// a document has a default action of "Press" rather than
+// The retrieved string describes the action that is performed on an object,
+// not what the object does as a result. For example, a toolbar button that prints
+// a document has a default action of "Press" rather than "Prints the current document."
 wxAccStatus
 KeyViewAx::GetDefaultAction(int WXUNUSED(childId), wxString *actionName)
 {
@@ -2045,12 +2034,8 @@ KeyViewAx::GetKeyboardShortcut(int WXUNUSED(childId), wxString *shortcut)
 
    return wxACC_OK;
 }
-lear();
 
-   return wxACC_OK;
-}
-
-// Returns the rectangle for this object (id = 
+// Returns the rectangle for this object (id = 0) or a child element (id > 0).
 // rect is in screen coordinates.
 wxAccStatus
 KeyViewAx::GetLocation(wxRect & rect, int elementId)
@@ -2134,10 +2119,8 @@ KeyViewAx::GetRole(int childId, wxAccRole *role)
 {
    if (childId == wxACC_SELF)
    {
-#if defined(__WXMSW__)LF)
-   {
 #if defined(__WXMSW__)
-      *role = mView->GetViewType() == ViewByTree ? wxROLE_SYSTE
+      *role = mView->GetViewType() == ViewByTree ? wxROLE_SYSTEM_OUTLINE : wxROLE_SYSTEM_LIST;
 #endif
 
 #if defined(__WXMAC__)
@@ -2148,7 +2131,7 @@ KeyViewAx::GetRole(int childId, wxAccRole *role)
    {
 #if defined(__WXMAC__)
       *role = wxROLE_SYSTEM_TEXT;
-#elseLF)
+#elseLF)
    {
 #if defined(__WXMSW__)
       *role = mView->GetViewType() == VieITEM : wxROLE_SYSTEM_LISTITEM;
@@ -2187,8 +2170,8 @@ KeyViewAx::GetState(int childId, long *state)
 
    if (!IdToLine(childId, line))
    {
-      *state = wxACC_STATE_SYSTEM_FOCUSABLE; // |CC_STATE_SYSTEM_FOCUSABLE; // |
-               //mView->FindFocus() == mView ? 
+      *state = wxACC_STATE_SYSTEM_FOCUSABLE; // |
+               //mView->FindFocus() == mView ? wxACC_STATE_SYSTEM_FOCUSED : 0;
       return wxACC_OK;
    }
 

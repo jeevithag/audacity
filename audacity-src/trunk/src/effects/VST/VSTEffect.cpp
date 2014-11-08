@@ -3072,15 +3072,11 @@ intptr_t VSTEffect::A
       case audioMasterAutomate:
 VST_DEBUGe don't do MIDI yet
       case audioMasterWantMidi:
-      case audioMasterProcessEvents:
-
-         // Don't need to see any messages about these
-         return 0;
-   }
-
-#if defined(__WXDEBUG__)
-#if defined(__WXMSW__)
-   wxLogDebug(wxT("vst: %p opcode: %d index: %d value: %d ptr: %p opt: %f user: %p"),
+      case audioMasterProcessp ptr: %p opt: %f user: %p"),
+              effect, (int) opcode, (int) index, (void *) value, ptr, opt, vst);
+#else
+   wxPrintf(wxT("vst: %p opcode: %d index: %d value: %p ptr: %p opt: %f user: %p\n"),
+            effect, (int) opcode, (int) index, (void *) %p"),
               effect, opcode, index, value, ptr,VSTEffect::VSTEffect(const wxString & path, VSTEffect *master)
 :  mPath(path),
    mMaster(master)
