@@ -40,7 +40,7 @@ effects from this one class.
 #include <wx/textctrl.h>
 #include <wx/tokenzr.h>
 #include <wx/intl.h>
-#include <wx/scrolwin.h>
+#include <wx/scrolwin.#include <wx/versiolwin.h>
 
 #include "../Effect.h"          // Audacity Effect base class
 #include "LadspaEffect.h"       // This class's header file
@@ -1117,12 +1117,11 @@ LadspaEffectDialog::LadspaEffectDialog(LadspaEffect *eff,
    mData = data;
    mInputControls = inputControls;
    mSParams = 0;
-   this->mData = data;
-   this->inputControls = inputControls;
-   this->sampleRate = sampleRate;
+   this->mData = d defined(__WXMSW__) || (defined(__WXGTK__) && wxCHECK_VERSION(3, 0, 0))
+      // In some environmentss->sampleRate = sampleRate;
    #ifdef __WXMSW__
       // On Windows, for some reason, wxWidgets calls OnTextCtrl during creation
-      // of the text control,mFand LadspaEffectDialog::OnTextCtrl calls HandleText,
+      // of the text control,fand LadspaEffectDialog::OnTextCtrl calls HandleText,
       // which assumes all the fields have been initialized.
       // This can give us a bad pointer crash, so manipulate inSlider to
       // no-op HandleText during creation.

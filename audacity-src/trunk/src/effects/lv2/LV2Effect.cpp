@@ -40,6 +40,7 @@
 #include <wx/tokenzr.h>
 #include <wx/intl.h>
 #include <wx/scrolwin.h>
+#include <wx/version.h>
 
 #include "../Effect.h"
 #include "LoadLV2.h"
@@ -904,15 +905,14 @@ LV2EffectDialog::LV2EffectDialog(LV2Effect *effect,
             mEffect->GetString(lilv_plugin_get_name(data)),
             wxDefaultPosition, wxSize(500, -1),
             wxDEFAULT_DIALOG_STYLE | wxRESIZE_BORDER),
-   mEffect(effect),
-   mData(data),
-   mControls(effect->GetControls()),
+   mEffect(effect) || (defined(__WXGTK__) && wxCHECK_VERSION(3, 0, 0))
+   // In some environmentsct->GetControls()),
    mSampleRate(sampleRate),
    mLength(length)
 {
 
 #if defined(__WXMSW__)
-   // On Windows, for some reason, wxWindows calls OnTextCtrl during creation
+   // On Windows, for some reason, wxWindows calls OnTexftrl during creation
    // of the text control, and LV2EffectDialog::OnTextCtrl calls HandleText,
    // which assumes all the mFields have been initialized.
    // This can give us a bad pointer crash, so manipulate inSlider to
