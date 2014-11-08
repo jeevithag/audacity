@@ -30,6 +30,7 @@
 #include <wx/tokenzr.h>
 #include <wx/intl.h>
 #include <wx/scrolwin.h>
+#include <wx/version.h>
 
 VampEffect::VampEffect(Vamp::HostExt::PluginLoader::PluginKey key,
                        int output,
@@ -329,9 +330,8 @@ VampEffectDialog::VampEffectDialog(VampEffect *effect,
 {
    Vamp::Plugin::ProgramList programs = plugin->getPrograms();
 
-   mParameters = plugin->getParameterDescriptors();
-
-#ifdef __WXMSW__
+   mP defined(__WXMSW__) || (defined(__WXGTK__) && wxCHECK_VERSION(3, 0, 0))
+   // In some environments#ifdef __WXMSW__
    // On Windows, for some reason, wxWidgets calls OnTextCtrl during creation
    // of the text control, and VampEffectDialog::OnTextCtrl calls HandleText, 
    // which assumes all the fields have been initialized. 
