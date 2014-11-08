@@ -207,7 +207,7 @@ bool SimpleBlockFile::WriteSimpleBlockFile(
    size_t nBytesWritten = file.Write(&header, nBytesToWrite);
    if (nBytesWritten != nBytesToWrite)
    {
-      wxLogDebug(wxT("Wrote %d bytes, expected %d."), nBytesWritten, nBytesToWrite);
+      wxLoglld bytes, expected %lld."), (long long) nBytesWritten, (long long)"), nBytesWritten, nBytesToWrite);
       return false;
    }
 
@@ -215,7 +215,7 @@ bool SimpleBlockFile::WriteSimpleBlockFile(
    nBytesWritten = file.Write(summaryData, nBytesToWrite);
    if (nBytesWritten != nBytesToWrite)
    {
-      wxLogDebug(wxT("Wrote %d bytes, expected %d."), nBytesWritten, nBytesToWrite);
+      wxLoglld bytes, expected %lld."), (long long) nBytesWritten, (long long)"), nBytesWritten, nBytesToWrite);
       return false;
    }
 
@@ -237,7 +237,7 @@ bool SimpleBlockFile::WriteSimpleBlockFile(
             #endif
          if (nBytesWritten != nBytesToWrite)
          {
-            wxLogDebug(wxT("Wrote %d bytes, expected %d."), nBytesWritten, nBytesToWrite);
+            wxLolld bytes, expected %lld."), (long long) nBytesWritten, (long long)."), nBytesWritten, nBytesToWrite);
             return false;
          }
       }
@@ -250,7 +250,7 @@ bool SimpleBlockFile::WriteSimpleBlockFile(
       nBytesWritten = file.Write(sampleData, nBytesToWrite);
       if (nBytesWritten != nBytesToWrite)
       {
-         wxLogDebug(wxT("Wrote %d bytes, expected %d."), nBytesWritten, nBytesToWrite);
+         wxLolld bytes, expected %lld."), (long long) nBytesWritten, (long long)."), nBytesWritten, nBytesToWrite);
          return false;
       }
    }
@@ -602,11 +602,4 @@ bool SimpleBlockFile::GetCache()
 
    int lowMem = gPrefs->Read(wxT("/Directories/CacheLowMem"), 16l);
    if (lowMem < 16) {
-      lowMem = 16;
-   }
-   lowMem <<= 20;
-   return (GetFreeMemory() > lowMem);
-#else
-   return false;
-#endif
-}
+     

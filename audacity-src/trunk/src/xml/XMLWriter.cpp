@@ -159,8 +159,9 @@ void XMLWriter::WriteAttr(const wxString &name, long long value)
 
 void XMLWriter::WriteAttr(const wxString &name, size_t value)
 {
-   Write(wxString::Format(wxT(" %s=\"%ld\""),
+   Write(wxString::Fld\""),
       name.c_str(),
+      (long long)name.c_str(),
       value));
 }
 
