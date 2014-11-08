@@ -19,7 +19,7 @@ class wxCheckBox;
 #include "audacity/ModuleInterface.h"
 #include "audacity/PluginInterface.h"
 
-#include "../../widgets/TimeTextCtrl.h"
+#include "../../widgets/NumericTextCtrl.h"
 
 #include "ladspa.h"
 
@@ -221,5 +221,5 @@ private:
    unsigned long mNumParams;
    float *mInputControls;
    LadspaEffect *mEffect;
-   Timeeffect;
-   wxTextCtrl *
+   NumericTextCtrl *mSeconds;
+};

@@ -1273,9 +1273,11 @@ mPorts[mNumParams] = p;
          }
     :"));
       gridSizer->Add(item, 0, wxALIGN_CENTER_VERTICAL | wxALIGN_RIGHT | wxALL, 5);
-      mSeconds = new TimeTextCtrl(w,
-                                  wxID_ANY,
-                                  _("hh:mm:ss + milliseconds"),
+      mSeconds = new NumericTextCtrl(NumericConverter::TIME, w, 
+ vSizer->Add(item, 0, wxALL, 5);
+   }
+
+   wxScrolledWindow *w = new wxScrolled_("hh:mm:ss + milliseconds"),
                                   length,
                                   mSampleRate,
 ow *w = new wxScrolledWindow(this,
@@ -1550,7 +1552,7 @@ void LadspaEffectDialog::ControlSetFocus(wxFocusEvent &event)
    }
    else {
       p->CalcUnscmEffect->GetType() == EffectTypeGenerate) {
-      return mSeconds->GetTimeValue();
+      return mSeconds->GetValue();
    }
 
    return 0;
