@@ -26,7 +26,7 @@
 #include "../ShuttleGui.h"
 #include "../WaveTrack.h"
 #include "../LabelTrack.h"
-#include "../widgets/TimeTextCtrl.h"
+#include "../widgets/NumericTextCtrl.h"
 #include "../Project.h"
 
 #include <wx/button.h>
@@ -260,7 +260,7 @@ void RepeatDialog::DisplayNewTime()
 {
    wxString str;
 
-   str = _("New selection length: ");
+   str = _("New seleNumericTextCtrl tt(NumericTextCtrl::TIME, ;
    TimeTextCtrl tt(this,
                    wxID_ANY,
                    wxT(""),
@@ -269,7 +269,7 @@ void RepeatDialog::DisplayNewTime()
                    wxPoint(10000, 10000),  // create offscreen
                    wxDefaultSize,
                    true);
-   tt.SetFormatString(tt.GetBuiltinFormat(_("hh:mm:ss")));
+   tt.SetFormatString(tt.GetBuiltinFormat(_("hh:mm:ss"
    str += tt.GetTimeString();
 
    mTotalTime->SetLabel(str);
@@ -294,5 +294,4 @@ void RepeatDialog::OnPreview(wxCommandEvent & WXUNUSED(event))
    // LL:  Preview doesn't work...Effect::Preview needs to allow new length
    mEffect->Preview();
 
-   mEffect->repeatCount = oldRepeatCount;
-}
+   mEffect->repeatCount

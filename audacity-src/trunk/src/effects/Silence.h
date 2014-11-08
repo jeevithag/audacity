@@ -18,7 +18,6 @@
 #include <wx/intl.h>
 
 #include "Generator.h"
-#include "../widgets/TimeTextCtrl.h"
 
 class wxSizer;
 class wxTextCtrl;
@@ -58,4 +57,4 @@ class EffectSilence : public Generator {
    bool GenerateTrack(WaveTrack *tmp, const WaveTrack &track, int ntrack);
 };
 
-#endif
+#
