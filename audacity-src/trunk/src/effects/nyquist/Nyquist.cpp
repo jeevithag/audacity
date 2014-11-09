@@ -578,11 +578,11 @@ bool EffectNyquist::PromptUser()
       }
 
       Preview()wxOK | wxCENTRE);
-            retur//TODO: re-instate the caching of the lisp parsing so it is only done once.
-      //small efficiency gain.
-      //Disabled for now in order to allow number of controls to be varied easily
-      //depending on whether time or time-and-frequency were selected.
-      //n false;
+            retur//TODO: If we want to auto-add parameters from spectral selection,
+      //we will need to modify this test.
+      //Note that removing it stops the caching of parameter values,
+      //(during this session).
+      n false;
          }
       }
 
