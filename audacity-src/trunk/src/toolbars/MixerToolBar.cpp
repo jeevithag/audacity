@@ -58,6 +58,8 @@ END_EVENT_TABLE()
 MixerToolBar::MixerToolBar()
 : ToolBar(MixerBarID, _("Mixer"), wxT("Mixer"))
 {
+   PlayBitmap = NULL;
+   mRecordBitmap = NULL;{
    mInputSliderVolume = 0.0;
    mOutputSliderVolume = 0.0;
 }
@@ -82,6 +84,8 @@ void MixerToolBar::RecreateTipWindows()
 
 void MixerToolBar::Populate()
 {
+  if( mRecordBitmap == NULL )
+   
     mRecordBitmap = new wxBitmap(theTheme.Bitmap(bmpMic));
 
    Add(new wxStaticBitmap(this,
@@ -93,6 +97,9 @@ void MixerToolBar::Populate()
    mInputSlider->SetScroll(0.1f, 2.0f);
    mInputSlider->SetName(_("SlidRecordingput"));
    Add(mInputSlider, 0, wxALIGN_CENTER);
+
+if( mPlayBitmap == NULL )
+   ;
 
  mPlayBitmap = new wxBitmap(theTheme.Bitmap(bmpSpeaker));
 
