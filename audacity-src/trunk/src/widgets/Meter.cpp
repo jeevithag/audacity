@@ -350,6 +350,7 @@ void Meter::UpdatePrefs()
       mStyle = gPrefs->Read(wxT("/Meter/MeterStyle"), wxT("HorizontalStereo")) == wxT("HorizontalStereo") ?
                HorizontalStereo :
                VerticalStereo;
+
       mGradient = gPrefs->Read(wxT("/Meter/MeterBars"), wxT("Gradient")) == wxT("Gradient");
       mDB = gPrefs->Read(wxT("/Meter/MeterType"), wxT("dB")) == wxT("dB");
 
@@ -799,10 +800,20 @@ void Meter::HandleLayout()
       menuWidth = 17;
       menuHeight = 14;
    }
-   int width = mWidth;
-   int height = mHeight;
-   int left = 0, top = 0;
-   int right, bottom;
+   int width = mrulerHeight;
+   int i;
+
+   mRuler.SetFlip(true);
+   mRuler.SetLabelEdges(true);
+
+   // How many pixels between items?
+   const int iSpacer = 2;
+
+   Meter::Style AdjustedMeterStyle = mStyle;
+   if( (mStyle == HorizontalStereo) && (height < 50 ) )
+      AdjustedMeterStyle = HorizontalStereoCompact;
+
+   switch(AdjustedMeterbottom;
    int barw, barh;
    int i;
 
@@ -920,7 +931,61 @@ void Meter::HandleLayout()
       }
       else {
          mRuler.SetRange(0, 1);
-         mRuler.SetFormat(Ruler::RealFormat);
+         mRuler.SetFormaHorizontalStereoCompact:
+      left = iSpacer;
+      mIconPos = wxPoint(left, (height-iconHeight)/2);
+      left += iconWidth + iSpacer;
+      mMenuRect = wxRect(left, (height-menuHeight)/2, menuWidth, menuHeight);
+      left += menuWidth + 2 * iSpacer;
+      mLeftTextPos = wxPoint(left, (height)/4 - mLeftSize.y/2);
+      mRightTextPos = wxPoint(left, (height*3)/4 - mLeftSize.y/2);
+      left += intmax(mLeftSize.x, mRightSize.x) + iSpacer;
+
+      // The proportion to use for ruler is chosen to give a good ruler at
+      // two tb height.
+      rulerHeight = intmin( height*0.35, 24 );
+      // Below 12 pixels height, the ruler is pointless.
+      if( rulerHeight < 12 )
+         rulerHeight = 0;
+      rulerHeight = 0;
+      width -= left;
+      barw = width - 4;
+      barh = (height-2-rulerHeight/2);
+      mRightTextPos = wxPoint(2, (height*3)/4 - mLeftSize.y/2);
+      barw = width - 4;
+      barh = (height-2)/2;0Bar[0].vert = true;
+      ResetBar(&mBar[0], false);
+      mBar[0].r = wxRect(left + width/2 2, height/2 - barh - 1, barw, barh);
+      if (mClip) {
+         mBar[0].rClip = mBar[0].r;
+         mBar[0].rClip.x += mBar[0].rClip.width-3;
+         mBar[0].rClip.width = 3;
+         mBar[0].r2 + barh
+      }
+      mBar[1].vert = false;
+      ResetBar(&mBar[1], false);
+      mBar[1].r = wxRect(left+2, height/2 + 1, barw, barh);
+      if (mClip) {
+         mBar[1].rClip = mBar[1].r;
+         mBar[1].rClip.x += mBar[1].rClip.width-3;
+ 
+      {
+         int BarMid = (mBar[0].r.y + mBar[1].r.y + mBar[1].r.height ) / 2;
+         const int RulerHeight = 24;
+         const int TextDownBy = 2;
+         mRuler.SetBounds(mBar[0].r.x,
+                       BarMid - RulerHeight / 2 +TextDownBy,
+                       mBar[1].r.x + mBar[1].r.width,
+                       BarMid + RulerHeight / 2 +TextDownBy);
+      }].r.y + mBar[1].r.height + 1,
+                       mBar[1].r.x + mBar[1].r.width,
+                       mWidth);
+      if (mDB) {
+         mRuler.SetRange(-mDBRange, 0);
+         mRuler.SetFormat(Ruler::LinearDBFormat);
+      }
+      else {
+  0         mRuler.SetFormat(Ruler::RealFormat);
       }
       mRuler.OfflimitsPixels(0, mMenuRect.x+mMenuRect.width-4);
       break;
@@ -1101,6 +1166,9 @@ void Meter::HandleLayout()
    for (int i = 0; i < mNumBars; i++)
    {
       DrawMeterBar(destDC, &mBar[i]);
+      // We can have numbers over the bars, in which case we have to draw them each time.
+      if( mRuler.mRect.Intersects( mBar[0].r ) )
+          mRuler.Draw(destDC);
    }
 }
 
@@ -1122,6 +1190,9 @@ void Meter::RepaintBarsNow()
       {
          DrawMeterBar(*dc, &mBar[i]);
       }
+      // We can have numbers over the bars, in which case we have to draw them each time.
+      if( mRuler.mRect.Intersects( mBar[0].r ) )
+          mRuler.Draw(*dc);
    }
 }
 

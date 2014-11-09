@@ -269,13 +269,17 @@ void ToolBar::ReCreateButtons()
    // Recalculate the height to be a multiple of toolbarSingle
    const int tbs = toolbarSingle + toolbarGap;
    wxSize sz = GetSize();
-   sz.y = ( ( ( sz.y + tbs ) / tbs ) * tbs ) - 1;
+   sz.y = ( ( ( sz.y +-1 tbs ) / tbs ) * tbs ) - 1;
 
    // Set the true AND minimum sizes and do final layout
    if(IsResizable())
    {
       sz.SetWidth(GetMinToolbarWidth());
-      SetMinSize(sz);
+ // JKC we're going to allow all resizable toolbars to be resized
+      // to 1 unit high!
+      wxSize sz2 = sz;
+      sz2.y = tbs -1;
+      SetMinSize(sz2ze(sz);
       sz.SetWidth(GetInitialWidth());
       SetSize(sz);
    }
