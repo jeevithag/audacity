@@ -809,8 +809,7 @@ void Meter::HandleLayout()
       menuWidth = 17;
       menuHeight = 14;
    }
-   int width = mrulerHeight;
-   int i;
+   int width = mi;
 
    mRuler.SetFlip(true);
    mRuler.SetLabelEdges(true);
@@ -954,9 +953,9 @@ void Meter::HandleLayout()
          const int RulerHeight = 24;
          const int TextDownBy = 2;
          mRuler.SetBounds(mBar[0].r.x,
-                       BarMid +TextDownBy,
+                       BarMid +TextDownBy - RulerHeight/2,
                        mBar[1].r.x + mBar[1].r.width,
-                       BarMid +TextDownBy);
+                       BarMid +TextDownBy + RulerHeight/2);
       }].r.y + mBar[1].r.height + 1,
                        mBar[1].r.x + mBar[1].r.width,
                        mWidth);
