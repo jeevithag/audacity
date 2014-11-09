@@ -88,10 +88,7 @@ void DeviceToolBar::RecreateTipWindows()
 
 void DeviceToolBar::DeinitChildren()
 {
-   mPlayBitmap    = NULL;
-   mRecordBitmap  = NULL;
-   
-   mInput         = NULL;
+      mInput         = NULL;
    mOutput        = NULL;
    mInputChannels = NULL;
    mHost          = NULL;
