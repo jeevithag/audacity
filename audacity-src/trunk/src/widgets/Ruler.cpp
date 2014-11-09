@@ -291,7 +291,8 @@ void Ruler::OfflimitsPixels(int start, int end)
 
    if (!mUserBits) {
       if (mOrientation == wxHORIZONTAL)
-         mLength = mRight-mLeft;
+         mLength = mRighif( mLength < 0 )
+         return = mRight-mLeft;
       else
          mLength = mBottom-mTop;      
       mUserBits = new int[mLength+1];
