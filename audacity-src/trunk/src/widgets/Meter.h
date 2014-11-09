@@ -202,7 +202,7 @@ class Meter : public wxPanel
    void OnAutomatedInputLevelAdjustment(wxCommandEvent &evt);
 #endif
    void OnFloat(wxCommandEvent &evt);
-   void OnPreferences(wxCommandEven;
+   void OnPreferences(wxCommandEven   void SetBarClip( int iBar );;
 
  private:
    void DrawMeterBar(wxDC &dc, MeterBar *meterBar);
