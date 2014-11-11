@@ -9,6 +9,7 @@
 
 **********************************************************************/
 
+#include "../Audacity.h"
 
 #include "Effect.h"
 #include "EffectCategory.h"
@@ -95,5 +96,4 @@ bool EffectCategory::IsDescendantOf(EffectCategory* category) {
       if ((*iter)->IsDescendantOf(category))
          return true;
    }
-   return false;
-}
+ 
