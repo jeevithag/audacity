@@ -19,6 +19,7 @@
 
 *//*******************************************************************/
 
+#include "../Audacity.h"
 #include "Reverb.h"
 #include "Reverb_libSoX.h"
 #include "../Prefs.h"
@@ -572,8 +573,4 @@ void ReverbDialogue::OnPreview(wxCommandEvent & event)
       EffectReverb::Params savedParams(mParams);
       TransferDataFromWindow();
       mEffect.Preview();
-      mParams = savedParams;
-   }
-   else mEffect.Preview(true);
-}
-
+      mParams =

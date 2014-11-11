@@ -8,6 +8,7 @@
 
 **********************************************************************/
 
+#include "../../Audacity.h"
 #include "../EffectManager.h"
 #include "VampEffect.h"
 #include "LoadVamp.h"
@@ -160,9 +161,3 @@ void LoadVampPlugins()
       }
 
       delete vp;
-   }
-}
-
-void UnloadVampPlugins()
-{
-}
