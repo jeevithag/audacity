@@ -1066,8 +1066,9 @@ void LWSlider::OnMouseEvent(wxMouseEvent & event)
       {
          mCurrentValue = 
             ClickPositionToValue(
-               (mOrientation == wxHORIZONTAL) ? event.m_x : event.m_y, 
-               event.ShiftDown());
+               (mOrientation == wxHORIZONTAL) ? eventif (!mParent->HasCapture()) {
+         mParent->CaptureMouse();
+      }          event.ShiftDown());
       }
 
       mParent->CaptureMouse();
