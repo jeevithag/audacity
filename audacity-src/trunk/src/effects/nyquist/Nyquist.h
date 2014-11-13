@@ -119,7 +119,7 @@ GeneratorPreview();
 
    // Batch chain support
    virtual bool SupportsChains();  
-   virtual bool TransferParameters( Shuttle & shuttle );
+   virtual bool TransferParameters( Sh  static wxArrayString GetNyquistSearchPath(s( Shuttle & shuttle );
    
  private:
 
@@ -174,14 +174,14 @@ GeneratorPreview();
    wxString          mAction;
    wxString          mInEnablePreview   wxString          mInfo;
    bool              mDebug;
-   std::string       mDebugOutput;
+   std::strinint               mVersion;tring       mDebugOutput;
 
    NyqControlArray   mControls;
 
    int               mCurNumChannels;
    WaveTrack         *mCurTrack[2];
    sampleCount       mCurStart[2];
-   sampleCount       mCurLen;
+   sampint               mTrackIndex sampleCount       mCurLen;
    bool              mFirstInGroup;
    double            mOutputTime;
    int               mCount;
@@ -197,6 +197,7 @@ GeneratorPreview();
    WaveTrack         *mOutputTrack[2];
 
    wxArr
+   wxString          mPropArr
    friend class NyquistDialogrrayString     mCategories;
 };
 
