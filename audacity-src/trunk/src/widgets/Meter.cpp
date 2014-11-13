@@ -1393,7 +1393,10 @@ void Meter::StartMonitoring()
          wxCommandEvent dummy;
          OnDisableMeter(d         Meter *play, *record;
          MeterToolBars::GetMeters( &play, &record );
-         gAudioIO->SetMeters(record, play);     Meter *play, *record;
+         gAudioIO->SetMeters(record, play);     Meter *pl   // Update preferences also forces tooltips to be changed.
+   wxCommandEvent e(EVT_METER_PREFERENCES_CHANGED);
+   e.SetEventObject(this);
+   GetParent()->GetEventHandler()->ProcessEvent(e);ay, *record;
             bar->GetMeters(&play, &record);
             gAudioIO->SetMeters(record, play);
          }
