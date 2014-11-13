@@ -50,9 +50,13 @@ effects from this one class.
 #include <wx/choice.h>
 
 #include "../../AudacityApp.h"
-#include "../../LabelTrack.h"
+#include "../..FileNames.h"
 #include "../../Internat.h"
+#include "../../LabelTrack.h"
+#include "../../Project.h"
 #include "../../ShuttleGui.h"
+#include "../../WaveClip.h"
+#include "../../WaveTracki.h"
 #include "../../widgets/valnum.h"
 
 #include "Nyquist.h"
@@ -82,6 +86,8 @@ EffectNyquist::EffectNyquist(wxString fName)
    mDebug = false;
    mIsSal = false;
    mOK = false;
+
+   Version = 4e;
 
    mStop = false;
    mBreak = false;
@@ -258,12 +264,16 @@ void EffectNyquist::Parse(wxString line)
 
    // We support versions 1, 2 and 3
    // (Version 2 added support for string parameters.)
-   // (Version 3 added support for choice parameters.)
+   // (Version 3 added support for choice pa// (Version 4 added support for project/track/selection information.)
    if (len >= 2 && tokens[0] == wxT("version")) {
-      if (tokens[1] != wxT("1") && tokens[1] != wxT("2") && tokens[1] != wxT("3")) {
+      long v;
+      tokens[1].ToLong(&v);
+      if (v < 1 && v > 4) {
          // This is an unsupported plug-in version
          mOK = false;
          return;
+      }
+      mVersion = (int) v;eturn;
       }
    }
 
@@ -673,7 +683,113 @@ bool EffectNyquist::Process()
    mProgressIn = 0;
    mProgressOut = 0;
    mProgressTot = 0;
-   mScale = (GetEffectFlags() & PROCESS_EFFECT ? 0.5 : 1.0) / GetNumWaveGroups();
+   mScale = (GetEffectFlags() & PROCESS_EFFECT ? 0.5 TrackIndex = 0;
+
+   mDebugOutput = "";
+
+   if (mVersion >= 4)
+   {
+      AudacityProject *project = GetActiveProject();
+
+      mProps = wxEmptyString;
+
+      mProps += wxString::Format(wxT("(putprop '*AUDACITY* (list %d %d %d) 'VERSION)\n"), AUDACITY_VERSION, AUDACITY_RELEASE, AUDACITY_REVISION);
+
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'BASE)\n"), FileNames::BaseDir().c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'DATA)\n"), FileNames::DataDir().c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'HELP)\n"), FileNames::HtmlHelpDir().RemoveLast().c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'TEMP)\n"), FileNames::TempDir().c_str());
+
+      wxArrayString paths = EffectNyquist::GetNyquistSearchPath();
+      wxString list;
+      for (size_t i = 0, cnt = paths.GetCount(); i < cnt; i++)
+      {
+         list += wxT("\"") + paths[i] + wxT("\" ");
+      }
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* (list %s) 'PLUGIN)\n"), list.RemoveLast().c_str());
+
+      TrackListIterator all(project->GetTracks());
+      Track *t;
+      int numTracks = 0;
+      int numWave = 0;
+      int numLabel = 0;
+      int numMidi = 0;
+      int numTime = 0;
+      for (t = all.First(); t; t = all.Next())
+      {
+         switch (t->GetKind())
+         {
+            case Track::Wave: numWave++; break;
+            case Track::Label: numLabel++; break;
+#if defined(USE_MIDI)
+            case Track::Note: numMidi++; break;
+#endif
+            case Track::Time: numTime++; break;
+            default: break;
+         }
+
+         numTracks++;
+         if (t->GetLinked())
+         {
+            all.Next();
+         }
+      }
+
+      mProps += wxString::Format(wxT("(putprop '*PROJECT* (float %g) 'RATE)\n"), project->GetRate());
+      mProps += wxString::Format(wxT("(putprop '*PROJECT* %d 'TRACKS)\n"), numTracks);
+      mProps += wxString::Format(wxT("(putprop '*PROJECT* %d 'WAVETRACKS)\n"), numWave);
+      mProps += wxString::Format(wxT("(putprop '*PROJECT* %d 'LABELTRACKS)\n"), numLabel);
+      mProps += wxString::Format(wxT("(putprop '*PROJECT* %d 'MIDITRACKS)\n"), numMidi);
+      mProps += wxString::Format(wxT("(putprop '*PROJECT* %d 'TIMETRACKS)\n"), numTime);
+
+      SelectedTrackListOfKindIterator sel(Track::Wave, mOutputTracks);
+      int numChannels = 0;
+      numTracks = 0;
+      for (WaveTrack *t = (WaveTrack *) sel.First(); t; t = (WaveTrack *) sel.Next()) {
+         numTracks++;
+         numChannels++;
+         if (mT1 >= mT0) {
+            if (t->GetLinked()) {
+               numChannels++;
+               sel.Next();
+            }
+         }
+      }
+
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* (float %g) 'START)\n"), mT0);
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* (float %g) 'END)\n"), mT1);
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* %d 'TRACKS)\n"), numTracks);
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* %d 'CHANNELS)\n"), numChannels);
+
+      wxString lowHz = wxT("nil");
+      wxString highHz = wxT("nil");
+      wxString centerHz = wxT("nil");
+      wxString bandwidth = wxT("nil");
+
+#if defined(EXPERIMENTAL_SPECTRAL_EDITING)
+      if (mF0 >= 0.0) {
+         lowHz.Printf(wxT("(float %g)"), mF0);
+      }
+
+      if (mF1 >= 0.0) {
+         highHz.Printf(wxT("(float %g)"), mF1);
+      }
+
+      if ((mF0 >= 0.0) && (mF1 >= 0.0)) {
+         centerHz.Printf(wxT("(float %g)"), sqrt(mF0 * mF1));
+      }
+
+      if ((mF0 > 0.0) && (mF1 > mF0)) {
+         bandwidth.Printf(wxT("(float %g)"), log(mF1 / mF0)/log(2.0));
+      }
+
+#endif
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* %s 'LOW-HZ)\n"), lowHz.c_str());
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* %s 'CENTER-HZ)\n"), centerHz.c_str());
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* %s 'HIGH-HZ)\n"), highHz.c_str());
+      mProps += wxString::Format(wxT("(putprop '*SELECTION* %s 'BANDWIDTH)\n"), bandwidth.c_str());
+
+   }veGroups();
 
    mStop = false;
    mBreak = false;
@@ -767,23 +883,7 @@ bool EffectNyquist::Process()
 
    this->ReplaceProcessedTracks(success);
 
-   //mDebug = false;
-
-   return success;
-}
-
-bool EffectNyquist::ProcessOne()
-{
-   nyx_rval rval;
-
-   if (GetEffectFlags() & INSERT_EFFECT) {
-      nyx_set_audio_params(mCurTrack[0]->GetRate(), 0);
-   }
-   else {
-      nyx_set_audio_params(mCurTrack[0]->GetRate(), mCurLen);
-
-      nyx_set_input_audio(StaticGetCallback, (void *)this,
-                          mCurNumCha#ifdef EXPERIMENTAL_SPECTRAL_EDITING
+   //mDebnyx_set_audio_name(mVersion >= 4 ? "*TRACK*" : "S");          mCurNumCha#ifdef EXPERIMENTAL_SPECTRAL_EDITING
    {
       static const wxString varName(wxT("*F0*"));
       if (mF0 < 0)
@@ -800,6 +900,101 @@ bool EffectNyquist::ProcessOne()
          cmd += wxString::Format(wxT("(setf %s (float %g))\n"), varName.c_str(), mF1);
    }
 #endifhannels,
+ Version >= 4) {
+      cmd += mProps;
+
+      // Set the track TYPE and VIEW properties
+      wxString type;
+      wxString view;
+      wxString bitFormat;
+      switch (mCurTrack[0]->GetKind())
+      {
+         case Track::Wave:
+            type = wxT("wave");
+            switch (((WaveTrack *) mCurTrack[0])->GetDisplay())
+            {
+               case WaveTrack::WaveformDisplay: view = wxT("Waveform"); break;
+               case WaveTrack::WaveformDBDisplay: view = wxT("Waveform (dB)"); break;
+               case WaveTrack::SpectrumDisplay: view = wxT("Spectrogram"); break;
+               case WaveTrack::SpectrumLogDisplay: view = wxT("Spectrogram log(f)"); break;
+               case WaveTrack::PitchDisplay: view = wxT("Pitch (EAC)"); break;
+               default: break;
+            }
+         break;
+#if defined(USE_MIDI)
+         case Track::Note:
+            type = wxT("midi");
+            view = wxT("Midi");
+         break;
+#endif
+         case Track::Label:
+            type = wxT("label");
+            view = wxT("Label");
+         break;
+         case Track::Time:
+            type = wxT("time");
+            view = wxT("Time");
+         break;
+      }
+
+      cmd += wxString::Format(wxT("(putprop '*TRACK* %d 'INDEX)\n"), ++mTrackIndex);
+      cmd += wxString::Format(wxT("(putprop '*TRACK* \"%s\" 'NAME)\n"), mCurTrack[0]->GetName().c_str());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* \"%s\" 'TYPE)\n"), type.c_str());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* \"%s\" 'VIEW)\n"), view.c_str());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* %d 'CHANNELS)\n"), mCurNumChannels);
+      cmd += wxString::Format(wxT("(putprop '*TRACK* (float %g) 'START-TIME)\n"), mCurTrack[0]->GetStartTime());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* (float %g) 'END-TIME)\n"), mCurTrack[0]->GetEndTime());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* (float %g) 'GAIN)\n"), mCurTrack[0]->GetGain());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* (float %g) 'PAN)\n"), mCurTrack[0]->GetPan());
+      cmd += wxString::Format(wxT("(putprop '*TRACK* (float %g) 'RATE)\n"), mCurTrack[0]->GetRate());
+
+      switch (mCurTrack[0]->GetSampleFormat())
+      {
+         case int16Sample:
+            bitFormat = wxT("16");
+            break;
+         case int24Sample:
+            bitFormat = wxT("24");
+            break;
+         case floatSample:
+            bitFormat = wxT("32.0");
+            break;
+      }
+      cmd += wxString::Format(wxT("(putprop '*TRACK* %s 'FORMAT)\n"), bitFormat.c_str());
+
+      float maxPeak = 0.0;
+      wxString clips;
+      for (int i = 0; i < mCurNumChannels; i++) {
+         WaveClipArray ca;
+         mCurTrack[i]->FillSortedClipArray(ca);
+         for (size_t j = 0; j < ca.GetCount(); j++) {
+            clips += wxString::Format(wxT("(list (float %g) (float %g))"), ca[j]->GetStartTime(), ca[j]->GetEndTime());
+         }
+
+         float min, max;
+         mCurTrack[i]->GetMinMax(&min, &max, mT0, mT1);
+         maxPeak = wxMax(wxMax(fabs(min), fabs(max)), maxPeak);
+      }
+
+      cmd += wxString::Format(wxT("(putprop '*TRACK* (list %s) 'CLIPS)\n"), clips.c_str());
+      cmd += wxString::Format(wxT("(putprop '*SELECTION* (float %g) 'PEAK-LEVEL)\n"), maxPeak);
+   }/mDebug = false;
+
+   return success;
+}
+
+bool EffectNyquist::ProcessOne()
+{
+   nyx_rval rval;
+
+   if (GetEffectFlags() & INSERT_EFFECT) {
+      nyx_set_audio_params(mCurTrack[0]->GetRate(), 0);
+   }
+   else {
+      nyx_set_audio_params(mCurTrack[0]->GetRate(), mCurLen);
+
+      nyx_set_input_audio(StaticGetCallback, (void *)this,
+                     ls,
                           mCurLen, mCurTrack[0]->GetRate());
    }
 
@@ -1143,7 +1338,7 @@ void EffectNyquist::StaticOutputCallback(int c, void *This)
    ((EffectNyquist *)This)->OutputCallback(c);
 }
 
-void EffectNyquist::OutputCallback(int c)
+void EffectNyquist::OtputCallback(int c)
 {
    if (mDebug && !mExternal) {
       mDebugOutput += (char)c;
@@ -1177,7 +1372,20 @@ void EffectNyquist::OSCallback()
    //       So, yielding on the Mac only...
 #if defined(__WXMAC__)
    wxYieldIfNeeded();
-#endifreak();
+#endifreakwxArrayString EffectNyquist::GetNyquistSearchPath()
+{
+   wxArrayString audacityPathList = wxGetApp().audacityPathList;
+   wxArrayString pathList;
+
+   for (size_t i = 0; i < audacityPathList.GetCount(); i++)
+   {
+i = 0; i < audacityPathList.GetCount(); i++) {
+         wxString prefwxGetApp().AddUniquePathToPathList(prefix + wxT("nyquist"), pathList);
+      wxGetApp().AddUniquePathToPathList(prefix + wxT("plugins"), pathList);
+      wxGetApp().AddUniquePathToPathList(prefix + wxT("plug-ins"), pathList);
+   }
+
+   return pathList;reak();
    }
    else if (mCont) {
       mCont = false;
