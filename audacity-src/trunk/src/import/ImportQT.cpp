@@ -239,160 +239,176 @@ int QTImportFileHandle::Import(TrackFactory *trackFactory,
    AudioStreamBasicDescription desc;
    UInt32 maxSampleSize;
    UInt32 numchan;
-   UInt32 bufsize;
+   UInt32 bufsize;   bool res = false;
 
    CreateProgress();
 
-   err = MovieAudioExtractionBegin(mMovie, 0, &maer);
-   if (err != noErr) {
-      wxMessageBox(_("Unable to start QuickTime extraction"));
-      goto done;
-   }
-
-   err = MovieAudioExtractionSetProperty(maer,
-                                         kQTPropertyClass_MovieAudioExtraction_Audio,
-                                         kQTMovieAudioExtractionAudioPropertyID_RenderQuality,
-                                         sizeof(quality),
-                                         &quality);
-   if (err != noErr) {
-      wxMessageBox(_("Unable to set QuickTime render quality"));
-      goto done;
-   }
-
-   err = MovieAudioExtractionSetProperty(maer,
-                                         kQTPropertyClass_MovieAudioExtraction_Movie,
-                                         kQTMovieAudioExtractionMoviePropertyID_AllChannelsDiscrete,
-                                         sizeof(discrete),
-                                         &discrete);
-   if (err != noErr) {
-      wxMessageBox(_("Unable to set QuickTime discrete channels property"));
-      goto done;
-   }
-
-   err = MovieAudioExtractionGetProperty(maer,
-                                         kQTPropertyClass_MovieAudioExtraction_Audio,
-                                         kQTAudioPropertyID_MaxAudioSampleSize,
-                                         sizeof(maxSampleSize),
-                                         &maxSampleSize,
-                                         NULL);
-   if (err != noErr) {
-      wxMessageBox(_("Unable to get QuickTime sample size property"));
-      goto done;
-   }
-
-   err = MovieAudioExtractionGetProperty(maer,
-                                         kQTPropertyClass_MovieAudioExtraction_Audio,
-                                         kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
-                                         sizeof(desc),
-                                         &desc,
-                                         NULL);
-   if (err != noErr) {
-      wxMessageBox(_("Unable to retrieve stream description"));
-      goto done;
-   }
-
-   numchan = desc.mChannelsPerFrame;
-   bufsize = 5 * desc.mSampleRate;
-
-   // determine sample format
-   sampleFormat format;
-   switch (maxSampleSize)
+   do
    {
-      case 16:
-         format = int16Sample;
-         break;
-
-      case 24:
-         format = int24Sample;
-         break;
-
-      default:
-         format = floatSample;
-         break;
-   }
-
-   AudioBufferList *abl = (AudioBufferList *)
-      calloc(1, offsetof(AudioBufferList, mBuffers) + (sizeof(AudioBuffer) * numchan));
-   abl->mNumberBuffers = numchan;
-
-   WaveTrack **channels = new WaveTrack *[numchan];
-
-   int c;
-   for (c = 0; c < numchan; c++) {
-      abl->mBuffers[c].mNumberChannels = 1;
-      abl->mBuffers[c].mDataByteSize = sizeof(float) * bufsize;
-      abl->mBuffers[c].mData = malloc(abl->mBuffers[c].mDataByteSize);
-
-      channels[c] = trackFactory->NewWaveTrack(format);
-      channels[c]->SetRate(desc.mSampleRate);
-
-      if (numchan == 2) {
-         if (c == 0) {
-            channels[c]->SetChannel(Track::LeftChannel);
-            channels[c]->SetLinked(true);
-         }
-         else if (c == 1) {
-            channels[c]->SetChannel(Track::RightChannel);
-         }
-      }
-   }
-
-   do {
-      UInt32 flags = 0;
-      UInt32 numFrames = bufsize;
-
-      err = MovieAudioExtractionFillBuffer(maer,
-                                           &numFrames,
-                                           abl,
-                                           &flags);
+      err = MovieAudioExtractionBegin(mMovie, 0, &maer);
       if (err != noErr) {
-         wxMessageBox(_("Unable to get fill buffer"));
+         wxMessageBox(_("Unable to start QuickTime extraction"));
          break;
       }
-
+   
+   
+   err = MovieAudioExtractionSetProperty(maer,
+                                            kQTPropertyClass_MovieAudioExtraction_Audio,
+                                            kQTMovieAudioExtractionAudioPropertyID_RenderQuality,
+                                           sizeof(quality),
+                                            &quality);
+      if (err != noErr) {
+         wxMessageBox(_("Unable to set QuickTime render quality"));
+         break;
+      }
+   
+   
+   err = MovieAudioExtractionSetProperty(maer,
+                                           kQTPropertyClass_MovieAudioExtraction_Movie,
+   
+                                         kQTMovieAudioExtractionMoviePropertyID_AllChannelsDiscrete,
+                                           sizeof(discrete),
+                                            &discrete);
+      if (err != noErr) {
+   
+      wxMessageBox(_("Unable to set QuickTime discrete channels property"));
+        break;
+      }
+   
+      err = MovieAudioExtractionGetProperty(maer,
+   
+                                         kQTPropertyClass_MovieAudioExtraction_Audio,
+                                            kQTAudioPropertyID_MaxAudioSampleSize,
+                                           sizeof(maxSampleSize),
+   
+                                         &maxSampleSize,
+                                           NULL);
+      if (err != noErr) {
+         wxMessageBox(_("Unable to get QuickTime sample size property"));
+         break;
+      }
+   
+      err = MovieAudioExtractionGetProperty(maer,
+   
+                                         kQTPropertyClass_MovieAudioExtraction_Audio,
+                                            kQTMovieAudioExtractionAudioPropertyID_AudioStreamBasicDescription,
+                                           sizeof(desc),
+   
+                                         &desc,
+                                           NULL);
+      if (err != noErr) {
+         wxMessageBox(_("Unable to retrieve stream description"));
+         break;
+      }
+   
+      numchan = desc.mChannelsPerFrame;
+      bufsize = 5 * desc.mSampleRate;
+   
+      // determine sample format
+      sampleFormat format;
+      switch (maxSampleSize)
+      {
+         case 16:
+            format = int16Sample;
+            break;
+   
+         case 24:
+            format = int24Sample;
+            break;
+   
+         default:
+            format = floatSample;
+            break;
+      }
+   
+      AudioBufferList *abl = (AudioBufferList *)
+         calloc(1, offsetof(AudioBufferList, mBuffers) + (sizeof(AudioBuffer) * numchan));
+      abl->mNumberBuffers = numchan;
+   
+      WaveTrack **channels = new WaveTrack *[numchan];
+   
+      int c;
       for (c = 0; c < numchan; c++) {
+         abl->mBuffers[c].mNumberChannels = 1;
+         abl->mBuffers[c].mDataByteSize = sizeof(float) * bufsize;
+         abl->mBuffers[c].mData = malloc(abl->mBuffers[c].mDataByteSize);
+   
+         channels[c] = trackFactory->NewWaveTrack(format);
+         channels[c]->SetRate(desc.mSampleRate);
+   
+         if (numchan == 2) {
+            if (c == 0) {
+               channels[c]->SetChannel(Track::LeftChannel);
+               channels[c]->SetLinked(true);
+            }
+            else if (c == 1) {
+   
+            channels[c]->SetChannel(Track::RightChannel);
+           }
+         }
+      }
+   
+      do {
+         UInt32 flags = 0;
+         UInt32 numFrames = bufsize;
+   
+         err = MovieAudioExtractionFillBuffer(maer,
+                                              &numFrames,
+   
+                                           abl,
+                                             &flags);
+         if (err != noErr) {
+            wxMessageBox(_("Unable to get fill buffer"));
+            break;
+         }
+   
+         for (c = 0; c < numchan; c++) {
+   
          channels[c]->Append((char *) abl->mBuffers[c].mData, floatSample, numFrames);
-      }
-
-      numSamples += numFrames;
-
+        }
+   
+         numSamples += numFrames;
+   
+   
       updateResult = mProgress->Update((wxULongLong_t)numSamples,
-                                       (wxULongLong_t)totSamples);
-
+                                         (wxULongLong_t)totSamples);
+   
+   
       if (numFrames == 0 || flags & kQTMovieAudioExtractionComplete) {
-         break;
+           break;
+         }
+      } while (updateResult == eProgressSuccess);
+   
+      bool res = (updateResult == eProgressSuccess && err == noErr);
+   
+      if (res) {
+         for (c = 0; c < numchan; c++) {
+            channels[c]->Flush();
+         }
+   
+         *outTracks = (Track **) channels;
+         *outNumTracks = numchan;
       }
-   } while (updateResult == eProgressSuccess);
-
-   bool res = (updateResult == eProgressSuccess && err == noErr);
-
-   if (res) {
+      else {
+         for (c = 0; c < numchan; c++) {
+            delete channels[c];
+         }
+   
+         delete [] channels;
+      }
+   
       for (c = 0; c < numchan; c++) {
-         channels[c]->Flush();
+         free(abl->mBuffers[c].mData);
       }
-
-      *outTracks = (Track **) channels;
-      *outNumTracks = numchan;
-   }
-   else {
-      for (c = 0; c < numchan; c++) {
-         delete channels[c];
+      free(abl);
+   
+      //
+      // Extract any metadata
+      //
+      if (res) {
+         AddMetadata(tags);
       }
-
-      delete [] channels;
-   }
-
-   for (c = 0; c < numchan; c++) {
-      free(abl->mBuffers[c].mData);
-   }
-   free(abl);
-
-   //
-   // Extract any metadata
-   //
-   if (res) {
-      AddMetadata(tags);
-   }
+   } while (false);}
 
 done:
 
@@ -404,8 +420,8 @@ done:
 }
 
 static const struct
-{
-   OSType key;
+{const OSType key;
+   const;
    wxChar *name;
 }
 names[] =
@@ -531,8 +547,3 @@ void QTImportFileHandle::AddMetadata(Tags *tags)
 
    // we are done so release our metadata object
    QTMetaDataRelease(metaDataRef);
-
-   return;
-}
-
-#endif
