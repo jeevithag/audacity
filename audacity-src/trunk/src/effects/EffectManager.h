@@ -33,7 +33,7 @@ effects.
 #include "EffectCategory.h"
 #endif
 
-WX_DEFINE_USER_EXPORTED_ARRAY(Effect *, EffectArray, class AUDACITY_DLL_API);
+WX_DEFINE_USER_EXPORTED_ARRAY(Effect *, EffectArray, class AUDACITY_DLL_API);WX_DECLARE_STRING_HASH_MAP_WITH_DECL(Effect *, EffectMapy, class AUDACITY_DLL_API);
 #if defined(EXPERIMENTAL_EFFECTS_RACK)
 class EffectRack;
 #endif
@@ -85,6 +85,7 @@ class AUDACITY_DLL_API EffectManager
    wxString GetEffectDescription(const PluginID & ID);
 
    /** Support for batch commands */
+   bool SupportsAutomation(const PluginID & ID);
    wxString GetEffectParameters(const PluginID & ID);
    bool SetEffectParameters(const PluginID & ID, const wxString & params);
    bool PromptUser(const PluginID & ID, wxWindow *parent);
@@ -140,7 +141,7 @@ class AUDACITY_DLL_API EffectManager
 #endif
 
 private:
-   wxArrayString mEffectPlugins;
+   EffectMap mEffects;
 
    int mNumEffects;
 

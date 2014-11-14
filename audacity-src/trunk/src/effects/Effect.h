@@ -94,7 +94,8 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    virtual bool IsInteractive();
    virtual bool IsDefault();
    virtual bool IsLegacy();
-   virtual bool IsRealtimeCapable();
+   virtual bool SupportsRealtime();
+   virtual bool SupportsAutomation();
 
    // EffectHostInterface implementation
 
@@ -104,7 +105,15 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    virtual bool Apply();
    virtual void Preview();
 
+   virtual wxDialog *CreateUI(wxWindow *parent, EffectUIClientInterface *client);
+
+   virtual wxString GetUserPresetsGroup(const wxString & name);
+   virtual wxString GetCurrentSettingsGroup();
+   virtual wxString GetFactoryDefaultsGroup();
+
    // ConfigClientInterface implementation
+
+   virtual bool GetSharedConfigSubgroups(const wxString & group, wxArrayString & subgroups);
 
    virtual bool GetSharedConfig(const wxString & group, const wxString & key, wxString & value, const wxString & defval = wxEmptyString);
    virtual bool GetSharedConfig(const wxString & group, const wxString & key, int & value, int defval = 0);
@@ -120,6 +129,11 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    virtual bool SetSharedConfig(const wxString & group, const wxString & key, const double & value);
    virtual bool SetSharedConfig(const wxString & group, const wxString & key, const sampleCount & value);
 
+   virtual bool RemoveSharedConfigSubgroup(const wxString & group);
+   virtual bool RemoveSharedConfig(const wxString & group, const wxString & key);
+
+   virtual bool GetPrivateConfigSubgroups(const wxString & group, wxArrayString & subgroups);
+
    virtual bool GetPrivateConfig(const wxString & group, const wxString & key, wxString & value, const wxString & defval = wxEmptyString);
    virtual bool GetPrivateConfig(const wxString & group, const wxString & key, int & value, int defval = 0);
    virtual bool GetPrivateConfig(const wxString & group, const wxString & key, bool & value, bool defval = false);
@@ -134,7 +148,14 @@ class AUDACITY_DLL_API Effect: public EffectHostInterface
    virtual bool SetPrivateConfig(const wxString & group, const wxString & key, const double & value);
    virtual bool SetPrivateConfig(const wxString & group, const wxString & key, const sampleCount & value);
 
-   // Effect implementation    virtual bool Startup(EffectClientInterface *client); 0;
+   virtual bool RemovePrivateConfigSubgroup(const wxString & group);
+   virtual bool RemovePrivateConfig(const wxString & group, const wxString & key);
+
+   // Effect implementation
+
+   virtual bool Startup(EffectClientInterface *client);
+   virtual bool GetAutomationParameters(wxString & parms);
+   virtual bool SetAutomationParameters(const wxString & parms); 0;
 
    // Each subclass of Effect should override this method.
    // Thname will go in the menu bar;
@@ -269,7 +290,7 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
    // repeats an effect) but if it is called, it will be called
    // after Init.
    vir;
-   virtual bool PromptUser(wxWindow *parent);
+   virtual bool PromptUser(wxWindow *parent, bool forceModal = false);
      return true;
    }
    // Check whether effect should be skipped
@@ -442,6 +463,46 @@ public:
    virtual void OnPreview(wxCommandEvent & event);
 
 private:
+   in
+class EffectUIHost : public wxDialog,
+                     public EffectUIHostInterface
+{
+public:
+   // constructors and destructors
+   EffectUIHost(wxWindow *parent,
+                EffectHostInterface *host,
+                EffectUIClientInterface *client);
+   virtual ~EffectUIHost();
+
+   bool Initialize();
+
+private:
+   void OnDestroy(wxWindowDestroyEvent & evt);
+   void OnClose(wxCloseEvent & evt);
+   void OnOk(wxCommandEvent & evt);
+   void OnCancel(wxCommandEvent & evt);
+   void OnPreview(wxCommandEvent & evt);
+   void OnSettings(wxCommandEvent & evt);
+   void OnSaveAs(wxCommandEvent & evt);
+   void OnImport(wxCommandEvent & evt);
+   void OnExport(wxCommandEvent & evt);
+   void OnOptions(wxCommandEvent & evt);
+   void OnUserPreset(wxCommandEvent & evt);
+   void OnDeletePreset(wxCommandEvent & evt);
+   void OnFactoryPreset(wxCommandEvent & evt);
+   void OnDefaults(wxCommandEvent & evt);
+   void OnDeleteAllPresets(wxCommandEvent & evt);
+
+   void LoadUserPresets();
+
+private:
+   wxWindow *mParent;
+   EffectHostInterface *mHost;
+   EffectUIClientInterface *mClient;
+
+   wxArrayString mUserPresets;
+
+   DECLARE_EVENT_TABLE()e:
    int mType;
    int mAdditionalButtons;
 };
