@@ -133,10 +133,7 @@ private:
    void OnCheckBox(wxCommandEvent & evt);
    void OnSlider(wxCommandEvent & evt);
    void OnTextCtrl(wxCommandEvent & evt);
-   void RefreshControls(bool outputOnly = falsed HandleText();
-   void ConnectFocus(wxControl *c);
-   void DisconnectFocus(wxConvoid ControlSetFocus(wxFocusEvent & evt);
-
+   void RefreshControls(bool outputOnly = falsed H
 private:
 
    wxString mPath;
