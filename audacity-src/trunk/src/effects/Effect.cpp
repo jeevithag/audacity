@@ -1887,6 +1887,51 @@ bool EffectDialog::Validate()
 }
 
 void EffectDialog::OnPreview(wxCommandEvent 
+///////////////////////////////////////////////////////////////////////////////
+//
+// EffectPanel
+//
+///////////////////////////////////////////////////////////////////////////////
+
+class EffectPanel : public wxScrolledWindow
+{
+public:
+   EffectPanel(wxWindow *parent)
+   :  wxScrolledWindow(parent,                                               
+                       wxID_ANY,
+                       wxDefaultPosition,
+                       wxDefaultSize,
+                       wxVSCROLL | wxTAB_TRAVERSAL)
+   {
+   }
+
+   virtual ~EffectPanel()
+   {
+   }
+
+   // ============================================================================
+   // wxWindow implementation
+   // ============================================================================
+
+   virtual bool AcceptsFocus() const
+   {
+      // Only accept focus if we're not a GUI host.
+      //
+      // This assumes that any effect will have more than one control in its
+      // interface unless it is a GUI interface.  It's a fairly safe assumption.
+#if defined(__WXMAC__)
+      return GetChildren().GetCount() > 2;
+#else      
+      return GetChildren().GetCount() > 1;
+#endif
+   }
+};
+
+///////////////////////////////////////////////////////////////////////////////
+//
+// EffectUIHost
+//
+/////////////////////////////////////////////////////////////////////////////// 
 enum
 {
    kSaveAsID = 30001,
@@ -1901,7 +1946,6 @@ enum
 };
 
 BEGIN_EVENT_TABLE(EffectUIHost, wxDialog)
-//   EVT_WINDOW_DESTROY(EffectUIHost::OnDestroy)
    EVT_CLOSE(EffectUIHost::OnClose)
    EVT_BUTTON(wxID_OK, EffectUIHost::OnOk)
    EVT_BUTTON(wxID_CANCEL, EffectUIHost::OnCancel)
@@ -1940,15 +1984,15 @@ EffectUIHost::~EffectUIHost()
    }
 }
 
+// ============================================================================
+// EffectUIHost implementation
+// ============================================================================
+
 bool EffectUIHost::Initialize()
 {
    wxBoxSizer *vs = new wxBoxSizer(wxVERTICAL);
 
-   wxScrolledWindow *w = new wxScrolledWindow(this,
-                                              wxID_ANY,
-                                              wxDefaultPosition,
-                                              wxDefaultSize,
-                                              wxVSCROLL | wxTAB_TRAVERSAL);
+   EffectPanel *w = new EffectPanel(this);
 
    // Try to give the window a sensible default/minimum size
    w->SetMinSize(wxSize(wxMax(600, mParent->GetSize().GetWidth() * 2/3),
@@ -1971,6 +2015,12 @@ bool EffectUIHost::Initialize()
    Fit();
    Center();
 
+#if defined(__WXMAC__)
+   (w->GetChildren().GetCount() > 2 ? w : FindWindowById(wxID_OK))->SetFocus();
+#else
+   (w->GetChildren().GetCount() > 1 ? w : FindWindowById(wxID_OK))->SetFocus();
+#endif
+
    LoadUserPresets();
 
    mClient->LoadUserPreset(mHost->GetCurrentSettingsGroup());
@@ -1978,13 +2028,10 @@ bool EffectUIHost::Initialize()
    return true;
 }
 
-void EffectUIHost::OnDestroy(wxWindowDestroyEvent & WXUNUSED(evt))
-{
-   mClient->CloseUI();
-}
-
 void EffectUIHost::OnClose(wxCloseEvent & WXUNUSED(evt))
 {
+   Hide();
+
    mClient->CloseUI();
    mClient = NULL;
    
@@ -2019,6 +2066,8 @@ void EffectUIHost::OnOk(wxCommandEvent & WXUNUSED(evt))
       return;
    }
 
+   Hide();
+
    Close();
 
    return;
@@ -2031,6 +2080,8 @@ void EffectUIHost::OnCancel(wxCommandEvent & WXUNUSED(evt))
       EndModal(false);
       return;
    }
+
+   Hide();
 
    Close();
 

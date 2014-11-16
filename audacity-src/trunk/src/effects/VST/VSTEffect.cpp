@@ -812,11 +812,6 @@ void VSTEffectEventHelper::OnSlider(wxCommandEvent & evt)
    mEffect->OnSlider(evt);
 }
 
-void VSTEffectEventHelper::ControlSetFocus(wxFocusEvent & evt)
-{
-   mEffect->ControlSetFocus(evt);
-}
-
 void VSTEffectEventHelper::OnSizeWindow(wxCommandEvent & evt)
 {
    mEffect->OnSizeWindow(evt);
@@ -2045,7 +2040,6 @@ bool VSTEffect::PopulateUI(wxWindow *parent)
 #endif
 #endif
 
-
    // Determine if the VST editor is supposed to be used or not
    mHost->GetSharedConfig(wxT("Settings"),
                           wxT("UseGUI"),
@@ -3093,16 +3087,16 @@ void VSTEffectDialog::BuildFancy()
       // textual interface.fect->callDispatcher(effEditClose, 0, 0, mWindowRef, 0.0);
       mGui = false;
       RemoveHandler();
-      BuildPlPanel *w = new wxPanel(mParent, wxID_ANY);
+      Build// Use a panel to host the plugins GUIuildPlPanel *w = new wxPanel(mParent, wxID_ANY);
    mHwnd = w->GetHWND();
    callDispatcher(effEditOpen, 0, 0, mHwnd, 0.0);
 
 #else
 
    // Use a panel to host the plugins GUI
-   wxPanel *w = new wxPanel(mParent);
+   wxPanel *w = new wxPanel(mParent, wxID_ANY);
 
-   // Make sure is has a window
+   // Make sure the parent has a window
    if (!GTK_WIDGET(w->m_wxwindow)->window)
    {
       gtk_widget_realize(GTK_WIDGET(w->m_wxwindow));
@@ -3194,7 +3188,6 @@ void VSTEffectDialog::BuildPlain()
       gridSizer->Add(mDuration, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
       gridSizer->Add(1, 1, 0);
       gridSizer->Add(1, 1, 0);
-      ConnectFocus(mDuration);
    }ings"));
 
    wxFlexGridSizer *gridSizer = new wxFlexGridSizer(4, 0, 0);
@@ -3351,48 +3344,6 @@ void VSTEffectDialog::OnSliderSLIDERS;
 
    RefreshParameters(i);
 }
-
-void VSTEffect::ConnectFocus(wxControl *c)
-{
-   c->GetEventHandler()->Connect(wxEVT_SET_FOCUS,
-                                 wxFocusEventHandler(VSTEffectEventHelper::ControlSetFocus));
-}
-
-void VSTEffect::DisconnectFocus(wxControl *c)
-{
-   c->GetEventHandler()->Disconnect(wxEVT_SET_FOCUS,
-                                    wxFocusEventHandler(VSTEffectEventHelper::ControlSetFocus));
-}
-
-void VSTEffect::ControlSetFocus(wxFocusEvent & evt)
-{
-   wxControl *c = (wxControl *) evt.GetEventObject();
-   wxScrolledWindow *p = (wxScrolledWindow *) c->GetParent();
-   wxRect r = c->GetRect();
-   wxRect rv = p->GetRect();
-   rv.y = 0;
-
-   evt.Skip();
-
-   int y;
-   int yppu;
-   p->GetScrollPixelsPerUnit(NULL, &yppu);
-
-   if (r.y >= rv.y && r.GetBottom() <= rv.GetBottom()) {
-      return;
-   }
-
-   if (r.y < rv.y) {
-      p->CalcUnscrolledPosition(0, r.y, NULL, &r.y);
-      y = r.y / yppu;
-   }
-   else {
-      p->CalcUnscrolledPosition(0, r.y, NULL, &r.y);
-      y = (r.GetBottom() - rv.GetBottom() + yppu) / yppu;
-   }
-
-   p->Scroll(-1, y);
-};
 
 bool VSTEffect::LoadFXB(const wxFileName & fn)
 {

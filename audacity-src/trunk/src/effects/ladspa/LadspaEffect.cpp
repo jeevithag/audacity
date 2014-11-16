@@ -414,11 +414,6 @@ void LadspaEffectEventHelper::OnTextCtrl(wxCommandEvent & evt)
    mEffect->OnTextCtrl(evt);
 }
 
-void LadspaEffectEventHelper::ControlSetFocus(wxFocusEvent & evt)
-{
-   mEffect->ControlSetFocus(evt);
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 //
 // LadspaEffect
@@ -1050,7 +1045,6 @@ ow *w = new wxScrolledWindow(this,      wxDefaultPosition,
          mDuration->EnableMenu();
          gridSizer->Add(mDuration, 0, wxALIGN_CENTER_VERTICAL | wxALL, 5e(inputControls[ports[p]] > 0);
          gridSizer->Add(toggles[p], 0, wxALL,   gridSizer->Add(1, 1, 0);
-         ConnectFocus(mDuration);
       }
 
       for (unsigned long p = 0; p < mData->PortCount; p++)
@@ -1075,7 +1069,6 @@ d"), (int)(lower + 0.5));
             mToggles[p]->SetName(labelText);
             mToggles[p]->SetValue(mInputControls[p] > 0);
             gridSizer->Add(mToggles[p], 0, wxALL, 5);
-            ConnectFocus(mToggles[p]);
 
             gridSizer->Add(1, 1, 0);
             gridSizer->Add(1, 1, 0);
@@ -1114,7 +1107,7 @@ d"), (int)(lower + 0.5));
          mFields[p] = new wxTextCtrl(mParent, ID_TEXTS + p);
          mFields[p]->SetName(labelText);
          gridSizer->Add(mFields[p], 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-         ConnectFocus(mFields[p]);_SAMPLE_RATE(hint.HintDescriptor)) {
+SAMPLE_RATE(hint.HintDescriptor)) {
        
              lower *= sampleRate * 1000;
             upper *= sampleRate;
@@ -1142,7 +1135,7 @@ ndow *w = new wxScrolledWindow(this,
                                               wxID_ANYrs[p] =
              new wxmSliders[p]->SetName(labelText);
          gridSizer->Add(mSliders[p], 0, wxALIGN_CENTER_VERTICAL | wxEXPAND | wxALL, 5);
-         ConnectFocus(mS       slide      
+      
          if (hashi)
              lower *= sampleRate * 1000;
             upper *= sampleRate;
@@ -1237,7 +1230,7 @@ indow *w = new wxScrolledWindow(this,
                                      wxTE_READONLY);
          mFields[p]->SetName(labelText);
          gridSizer->Add(mFields[p], 0, wxALIGN_CENTER_VERTICAL | wxALL, 5);
-         ConnectFocus(mFields[p]);_      }
+      }
 
       paramSizer->Add(gridSizer, 1, wxEXPAND | wxALL, 5);
       marginSizer->Add(paramSizer, 1, wxEXPAND | wxALL, 5);
@@ -1604,47 +1597,3 @@ r *= sampleRate * 1000;
       mFields[p]->SetValue(fieldText);
    }
 }
-
-void LadspaEffectmandEvent & WXUNUSED(event))
-{
-   EndModal(FALSE);
-}
-
-void LadspaEffectDialog::OnPreview(wxCommandEvent & WXUNUSED(event))
-{
-   effect->Preview();EventHelper::ControlSetFocus));
-}
-
-void LadspaEffectc)
-{
-   c->GetEventHandler()->Connect(wxEVT_SET_FOCUS,
-                                 wxFocusEventHandler(LadspaEffect   wxFocusEventHandler(LadspaEffectEventHelper::ControlSetFocus));
-}
-
-void LadspaEffect{
-   c->GetEventHandler()->Disco evt)
-{
-   wxControl *c = (wxControl *) ev           wxFocusEventHandler(LadspaEffectDialog::ControlSetFocus));
-}
-
-void LadspaEffectDialog::ControlSetFocus(wxFocusEvent &event)
-{
-   wxControl *c = (wxntrol *) event.GetEventObject();
-   wxScrolledWindow *p = (wxScrolledWindow *) c->GetParent();
-   wxRect r = c->GetRect();
-   wxRect rv = p->GetRect();
-   rv.y = 0;
-
-   event.Skip();
-
-   int y;
-   int yppu;
-   p->GetScrollPixelsPerUnit(NULL, &yppu);
-
-   if (r.y >= rv.y && r.GetBottom() <= rv.GetBottom()) {
-      return;
-   }
-
-   if (r.y < rv.y) {
-      p->CalcUnscrolledPosition(0, r.y, NULL, &r.y);
-     
