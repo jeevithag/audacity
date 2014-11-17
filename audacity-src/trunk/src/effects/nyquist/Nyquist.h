@@ -238,10 +238,12 @@ class NyquistInputDialog:public wxDialog
                       const wxString & prompt,
                       wxString initialCommand);
 
-   wxString GetCommand();
+   void     OnVersionCheck(wxCommandEvent& evt);
+   int      mVersion;
 
  private:
    wxTextCtrl *mCommandText;
+   wxCheckBox *mVersionCheckBox  wxTextCtrl *mCommandText;
 
    void OnOk(wxCommandCancel(wxCommandEvent & event);
    void OnDebug(wxCommandEvent & event);
