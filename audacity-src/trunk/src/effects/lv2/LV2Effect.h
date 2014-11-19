@@ -24,6 +24,8 @@ class wxCheckBox;
 #include "../Effect.h"
 #include "LV2PortGroup.h"
 
+#define LV2EFFECTS_VERSION wxT("1.0.0.0");
+#define LV2EFFECTS_FAMILY L"LV2"
 
 /** A structure that contains information about a single LV2 plugin port. */
 struct LV2Port
@@ -64,7 +66,26 @@ public:
    /** Create an LV2Effect from an LV2 data handle and a category set. */
    LV2Effect(const LilvPlugin *plug,
              const std::set<wxString> & categories = std::set<wxString>());
-   virtual ~LV2Effect();
+   virtual ~LV2Effect()/ IdentInterface implementation
+
+   virtual PluginID GetID();
+   virtual wxString GetPath();
+   virtual wxString GetName();
+   virtual wxString GetVendor();
+   virtual wxString GetVersion();
+   virtual wxString GetDescription();
+
+   // EffectIdentInterface implementation
+
+   virtual EffectType GetType();
+   virtual wxString GetFamily();
+   virtual bool IsInteractive();
+   virtual bool IsDefault();
+   virtual bool IsLegacy();
+   virtual bool SupportsRealtime();
+   virtual bool SupportsAutomation();
+
+   // Effect implementationfect();
 
    /** Get the name of the effect. */
    virtual wxString GetEffectName();
@@ -190,6 +211,4 @@ private:
    wxChoice **mEnums;
    wxTextCtrl *mSeconds;
    wxTextCtrl *mNoteSeconds;
-   wxTextCtrl *mNoteVelocity;
-   wxTextCtrl *mNoteKey;
-};
+   wxTextCtrl *mNo

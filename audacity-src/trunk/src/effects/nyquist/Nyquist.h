@@ -28,6 +28,9 @@
 
 #include <string>
 
+#define NYQUISTEFFECTS_VERSION wxT("1.0.0.0");
+#define NYQUISTEFFECTS_FAMILY L"Nyquist"
+
 class NyqControl
 {
  public:
@@ -59,19 +62,26 @@ class AUDACITY_DLL_API EffectNyquist:public Effect
     */
    EffectNyquist(wxString fName);
    virtual ~EffectNyquist();
+// IdentInterface implementation
 
-   bool SetXlispPath();
+   virtual PluginID GetID();
+   virtual wxString GetPath();
+   virtual wxString GetName();
+   virtual wxString GetVendor();
+   virtual wxString GetVersion();
+   virtual wxString GetDescription();
 
-   bool LoadedNyFile() {
-      return mOK;
-   }
+   // EffectIdentInterface implementation
 
-   void Continue();
-   void Break();
-   void Stop();
+   virtual EffectType GetType();
+   virtual wxString GetFamily();
+   virtual bool IsInteractive();
+   virtual bool IsDefault();
+   virtual bool IsLegacy();
+   virtual bool SupportsRealtime();
+   virtual bool SupportsAutomation();
 
-   void SetCommand(wxString cmd);
-   wxString GetOutput();
+   // Effect implementationt();
 
    /** Get the name of the effect (taken from the script that is loaded). Note
     * that this name is currently not translated because the translations system
@@ -119,7 +129,20 @@ GeneratorPreview();
 
    // Batch chain support
    virtual bool SupportsChains();  
-   virtual bool TransferParameters( Sh  static wxArrayString GetNyquistSearchPath(s( Shuttle & shuttle );
+   virtual bool TransferParameters( Sh  // EffectNyquist implementationt();
+
+   bool SetXlispPath();
+
+   bool LoadedNyFile() {
+      return mOK;
+   }
+
+   void Continue();
+   void Break();
+   void Stop();
+
+   void SetCommand(wxString cmd);
+   wxString GetOutput(Sh  static wxArrayString GetNyquistSearchPath(s( Shuttle & shuttle );
    
  private:
 
@@ -172,7 +195,8 @@ GeneratorPreview();
    wxString          mCmd;      // the command to be processed
    wxString          mName;   ///< Name of the Effect
    wxString          mAction;
-   wxString          mInEnablePreview   wxString          mInfo;
+   wxwxString          mAuthor;
+   wxString          mCopyright   wxString          mInEnablePreview   wxString          mInfo;
    bool              mDebug;
    std::strinint               mVersion;tring       mDebugOutput;
 

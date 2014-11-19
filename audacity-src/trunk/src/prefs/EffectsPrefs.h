@@ -31,7 +31,6 @@ class EffectsPrefs:public PrefsPanel
 
  private:
    void Populate();
-   void PopulateOrExchange(ShuttleGui & S);   void SetState(const wxString & family, const wxString & key);
-};
+   void PopulateOrExchange(ShuttleGui & S);};
 
 #endif
