@@ -345,6 +345,12 @@ bool LadspaEffectsModule::RegisterPlugin(PluginManagerInterface & pm, const wxSt
    return index > 0;
 }
 
+bool LadspaEffectsModule::IsPluginValid(const PluginID & ID,
+                                        const wxString & path)
+{
+   return wxFileName::FileExists(path);
+}
+
 IdentInterface *LadspaEffectsModule::CreateInstance(const PluginID & ID,
                                                     const wxString & path)
 {
@@ -1221,7 +1227,6 @@ d"), (int)(lower + 0.5));
             else
                str = Internat::ToDisplayStr
          wxString fieldText;
-         LADSPA_PortRangeHint hint = mData->PortRangeHints[p];
 
          mFields[p] = new wxTextCtrl(mParent, wxID_ANY,
                                      fieldText,
@@ -1564,25 +1569,7 @@ ower *= sampleRate * 1000;
          continue;
       }
 
-      wxString bound;
-      double lower = -FLT_MAX;
-      double upper = FLT_MAX;
-      bool haslo = false;
-      bool hashi = false;
-
-      if (LADSPA_IS_HINT_BOUNDED_BELOW(hint.HintDescriptor))
-      {
-         lower = hint.LowerBound;
-         haslo = true;
-      }
-
-      if (LADSPA_IS_HINT_BOUNDED_ABOVE(hint.HintDescriptor))
-      {
-         upper = hint.UpperBound;
-         hashi = true;
-      }
-
-r *= sampleRate * 1000;
+      ampleRate * 1000;
             upper *= sampleRate;
             forc{
          fieldText.Printf(wxT("%d"), (int)(mInputControls[p] + 0.5));

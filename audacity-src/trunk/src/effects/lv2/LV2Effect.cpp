@@ -53,6 +53,12 @@
 
 #include <wx/arrimpl.cpp>
 
+///////////////////////////////////////////////////////////////////////////////
+//
+// LV2Effect
+//
+///////////////////////////////////////////////////////////////////////////////
+
 WX_DEFINE_OBJARRAY(LV2PortArray);
 
 LV2Effect::LV2Effect(const LilvPlugin *data,
@@ -287,7 +293,91 @@ LV2Effect::~LV2Effect()
 {
    if (mMidiInput)
    {
-      delete mMidiInput;
+      delete mMi// ============================================================================
+// IdentInterface implementation
+// ============================================================================
+
+wxString LV2Effect::GetID()
+{
+   return GetString(lilv_plugin_get_uri(mData));
+}
+
+wxString LV2Effect::GetPath()
+{
+   return GetString(lilv_plugin_get_bundle_uri(mData));
+}
+
+wxString LV2Effect::GetName()
+{
+   return pluginName;
+}
+
+wxString LV2Effect::GetVendor()
+{
+   wxString vendor = GetString(lilv_plugin_get_author_name(mData), true);
+
+   if (vendor.IsEmpty())
+   {
+      vendor = wxT("N/A");
+   }
+
+   return vendor;
+}
+
+wxString LV2Effect::GetVersion()
+{
+   return wxT("N/A");
+}
+
+wxString LV2Effect::GetDescription()
+{
+   return wxT("N/A");
+}
+
+// ============================================================================
+// EffectIdentInterface implementation
+// ============================================================================
+
+EffectType LV2Effect::GetType()
+{
+   // For now, relegate to Effect()
+   return Effect::GetType();
+}
+
+wxString LV2Effect::GetFamily()
+{
+   return LV2EFFECTS_FAMILY;
+}
+
+bool LV2Effect::IsInteractive()
+{
+   // For now, relegate to Effect()
+   return Effect::IsInteractive();
+}
+
+bool LV2Effect::IsDefault()
+{
+   return false;
+}
+
+bool LV2Effect::IsLegacy()
+{
+   return true;
+}
+
+bool LV2Effect::SupportsRealtime()
+{
+   return false;
+}
+
+bool LV2Effect::SupportsAutomation()
+{
+   return true;
+}
+
+// ============================================================================
+// Effect Implementation
+// ============================================================================MidiInput;
    }
 }
 
@@ -703,7 +793,9 @@ void LV2Effect::End()
       for (i = 0; i < mAudioOutputs.GetCount(); i++)
       {
          if (fOutBuffer[i])
-         {
+     // ============================================================================
+// LV2Effect Implementation
+// ============================================================================     {
             delete [] fOutBuffer[i];
          }
       }
@@ -1229,8 +1321,11 @@ LV2EffectDialog::LV2EffectDialog(LV2Effect *effect,
       }
    }
    
-   // Set all of the mSliders based on the value in the
-   // text mFields
+   // Toggles;
+   delete [] mSliders;
+   delete [] mFields;
+   delete [] mLabels;
+   delete [] mEnum   // text mFields
    inSlider = false; // Now we're ready for HandleText to actually do something.
    HandleText();
    

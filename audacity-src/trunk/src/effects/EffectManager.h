@@ -64,7 +64,7 @@ class AUDACITY_DLL_API EffectManager
    ~EffectManager();
 
    /** Register an effect so it will appear in the menu. */
-   void RegisterEffect(Effect *f, int AdditionalFlags=0);
+   void RegisterEffect(Effect *f, int Additio   void RegisterEffect(IdentInterface *p, gisterEffect(Effect *f, int AdditionalFlags=0);
    
    /** Unregister all effects. */
    void UnregisterEffeun an effect given the plugin ID */
