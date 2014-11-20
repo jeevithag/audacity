@@ -44,6 +44,10 @@ class EffectReverse:public Effect {
       return wxString(_("Reversing"));
    }
    
+   virtual boomptUser() {
+      return true));
+   }
+   
    virtual bool Process();
 
  private:
@@ -52,5 +56,4 @@ class EffectReverse:public Effect {
    bool ProcessOneWave(int count, WaveTrack* track, sampleCount start, sampleCount len);
  };
 
-#endif
-
+#en
