@@ -311,7 +311,6 @@ enum {
    ID_SLIDER_PERCENTCHANGE,
    ID_CHOICE_FROMVINYL,
    ID_CHOICE_TOVINYL,
-   ID_TIMECTRL_FROMLENGTH,
    ID_TIMECTRL_TOLENGTHNYL,
    ID_CHOICE_TOVINYL
 };
@@ -325,7 +324,6 @@ BEGIN_EVENT_TABLE(ChangeSpeedDialog, EffectDialog)
     EVT_CHOICE(ID_CHOICE_FROMVINYL, ChaVinyl)
     EVT_CHOICE(ID_CHOICE_TOVINYL, ChangeSpeedDialog::OnChoice_Vinyl)
     EVT_TEXT(ID_TIMECTRL_TOLENGTH, ChangeSpeedDialog::OnTimeCtrl_ToLength)
-    EVT_TEXT(ID_TIMECTRL_FROMLENGTH, ChangeSpeedDialog::OnTimeCtrl_FromLength)
     EVT_COMMAND(ID_TIMECTRL_TOLENGTH, EVT_TIMETEXTCTRL_UPDATED, ChangeSpeedDialog::OnTimeCtrlUpdatedDialog::OnChoice_ToVinyl)
 
     EVT_BUTTON(ID_EFFECT_PREVIEW, ChangeSpeedDialog::OnPreview)
@@ -414,18 +412,18 @@ tMultiColumn(2, wxCENTER);
 
          mpFromLengthCtrl = new
                NumericTextCtrl(NumericConverter::TIME, this,
-                            ID_TIMECTRL_FROMLENGTH,
+                            wxID_ANY,
                             mFormat,
                             mFromLength,
                             mEffect->mProjectRate);
 
          mpFromLengthCtrl->SetName(_("from"));
-         S.AddWindow(mpFromLengthCtrl);
+         S.AddWindow(mpFromLengthCtrl, wxALIGN_LEFT);
 #if wxUSE_TOOLTIPS
          wxString tip(_("Current length of selection."));
          mpFromLengthCtrl->SetToolTip(tip);
 #endif
-         mpFromLengthCtrl->EnableMenu(false);
+         mpFromLengthCtrl->SetReadOnly(true);
 
 
          S.AddPrompt(_("New Length") + wxString(wxT(":")));
@@ -438,7 +436,7 @@ tMultiColumn(2, wxCENTER);
                             mEffect->mProjectRate);
 
          mpToLengthCtrl->SetName(_("to"));
-         S.AddWindow(mpToLengthCtrl);
+         S.AddWindow(mpToLengthCtrl, wxALIGN_LEFT);
          mpToLengthCtrl->EnableMenu();
       }
       S.EndMultiColumn();
@@ -565,12 +563,6 @@ te percent change controls for new Vinyl values.
       this->Update_TimeCtrl_ToLength();
    }
    mbLoopDetect = false;
-}
-
-void ChangeSpeedDialog::OnTimeCtrl_FromLength(wxCommandEvent & WXUNUSED(event))
-{
-   // Don't allow user input to change FromLength.
-   mpFromLengthCtrl->SetValue(mFromLength); 
 }
 
 void ChangeSpeedDialog::OnTimeCtrl_ToLengthoid ChangeSpeedDialog::OnText_PercentChange(wxCommandEvent & WXUNUSED(event)   mToLength = mpToLengthCtrl->GetValue();
