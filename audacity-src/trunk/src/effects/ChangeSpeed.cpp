@@ -325,6 +325,7 @@ BEGIN_EVENT_TABLE(ChangeSpeedDialog, EffectDialog)
     EVT_CHOICE(ID_CHOICE_FROMVINYL, ChaVinyl)
     EVT_CHOICE(ID_CHOICE_TOVINYL, ChangeSpeedDialog::OnChoice_Vinyl)
     EVT_TEXT(ID_TIMECTRL_TOLENGTH, ChangeSpeedDialog::OnTimeCtrl_ToLength)
+    EVT_TEXT(ID_TIMECTRL_FROMLENGTH, ChangeSpeedDialog::OnTimeCtrl_FromLength)
     EVT_COMMAND(ID_TIMECTRL_TOLENGTH, EVT_TIMETEXTCTRL_UPDATED, ChangeSpeedDialog::OnTimeCtrlUpdatedDialog::OnChoice_ToVinyl)
 
     EVT_BUTTON(ID_EFFECT_PREVIEW, ChangeSpeedDialog::OnPreview)
@@ -564,6 +565,12 @@ te percent change controls for new Vinyl values.
       this->Update_TimeCtrl_ToLength();
    }
    mbLoopDetect = false;
+}
+
+void ChangeSpeedDialog::OnTimeCtrl_FromLength(wxCommandEvent & WXUNUSED(event))
+{
+   // Don't allow user input to change FromLength.
+   mpFromLengthCtrl->SetValue(mFromLength); 
 }
 
 void ChangeSpeedDialog::OnTimeCtrl_ToLengthoid ChangeSpeedDialog::OnText_PercentChange(wxCommandEvent & WXUNUSED(event)   mToLength = mpToLengthCtrl->GetValue();
