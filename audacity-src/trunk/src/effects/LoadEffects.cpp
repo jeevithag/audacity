@@ -57,15 +57,6 @@
 #include "ChangeTempo.h"
 #endif
 
-#ifdef USEAUDIO_UNITS
-#include "audiounits/LoadAudioUnits2.h"
-#endif
-
-#ifdef USE_VAMP
-#include "vamp/LoadVamp.h"
-#endif
-
-
 void LoadEffects()
 {
 
@@ -266,12 +257,7 @@ void LoadEffects()
    em.RegisterEffect(new EffectWahwah());
 
    // Analyze menu
-   em.RegisterEffect(dLV2Plugins();
-   }
-#endif
-
-#ifdef USE_AUDIO_UNITS
-   if (gPrefs->Read(wxT("/AudioUnits/Enable"), true))}
+   em.Reg}
 
 void UnloadEffects()
 {
