@@ -1659,7 +1659,24 @@ sampleCount Effect::RealtimeProcess(int group,
       }
 
       // Finally call the plugin to process the block
-      len = mClient->RealtimeProcess(mCurrentGroup++, clientIn, clientOut, numSamples);
+      len = 0;
+      sampleCount maxBlock = mClient->GetBlockSize(numSamples);
+      for (sampleCount block = 0; block < numSamples; block += maxBlock)
+      {
+         sampleCount cnt = (block + maxBlock > numSamples ? numSamples - block : maxBlock);
+         len += mClient->RealtimeProcess(mCurrentGroup, clientIn, clientOut, cnt);
+
+         for (int i = 0 ; i < mNumAudioIn; i++)
+         {
+            clientIn[i] += cnt;
+         }
+
+         for (int i = 0 ; i < mNumAudioOut; i++)
+         {
+            clientOut[i] += cnt;
+         }
+      }
+      mCurrentGroup++;
    }
 
    return len;
@@ -1973,7 +1990,8 @@ END_EVENT_TABLE()
 EffectUIHost::EffectUIHost(wxWindow *parent,
                            EffectHostInterface *host,
                            EffectUIClientInterface *client)
-:  wxDialog(parent, wxID_ANY, host->GetName())
+:  wxDialog(parent, wxID_ANY, host->GetName(),
+   wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
    SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY);
 
@@ -1999,6 +2017,7 @@ EffectUIHost::~EffectUIHost()
 bool EffectUIHost::Initialize()
 {
    wxBoxSizer *vs = new wxBoxSizer(wxVERTICAL);
+   wxBoxSizer *hs = new wxBoxSizer(wxHORIZONTAL);
 
    EffectPanel *w = new EffectPanel(this);
 
@@ -2010,7 +2029,8 @@ bool EffectUIHost::Initialize()
 
    wxSizer *s = CreateStdButtonSizer(this, eSettingsButton | eOkButton | eCancelButton);
 
-   vs->Add(w, 1, wxEXPAND);
+   hs->Add(w, 1, wxEXPAND);
+   vs->Add(hs, 1, wxEXPAND);
    vs->Add(s, 0, wxEXPAND | wxALIGN_CENTER_VERTICAL);
    SetSizer(vs);
 
@@ -2028,7 +2048,7 @@ bool EffectUIHost::Initialize()
 #else
    (w->GetChildren().GetCount() > 1 ? w : FindWindowById(wxID_OK))->SetFocus();
 #endif
-
+ 
    LoadUserPresets();
 
    mClient->LoadUserPreset(mHost->GetCurrentSettingsGroup());
