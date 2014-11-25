@@ -424,6 +424,7 @@ tMultiColumn(2, wxCENTER);
          mpFromLengthCtrl->SetToolTip(tip);
 #endif
          mpFromLengthCtrl->SetReadOnly(true);
+         mpFromLengthCtrl->EnableMenu(false);
 
 
          S.AddPrompt(_("New Length") + wxString(wxT(":")));
