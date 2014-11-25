@@ -123,16 +123,18 @@ class ChangeSpeedDialog : public EffectDialog
    NumericTextCtrl * mpToLengthCtrl;
    double mRate;
 
+   // private effect parameters
+   int      mToVinyl;         // to standard vinyl speed (rpm)
+   double   mToLength;        // target length of selection
+   wxString mFormat;          // time control format
+
  public:
    // effect parameterrol values
    double   m_PercentChange;  // percent change to apply to tempo
                               // -100% is meaningless, but sky's the upper limit.
                               // Slider is (-100, 200], but textCtrls can set higher.
    int      mFromVinyl;       // from standard vinyrpm)
-   int      mToVinyl;         // to standard vinyl speed (rpm)
    double   mFromLength;      // current selection length
-   double   mToLength;        // target length of selection
-   wxString mFormat;          // time control format
    int      mTimeCtrlFormat;  // time control format index
 
  private:
