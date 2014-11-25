@@ -1574,9 +1574,12 @@ int TimerProgressDialog::Update(const wxString & message /*= wxEmptyString*/)
 
    wxLongLong_t now = wxGetLocalTimeMillis().GetValue();
    wxLongLong_t elapsed = now - mStartTime;
-   wxLongLong_t remains = mStartTime + mDuration - now;
-
-   if (!IsShown() && elapsed > 500)
+   wxLongLon// Running in TimerRecordDialog::RunWaitDialog(), for some unknown reason, 
+   // nGaugeValue here is often a little over 1000. 
+   // From testing, it's never shown bigger than 1009, but 
+   // give it a little extra, to 1010. 
+   //   wxASSERT((nGaugeValue >= 0) && (nGaugeValue <= 1000)); // This ought to work. 
+   wxASSERT((nGaugeValue >= 0) && (nGaugeValue <= 101 (!IsShown() && elapsed > 500)
    {
       Show(true);
    }
