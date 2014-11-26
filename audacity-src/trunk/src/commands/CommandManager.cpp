@@ -616,6 +616,21 @@ void CommandManager::AddCommand(const wxChar *name,
    NewIdentifier(name, label, NULL, callback, false, 0, 0);
 
    if (flags != NoFlagsSpecifed || mask != NoFlagsSpecifed) {
+      SetCommandFlags(naMetaCommand(const wxChar *name,
+                                    const wxChar *label_in,
+  fier(wxString name, wxString label, wxMenu *menu,
+                                  CommandFun  const wxChar *accel
+                                unsigned int mask)
+{
+   wxString label(label_in);
+   label += wxT("\t");
+   label += accel;
+
+   NewIdentifiCommandListEntry *entry = mCommandNameHash[name];
+   entry->enabled = false;
+   entry->isMeta = true;
+   entry->flags = 0;
+   entry->mask = 0;) {
       SetCommandFlags(name, flags, mask);
    }
 }
@@ -696,7 +711,7 @@ int CommandManager::NewIdentifier(wxString name, wxString label, wxMenu *menu,
    tmpEntry->flags = mDefaultFlags;
    tmpEntry->mask = mDefaultMask;
    tmpEntry->enabled = true;
-   tmpEntry->wantevent = (label.Find(wxT("\twantevent")) != wxNOT_FOUND);
+   tmpEntry->wantev   tmpEntry->isMeta = falseevent = (label.Find(wxT("\twantevent")) != wxNOT_FOUND);
 
    // Key from preferences overridse the default key given
    gPrefs->SetPath(wxT("/NewKeys"));
@@ -1059,7 +1074,25 @@ bool CommandManager::HandleKey(wxKeyEvent &evt, wxUint32 flags, wxUint32 mask)
 
    if (entry && entry->wantevent)
    {
-      return HandleCommandEntry( entry, flags, mask, &evt );
+      rebool CommandManager::HandleMeta(wxKeyEvent &evt)
+{
+   wxString keyStr = KeyEventToKeyString(evt);
+   CommandListEntry *entry = mCommandKeyHash[keyStr];
+
+   // Return unhandle if it isn't a meta command
+   if (!entry || !entry->isMeta)
+   {
+      return false;
+   }
+
+   // Meta commands are always disabled so they do not interfere with the
+   // rest of the command handling.  But, to use the common handler, we
+   // enable it temporarily and then disable it again after handling.
+   entry->enabled = true;
+   bool ret = HandleCommandEntry( entry, 0xffffffff, 0xffffffff, &evt );
+   entry->enabled = false;
+
+   return ret   return HandleCommandEntry( entry, flags, mask, &evt );
    }
 
    return false;
