@@ -1988,21 +1988,29 @@ BEGIN_EVENT_TABLE(EffectUIHost, wxDialog)
 END_EVENT_TABLE()
 
 EffectUIHost::EffectUIHost(wxWindow *parent,
-                           EffectHostInterface *host,
+                           Effect *effect,
                            EffectUIClientInterface *client)
-:  wxDialog(parent, wxID_ANY, host->GetName(),
+:  wxDialog(parent, wxID_ANY, effect->GetName(),
    wxDefaultPosition, wxDefaultSize, wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER)
 {
+   SetName(effect->GetName());
    SetExtraStyle(wxWS_EX_VALIDATE_RECURSIVELY);
 
    mParent = parent;
-   mHost = host;
+   mEffect = effect;
    mClient = client;
+
+   mInitialized = false;
+
    mClient->SetUIHost(this);
 }
 
 EffectUIHost::~EffectUIHost()
 {
+   if (mInitialized)
+   {
+   }
+
    if (mClient)
    {
       mClient->CloseUI();
@@ -2051,13 +2059,30 @@ bool EffectUIHost::Initialize()
  
    LoadUserPresets();
 
-   mClient->LoadUserPreset(mHost->GetCurrentSettingsGroup());
+   mClient->LoadUserPreset(mEffect->GetCurrentSettingsGroup());
+
+   // Initialize the effect realtime processing
+   if (!mEffect->RealtimeInitialize())
+   {
+      return false;
+   }
+
+   EffectManager::Get().RealtimeAddEffect(mEffect);
+
+   mInitialized = true;
 
    return true;
 }
 
 void EffectUIHost::OnClose(wxCloseEvent & WXUNUSED(evt))
 {
+   if (mInitialized)
+   {
+      EffectManager::Get().RealtimeRemoveEffect(mEffect);
+      mEffect->RealtimeFinalize();
+      mInitialized = false;
+   }
+
    Hide();
 
    mClient->CloseUI();
@@ -2073,7 +2098,14 @@ void EffectUIHost::OnOk(wxCommandEvent & WXUNUSED(evt))
       return;
    }
 
-   mClient->SaveUserPreset(mHost->GetCurrentSettingsGroup());
+   mClient->SaveUserPreset(mEffect->GetCurrentSettingsGroup());
+
+   if (mInitialized)
+   {
+      EffectManager::Get().RealtimeRemoveEffect(mEffect);
+      mEffect->RealtimeFinalize();
+      mInitialized = false;
+   }
 
    if (IsModal())
    {
@@ -2087,7 +2119,7 @@ void EffectUIHost::OnOk(wxCommandEvent & WXUNUSED(evt))
       return;
    }
 
-   mHost->Apply();
+   mEffect->Apply();
 
    if (!mClient->HideUI())
    {
@@ -2103,6 +2135,13 @@ void EffectUIHost::OnOk(wxCommandEvent & WXUNUSED(evt))
 
 void EffectUIHost::OnCancel(wxCommandEvent & WXUNUSED(evt))
 {
+   if (mInitialized)
+   {
+      EffectManager::Get().RealtimeRemoveEffect(mEffect);
+      mEffect->RealtimeFinalize();
+      mInitialized = false;
+   }
+
    if (IsModal())
    {
       SetReturnCode(false);
@@ -2125,7 +2164,7 @@ void EffectUIHost::OnCancel(wxCommandEvent & WXUNUSED(evt))
 
 void EffectUIHost::OnPreview(wxCommandEvent & WXUNUSED(evt))
 {
-   mHost->Preview();
+   mEffect->Preview();
 }
 
 void EffectUIHost::OnSettings(wxCommandEvent & evt)
@@ -2182,13 +2221,13 @@ void EffectUIHost::OnSettings(wxCommandEvent & evt)
 
    sub = new wxMenu();
 
-   sub->Append(0, wxString::Format(_("Type: %s"), mHost->GetFamily().c_str()));
-   sub->Append(0, wxString::Format(_("Name: %s"), mHost->GetName().c_str()));
-   sub->Append(0, wxString::Format(_("Version: %s"), mHost->GetVersion().c_str()));
-   sub->Append(0, wxString::Format(_("Vendor: %s"), mHost->GetVendor().c_str()));
-   sub->Append(0, wxString::Format(_("Description: %s"), mHost->GetDescription().c_str()));
-//   sub->Append(0, wxString::Format(_("Audio In: %d"), mHost->GetAudioInCount()));
-//   sub->Append(0, wxString::Format(_("Audio Out: %d"), mHost->GetAudioOutCount()));
+   sub->Append(0, wxString::Format(_("Type: %s"), mEffect->GetFamily().c_str()));
+   sub->Append(0, wxString::Format(_("Name: %s"), mEffect->GetName().c_str()));
+   sub->Append(0, wxString::Format(_("Version: %s"), mEffect->GetVersion().c_str()));
+   sub->Append(0, wxString::Format(_("Vendor: %s"), mEffect->GetVendor().c_str()));
+   sub->Append(0, wxString::Format(_("Description: %s"), mEffect->GetDescription().c_str()));
+//   sub->Append(0, wxString::Format(_("Audio In: %d"), mEffect->GetAudioInCount()));
+//   sub->Append(0, wxString::Format(_("Audio Out: %d"), mEffect->GetAudioOutCount()));
 
    menu->Append(0, _("About"), sub);
 
@@ -2234,7 +2273,7 @@ void EffectUIHost::OnSaveAs(wxCommandEvent & WXUNUSED(evt))
       name = text->GetValue();
       if (mUserPresets.Index(name) == wxNOT_FOUND)
       {
-         mClient->SaveUserPreset(mHost->GetUserPresetsGroup(name));
+         mClient->SaveUserPreset(mEffect->GetUserPresetsGroup(name));
          LoadUserPresets();
          break;
       }
@@ -2281,7 +2320,7 @@ void EffectUIHost::OnUserPreset(wxCommandEvent & evt)
 {
    int preset = evt.GetId() - kUserPresetsID;
 
-   mClient->LoadUserPreset(mHost->GetUserPresetsGroup(mUserPresets[preset]));
+   mClient->LoadUserPreset(mEffect->GetUserPresetsGroup(mUserPresets[preset]));
 
    return;
 }
@@ -2295,7 +2334,7 @@ void EffectUIHost::OnFactoryPreset(wxCommandEvent & evt)
 
 void EffectUIHost::OnDeletePreset(wxCommandEvent & evt)
 {
-   mHost->RemovePrivateConfigSubgroup(mHost->GetUserPresetsGroup(mUserPresets[evt.GetId() - kDeletePresetID]));
+   mEffect->RemovePrivateConfigSubgroup(mEffect->GetUserPresetsGroup(mUserPresets[evt.GetId() - kDeletePresetID]));
 
    LoadUserPresets();
 
@@ -2309,7 +2348,7 @@ void EffectUIHost::OnDeleteAllPresets(wxCommandEvent & WXUNUSED(evt))
                           wxICON_QUESTION | wxYES_NO);
    if (res == wxID_YES)
    {
-      mHost->RemovePrivateConfigSubgroup(mHost->GetUserPresetsGroup(wxEmptyString));
+      mEffect->RemovePrivateConfigSubgroup(mEffect->GetUserPresetsGroup(wxEmptyString));
       mUserPresets.Clear();
    }
 
@@ -2320,7 +2359,7 @@ void EffectUIHost::LoadUserPresets()
 {
    mUserPresets.Clear();
 
-   mHost->GetPrivateConfigSubgroups(mHost->GetUserPresetsGroup(wxEmptyString), mUserPresets);
+   mEffect->GetPrivateConfigSubgroups(mEffect->GetUserPresetsGroup(wxEmptyString), mUserPresets);
 
    mUserPresets.Sort();
 xCommandEvent 
