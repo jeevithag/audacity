@@ -470,7 +470,7 @@ class EffectUIHost : public wxDialog,
 public:
    // constructors and destructors
    EffectUIHost(wxWindow *parent,
-                EffectHostInterface *host,
+                Effect *effect,
                 EffectUIClientInterface *client);
    virtual ~EffectUIHost();
 
@@ -496,10 +496,11 @@ private:
 
 private:
    wxWindow *mParent;
-   EffectHostInterface *mHost;
+   Effect *mEffect;
    EffectUIClientInterface *mClient;
 
    wxArrayString mUserPresets;
+   bool mInitialized;
 
    DECLARE_EVENT_TABLE()e:
    int mType;
