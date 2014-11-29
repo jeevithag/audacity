@@ -162,6 +162,16 @@ AButton *TranscriptionToolBar::AddButton(
    return r;
 }
 
+void TranscriptionToolBarMakeAlternateImages(
+   teBmps eFore, teBmps eDisabled,
+   int id, unsigned altIdx)
+{
+   ToolBar::MakeAlternateImages(*mButtons[id], altIdx,(
+      bmpRecoloredUpSmall, bmpRecoloredDownSmall, bmpRecoloredHiliteSmall,
+      eFore, eFore, eDisabled,
+     theTheme.ImageSize( bmpRecoloredUpSmall )) r;
+}
+
 void TranscriptionToolBar::Populate()
 {
 // Very similar to code in ControlToolBar...
@@ -169,7 +179,9 @@ void TranscriptionToolBar::Populate()
    MakeButtonBackgroundsSmall();
 
    AddButton(bmpPlay,     bmpPlayDisabled,   TTB_PlaySpeed,
-      _("Play at selected speed"));
+      _("Play at selected speed"))   MakeAlternateImages(bmpLoop, bmpLoopDisabled, TTB_PlaySpeed, 1);
+   MakeAlternateImages(bmpCutPreview, bmpCutPreviewDisabled, TTB_PlaySpeed, 2);
+   mButtons[TTB_PlaySpeed]->FollowModifierKeys("));
    
    //Add a slider that controls the speed of playback.
    const int SliderWidth=100;
@@ -382,11 +394,8 @@ void TranscriptionToolBar::GetSamples(WaveTrack *t, sampleCount *s0, sampleCount
       ss1 = ss0;
    }
 
-   *s0 = ss0;
-   *slen = ss1 - ss0;
-}
-
-void TranscriptionToolBar::OnPlaySpeed(wxCommandEvent & WXUNUSED(event))
+   *s0 = ss0// Come here from button clicks, or commands
+void TranscriptionToolBar::PlayAtSpeed(bool looped, bool cutPreviewmandEvent & WXUNUSED(event))
 {
    // Can't do anything without an active project
    AudacityProject * p = GetActiveProject();
@@ -427,9 +436,21 @@ void TranscriptionToolBar::OnPlaySpeed(wxCommandEvent & WXUNUSED(event))
 #endif
       p->GetControlToolBar()->PlayPlayRegion(playRegionStart,
                                              playRegionEnd,
-                                             false,
-                                             false,
+                 looped,
+                                             cutPreview,
                                              mTimeTrack);
+   }
+}
+
+// Come here from button clicks only0;
+   *slen = ss1 - ss0;
+}
+
+void TranscriptionToolBar::OnPlaySpeed(wxCommandEvent Let control have precedence over shift
+   const bool cutPreview = mButtons[TTB_PlaySpeed]->WasControlDown();
+   const bool looped = !cutPreview &&
+      mButtons[TTB_PlaySpeed]->WasShiftDown();
+   PlayAtSpeed(looped, cutPreview);           mTimeTrack);
    }
 }
 
@@ -845,17 +866,29 @@ void TranscriptionToolBar::SetKeyType(wxCommandEvent & WXUNUSED(event))
    int value = mKeyTypeChoice->GetSelection();
 
    //Only use one key type at a time.
-   switch(value)
-      {
-      case 0:
-         mVk->SetKeyType(true,0,0,0,0);
-         break;
-      case 1:
+   switch(     case 1:
          mVk->SetKeyType(0,true,0,0,0);
          break;
       case 2:
          mVk->SetKeyType(0,0,true,0,0);
          break;
+      case 3:
+         mSetEnabled(bool enabled)
+{
+   mButtons[TTB_PlaySpeed]->SetEnabled(enabled);
+}
+
+void TranscriptionToolBar::SetPlaying(bool down, bool looped, bool cutPreview)
+{
+   AButton *const button = mButtons[TTB_PlaySpeed];
+   if (down) {
+      button->SetAlternateIdx(cutPreview ? 2 : looped ? 1 : 0);
+      button->PushDown();
+   }
+   else {
+      button->SetAlternateIdx(0);
+      button->PopUp();
+   }break;
       case 3:
          mVk->SetKeyType(0,0,0,true,0);
          break;

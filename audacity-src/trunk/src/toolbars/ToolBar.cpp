@@ -497,22 +497,38 @@ AButton * ToolBar::MakeButton(teBmps eUp,
                               wxSize size) 
 {
    int xoff = (size.GetWidth() - theTheme.Image(eStandardUp).GetWidth())/2;
-   int yoff = (size.GetHeight() - theTheme.Image(eStandardUp).GetHeight())/2;
-   
-   wxImage * up2        = OverlayImage(eUp,     eStandardUp, xoff, yoff);
-   wxImage * hilite2    = OverlayImage(eHilite, eStandardUp, xoff, yoff);
-   wxImage * down2      = OverlayImage(eDown,   eStandardDown, xoff + 1, yoff + 1);
-   wxImage * disable2   = OverlayImage(eUp,     eDisabled, xoff, yoff);
+   int yoff = (size.GetHeight() - theTheme.Image(eStandardUp).GetHeight())/typedef std::auto_ptr<wxImage> wxImagePtr;
+   wxImagePtr up2        (OverlayImage(eUp,     eStandardUp, xoff, yoff));
+   wxImagePtr hilite2    (OverlayImage(eHilite, eStandardUp, xoff, yoff));
+   wxImagePtr down2      (OverlayImage(eDown,   eStandardDown, xoff + 1, yoff + 1));
+   wxImagePtr disable2   (OverlayImage(eUp,     eDisabled, xoff, yoff)xoff, yoff);
 
    AButton * button =
       new AButton(this, id, placement, size, *up2, *hilite2, *down2,
-            *disable2, processdownevents);
+            *disable2, processdownevereturn button;
+}
 
-   delete up2;
-   delete down2;
-   delete hilite2;
-   delete disable2;
-   return button;
+//static
+void ToolBar::MakeAlternateImages(AButton &button, int idx,
+                                  teBmps eUp,
+                                  teBmps eDown,
+                                  teBmps eHilite,
+    ite,
+                              teBmps eStandardUp,
+                             teBmps eStandardDown,
+                                  teBmps eDisabled,
+    nts, 
+                              wxSize size) 
+{
+   int xoff = (size.GetWidth() - theTheme.Image(eStandardUp).GetWidth())/2;
+   int yoff = (size.GetHeight() - theTheme.Image(eStandardUp).GetHeight())/typedef std::auto_ptr<wxImage> wxImagePtr;
+   wxImagePtr up        (OverlayImage(eUp,     eStandardUp, xoff, yoff));
+   wxImagePtr hilite    (OverlayImage(eHilite, eStandardUp, xoff, yoff));
+   wxImagePtr down      (OverlayImage(eDown,   eStandardDown, xoff + 1, yoff + 1));
+   wxImagePtr disable   (OverlayImage(eUp,     eDisabled, xoff, yoff));
+
+   button.SetAlternateImages(idx, *up, *hilite, *down, *disable);
+}button;
 }
 
 
