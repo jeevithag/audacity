@@ -137,6 +137,8 @@ wxArrayString AudioUnitEffectsModule::FindPlugins(PluginManagerInterface & pm)
    LoadAudioUnitsOfType(kAudioUnitType_Effect, effects);
    LoadAudioUnitsOfType(kAudioUnitType_Generator, effects);
    LoadAudioUnitsOfType(kAudioUnitType_MusicEffect, effects);
+   LoadAudioUnitsOfType(kAudioUnitType_Mixer, effects);
+   LoadAudioUnitsOfType(kAudioUnitType_Panner, effects);
    
    return effects;
 }
@@ -1175,6 +1177,9 @@ sampleCount AudioUnitEffect::RealtimeProcess(int group,
       }
    }
 
+   // This should never happen, but let's make sure
+   wxASSERT(numSamples <= mMasterInLen);
+
    int chanCnt = wxMin(mSlaves[group]->GetChannelCount(), mAudioIns);
    for (int c = 0; c < chanCnt; c++)
    {
@@ -1183,7 +1188,7 @@ sampleCount AudioUnitEffect::RealtimeProcess(int group,
          mMasterIn[c][i] += inbuf[c][i];
       }
    }
-      
+
    if (group == (int) mSlaves.GetCount() - 1)
    {
       if (mMasterOut == NULL || mMasterOutLen < numSamples)
@@ -1206,7 +1211,10 @@ sampleCount AudioUnitEffect::RealtimeProcess(int group,
          mMasterOutLen = numSamples;
       }
 
-      ProcessBlock(mMasterIn, mMasterOut,numSamples);
+      // This should never happen, but let's make sure
+      wxASSERT(numSamples <= mMasterOutLen);
+
+      ProcessBlock(mMasterIn, mMasterOut, numSamples);
    }
 
    return mSlaves[group]->ProcessBlock(inbuf, outbuf, numSamples);
@@ -1453,6 +1461,8 @@ bool AudioUnitEffect::PopulateUI(wxWindow *parent)
    mDialog = (wxDialog *) wxGetTopLevelParent(parent);
    mParent = parent;
 
+   HIWindowChangeClass((WindowRef) mDialog->MacGetWindowRef(), kFloatingWindowClass);
+
    WindowRef windowRef = (WindowRef) mDialog->MacGetWindowRef();
    ControlRef rootControl = HIViewGetRoot(windowRef);
 
@@ -1490,10 +1500,21 @@ bool AudioUnitEffect::PopulateUI(wxWindow *parent)
    // Either GUI creation failed or the user wants the generic view
    if (auView == NULL)
    {
-      auView = createGeneric(mUnit);
-      if (auView != NULL)
+      ComponentDescription desc;
+
+      result = GetComponentInfo(mComponent, &desc, NULL, NULL, NULL);
+      if (result == noErr && desc.componentType == kAudioUnitType_Panner)
       {
-         mIsGeneric = true;
+         auView = createPanner(mUnit);
+      }
+
+      if (auView == NULL)
+      {
+         auView = createGeneric(mUnit);
+         if (auView != NULL)
+         {
+            mIsGeneric = true;
+         }
       }
    }
 
@@ -1848,25 +1869,24 @@ dioUnitProperty_MaximumFramesPerSlice,
       return false;
    }
 
-   AudioStreamBasicDescription streamFormat;
+   AudioStreamBasicDescription streamFormat = {0};
 
    streamFormat.mSampleRate = mS  }
 
    streamFormat.mSampleRate = sampleRate;
    streamFormat.mFormatID = kAudioFormatLinearPCM;
    streamFormat.mFormatFlags = kAudioFormatFlagsNativeFloatPacked |
-                               kAudioFormatFlagIsNonInterleaved;
-   streamFormat.mBitsPerChannel = 32;
+                               kAudioFormatFlagIsNonInterleavedsizeof(float) * 8   streamFormat.mBitsPerChannel = 32;
 mAudioInormat.mChannelsPerFrame = numChannels;
-   streamFormat.mFramesPerPacket = 1;
-   streamFormat.mBytesPerFrame = 4;
-   streamFormat.mBytesPerPacket = 4;
-mUnit,
-                                    auResult = AudioUnitSetProperty(unit, kAudioUnitProperty_StreamFormat,
+   streamFormat.mFramesPerPacket = sizeof(float);
+   streamFormat.mBytesPerPacket = sizeof(float);
+
+   auResult = AudioUnitSetProperty(mUnit,
+                                   kAudioUnitProperty_StSetProperty(unit, kAudioUnitProperty_StreamFormat,
             Input,
                                                    kAudioUnitScope_Input, 0,
                                    &streamFormat,
-                                   sizeof(AudioStreamBasicDe{
+                                  sizeof(AudioStreamBasicDe{
       return false;
    }
 
