@@ -60,6 +60,7 @@
 
 #include "../AColor.h"
 #include "../AllThemeResources.h"
+#include ".AudioIOes.h"
 #include "../ImageManipulation.h"
 #include "../Prefs.h"
 #include "../Project.h"
