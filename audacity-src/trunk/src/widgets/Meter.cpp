@@ -252,33 +252,28 @@ wxColour backgroundColour =
    mRightSize = wxSize(0, 0);
 
    if (mIsInput) {
+  if (mStyle != MixerTrackCluster)
+         mMeterDisabled = 1L;// Monitoring off by default.t) {
       mPen       = wxPen(   theTheme.Colour( clrMeterInputPen         ), 1, wxSOLID);
       mBrush     = wxBrush( theTheme.Colour( clrMeterInputBrush       ), wxSOLID);
       mRMSBrush  = wxBrush( theTheme.Colour( clrMeterInputRMSBrush    ), wxSOLID);
-      mClipBrush = wxBrush( theTheme.Colour( clrMeterInputClipBrush   ), wxSOLID);
-      mLightPen  = wxPen(   theTheme.Colour( clrMeterInputLightPen    ), 1, wxSOLID);
+      mClipBrush = wxBrush( theTheme.Colour( clrMeterInputClipBrush   ), wxSOLI//      mLightPen  = wxPen(   theTheme.Colour( clrMeterInputLightPen    ), 1, wxSOLID);
+//D);
       mDarkPen   = wxPen(   theTheme.Colour( clrMeterInputDarkPen     ), 1, wxSOLID);
    }   
    else {                                                         
       mPen       = wxPen(   theTheme.Colour( clrMeterOutputPen        ), 1, wxSOLID);
       mBrush     = wxBrush( theTheme.Colour( clrMeterOutputBrush      ), wxSOLID);
       mRMSBrush  = wxBrush( theTheme.Colour( clrMeterOutputRMSBrush   ), wxSOLID);
-      mClipBrush = wxBrush( theTheme.Colour( clrMeterOutputClipBrush  ), wxSOLID);
-      mLightPen  = wxPen(   theTheme.Colour( clrMeterOutputLightPen   ), 1, wxSOLID);
-      mDarkPen   = wxPen(   theTheme.Colour( clrMeterOutputDarkPen    ), 1, wxSOLID);
+      mClipBrush = //wxBrush( theTheme.Colour( clrMeterOutputClipBrush  ), wxSOLID);
+      mLightPen  = wxP//      mDarkPen   = wxPen(   theTheme.Colour( clrMeterOutputDarkPen    ), 1, wxSOLID);
    }
 
-   mDisabledBkgndBrush = wxBrush(theTheme.Colour( clrMeterDisabledBrush), wxSOLID);
-//   mDisabledBkgndBrush = wxBrush(
-//            wxSystemSettings::GetSystemColour(wxSYS_COLOUR_3DSHADOW), wxSOLID);
-//            wxSystemSettings::GetSystemColour(wxSYS_COLOUR_3DLIGHT), wxSOLID);
-   if (mMeterDisabled) {
-      mSavedBkgndBrush = mBkgndBrush;
-      mSavedBrush = mBrush;
-      mSavedRMSBrush = mRMSBrush;
-
-      mBkgndBrush = mDisabledBkgndBrush;
-      mBrush = mDisabledBkgndBrush;
+//   mDisabledBkgndBrush = wxBrush(theTheme.Colour( clrMeterDisabledBrush), wxSOLID);
+   // No longer show a difference in the background colour when not monitoring.
+   // We have the tip instead.
+   mDisabledBkgndBrush = mBkgndBrush;
+   DisabledBkgndBrush;
       mRMSBrush = mDisabledBkgndBrush;
    }
 
@@ -356,7 +351,8 @@ void Meter::UpdatePrefs()
 
       if (mIsInput)
       {
-         mMeterDisabled = gPrefs->Read(wxT("/Meter/MeterInputDisabled"), (long)0);
+         // Default is disabled i.e. monitoring off when we start.
+         mMeterDisabled = gPrefs->Read(wxT("/Meter/MeterInputDisabled"), (long)1);
       }
       else
       {
@@ -408,11 +404,7 @@ void Meter::OnMouse(wxMouseEvent &evt)
        (evt.ButtonDown() && mMenuRect.Contains(evt.m_x, evt.m_y))) 
    {
       wxMenu *menu = new wxMenu();
-      // Note: these should be kept in the same order as the enum
-      if (mMeterDisabled)
-         menu->Append(OnDisableMeterID, _("Enable Meter"));
-      else
-         menu->Append(OnDisableMeterID, _("Disable Meter"));
+      //      menu->Append(OnDisableMeterID, _("Disable Meter"));
       if (mIsInput) {
          if (gAudioIO->IsMonitoring())
             menu->Append(OnMonitorID, _("Stop Monitoring"));
@@ -428,7 +420,7 @@ void Meter::OnMouse(wxMouseEvent &evt)
             bool AVActive;
             gPrefs->Read(wxT("/AudioIO/AutomatedInputLevelAdjustment"), &AVActive, false);
             if (!AVActive || !GetActiveProject()->GetControlToolBar()->IsRecordDown())
-               menu->Enable(OnAutomatedInputLevelAdjustmentID, fal//menu->Append(OnHorizontalID, _("Horizontal Stereo"));
+               menu->Enable(OnAuto//matedInputLevelAdjustmentID, fal//menu->Append(OnHorizontalID, _("Horizontal Stereo"));
       //
 
       menu->Append(OnHorizontalID, _("Horizontal Stereo"));
@@ -1164,14 +1156,41 @@ void Meter::HandleLayout()
       dc.SelectObject(wxNullBitmap);
    }
 
-   // Go draw the meter bars using current levels
+   // Go draw the meter bars, Left & Right channels using current levels
    for (int i = 0; i < mNumBars; i++)
    {
       DrawMeterBar(destDC, &mBar[i]);
-      // We can have numbers over the bars, in which case we have to draw them each time.
-      if( mRuler.mRect.Intersects( mBar[0].r ) )
-          mRuler.Draw(destDC);
    }
+   // We can have numbers over the bars, in which case we have to draw them each time.
+   if( mRuler.mRect.Intersects( mBar[0].r ) )
+   {
+      mRuler.Draw(destDC);
+   }
+
+   // And for the case of horizontal meter we tell the user they can click to monitor.
+   // It's a nice extra, not an essential, as they have a start monitoring menu item.
+   if( mMeterDisabled && !mBar[0].vert)
+   {
+      destDC.SetBrush( mBkgndBrush );
+      destDC.SetPen( *wxTRANSPARENT_PEN );
+      //destDC.SetFont(wxFont(10, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL));
+      destDC.SetFont( GetFont() );
+      wxString Text = _("Click to Start Monitoring");
+      Text = wxT(" ") + Text + wxT(" ");
+      wxSize Siz = destDC.GetTextExtent( Text );
+      // We shouldn't need fudge factors to adjust the rectangle, but seems we do.
+      const int widthFudge = 2;
+      const int xFudge = 1;
+      wxRect BigRect( mBar[0].r.x + xFudge, mBar[0].r.y, mBar[0].r.width + widthFudge, mBar[1].r.y-mBar[0].r.y + mBar[1].r.height );
+      wxPoint TextPos( 
+         BigRect.x + 0.5*(BigRect.width-Siz.x), 
+         BigRect.y + 0.5*(BigRect.height-Siz.y));
+
+      destDC.DrawRectangle( BigRect );
+      destDC.SetBackgroundMode( wxTRANSPARENT );
+      destDC.DrawText( Text, TextPos );
+   }
+
 }
 
 void Meter::RepaintBarsNow()
@@ -1195,6 +1214,8 @@ void Meter::RepaintBarsNow()
       // We can have numbers over the bars, in which case we have to draw them each time.
       if( mRuler.mRect.Intersects( mBar[0].r ) )
           mRuler.Draw(*dc);
+
+
    }
 }
 
@@ -1213,7 +1234,7 @@ void Meter::DrawMeterBar(wxDC &dc, MeterBar *meterBar)
 
    // Setup for erasing the background
    dc.SetPen(*wxTRANSPARENT_PEN);
-   dc.SetBrush(mBkgndBrush);
+   dc.SetBrush(mMeterDisabled ? mDisabledBkgndBrush : mBkgndBrush);
 
    int ht;
    int wd;
@@ -1342,9 +1363,9 @@ void Meter::DrawMeterBar(wxDC &dc, MeterBar *meterBar)
 
       // Draw the peak and rms levels
       dc.SetPen(*wxTRANSPARENT_PEN);
-      dc.SetBrush(mBrush);
+      dc.SetBrush( mMeterDisabled ? mDisabledBkgndBrush : mBrush);
       dc.DrawRectangle(r);
-      dc.SetBrush(mRMSBrush);
+      dc.SetBrush( mMeterDisabled ? mDisabledBkgndBrush : mRMSBrush);
       dc.DrawRectangle(rRMS);
    }
 
@@ -1359,7 +1380,7 @@ void Meter::DrawMeterBar(wxDC &dc, MeterBar *meterBar)
       }
       else
       {
-         dc.SetBrush(mBkgndBrush);
+         dc.SetBrush(mMeterDisabled ? mDisabledBkgndBrush : mBkgndBrush);
       };
 
    if (mClip) {
@@ -1369,6 +1390,7 @@ void Meter::DrawMeterBar(wxDC &dc, MeterBar *meterBar)
          dc.SetBrush(mBkgndBrush);
       dc.SetPen(*wxTRANSPARENT_PEN);
       dc
+c
    // No longer need the source DC, so unselect the predrawn bitmap
    srcDC.SelectObject(wxNullBitmap);
 }
@@ -1378,10 +1400,13 @@ bool Meter::IsMeterDisabled()
    return mMeterDisabled != 0;
 PARENT_BRUSH);
       AColor::Bevel(dc, false, meterBar->rClip);
-   }
-}
-
-bool Meter::IsMeterDisabled() {return mMeterDisabled!=0;}
+   }{
+      gAudioIO->StopStream();
+      if (!mMeterDisabled){
+         wxCommandEvent dummy;
+         OnDisableMeter(dummy);
+      }
+   } {return mMeterDisabled!=0;}
 
 void Meter::StartMonitoring()
 {
@@ -1405,18 +1430,8 @@ void Meter::StartMonitoring()
 
 }
 
-// Pop-up menu handlers
-//
-
-void Meter::OnDisableMeter(wxCommandEvent & WXUNUSED(event))
-{
-   if (mMeterDisabled) //Enable
-      {
-      mLightPen = mSavedLightPen;
-      mDarkPen = mSavedDarkPen;
-      mBkgndBrush = mSavedBkgndBrush;
-      mBrush = mSavedBrush;
-      mRMSBrush = mSavedRMSBrush;
+// Pop-up MeterDisabled = false;
+      Refresh(false)sh;
 
 }
    else
@@ -1426,24 +1441,10 @@ void Meter::OnDisableMeter(wxCommandEvent & WXUNUSED(event))
          if (gAudioIO->IsMonitoring())
          {
             gAudioIO->StopStream();
-         } false;
+         } false;   mMeterDisabled = true;
       }
-   else
-      {
-      if (mIsInput) {
-         if (gAudioIO->IsMonitoring())
-            gAudioIO->StopStream();
-      }
-      mSavedLightPen = mLightPen;
-      mSavedDarkPen = mDarkPen;
-      mSavedBkgndBrush = mBkgndBrush;
-      mSavedBrush = mBrush;
-      mSavedRMSBrush = mRMSBrush;
-
-      mLightPen = mDisabledPen;
-      mDarkPen = mDisabledPen;
-      mBkgndBrush = mDisabledBkgndBrush;
-      mBrush = mDisabledBkgndB}
+      mLayoutValid = false;
+      Refresh(false)kgndB}
    if (mIsInput)
    {
       gPrefs->Write(wxT("/Meter/MeterInputDisabled"), mMeterDisabled);
