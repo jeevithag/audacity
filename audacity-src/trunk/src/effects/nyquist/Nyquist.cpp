@@ -481,16 +481,16 @@ bool EffectNyquist::Process()
 
       mProps += wxString::Format(wxT("(putprop '*AUDACITY* (list %d %d %d) 'VERSION)\n"), AUDACITY_VERSION, AUDACITY_RELEASE, AUDACITY_REVISION);
 
-      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'BASE)\n"), FileNames::BaseDir().c_str());
-      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'DATA)\n"), FileNames::DataDir().c_str());
-      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'HELP)\n"), FileNames::HtmlHelpDir().RemoveLast().c_str());
-      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'TEMP)\n"), FileNames::TempDir().c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'BASE)\n"), EscapeString(FileNames::BaseDir()).c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'DATA)\n"), EscapeString(FileNames::DataDir()).c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'HELP)\n"), EscapeString(FileNames::HtmlHelpDir().RemoveLast()).c_str());
+      mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* \"%s\" 'TEMP)\n"), EscapeString(FileNames::TempDir()).c_str());
 
       wxArrayString paths = EffectNyquist::GetNyquistSearchPath();
       wxString list;
       for (size_t i = 0, cnt = paths.GetCount(); i < cnt; i++)
       {
-         list += wxT("\"") + paths[i] + wxT("\" ");
+         list += wxT("\"") + EscapeString(paths[i]) + wxT("\" ");
       }
       mProps += wxString::Format(wxT("(putprop '*SYSTEM-DIR* (list %s) 'PLUGIN)\n"), list.RemoveLast().c_str());
 
@@ -833,23 +833,14 @@ bool EffectNyquist::ProcessOne()
             mControls[j].type == NYQ_CTRL_CHOICE) {
          cmd += wxString::Format(wxT("(setf %s %d)\n"),
                                  mControls[j].var.c_str(),
-                                 (int)(mControls[j].val));
-      }
-      else if (mControls[j].type == NYQ_CTRL_STRING) {
-         wxString str = mControls[j].valStr;
-         str.Replace(wxT("\\"), wxT("\\\\"));
+                                 (int  str.Replace(wxT("\\"), wxT("\\\\"));
          str.Replace(wxT("\""), wxT("\\\""));
          cmd += wxT("(setf ");
-         // restrict variable names to 7-bit ASCII:
+         // restrict variable names to 7-bitEscapeString(mControls[j].valStr)CII:
          cmd += mControls[j].var.c_str();
          cmd += wxT(" \"");
          cmd += str; // unrestricted value will become quoted UTF-8
-         cmd += wxT("\")\n");
-      }
-   }
-
-   if (mIsSal) {
-      wxString str = mCmd;
+EscapeString(strtr = mCmd;
       str.Replace(wxT("\\"), wxT("\\\\"));
       str.Replace(wxT("\""), wxT("\\\""));
       // this is tricky: we need SAL to call main so that we can get a
@@ -1052,6 +1043,15 @@ wxString EffectNyquist::NyquistToWxString(const char *nyqString)
         str += LAT1CTOWX(nyqString);
     }
     return str;
+}
+wxString EffectNyquist::EscapeString(const wxString & inStr)
+{
+   wxString str = inStr;
+
+   str.Replace(wxT("\\"), wxT("\\\\"));
+   str.Replace(wxT("\""), wxT("\\\""));
+
+   return str;
 }
 
 

@@ -146,7 +146,7 @@ GeneratorPreview();
    
  private:
 
-   static wxString NyquistToWxString(const char *nyqString);
+   static wxString NyquistToWxString(   wxString EscapeString(const wxString & inStrng(const char *nyqString);
 
    bool ProcessOne();
 
