@@ -369,7 +369,7 @@ void ControlToolBar::EnableDisableButtons()
    if (pttb)
       pttb->SetEnabled(enablePlay);
 ) || (tracks && !busy));
-   mRecord->SetE && !EffectManager::Get().RealtimeIsActive()nabled(!busy && !playing);
+   mRecord->SetEnabled(!busy && !playing);
 
    mStop->SetEnabled(busy);
    mRewind->SetEnabled(!busy);
