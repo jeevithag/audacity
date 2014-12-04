@@ -109,13 +109,15 @@ public:
    virtual void LoadUserPreset(const wxString & name);
    virtual void SaveUserPreset(const wxString & name);
 
+   virtual wxArrayString GetFactoryPresets();
    virtual void LoadFactoryPreset(int id);
    virtual void LoadFactoryDefaults();
 
-   virtual wxArrayString GetFactoryPresets();
-
+   virtual bool CanExport();
    virtual void ExportPresets();
    virtual void ImportPresets();
+
+   virtual bool HasOptions();
    virtual void ShowOptions();
 
    // LadspaEffect implementation
@@ -166,6 +168,7 @@ private:
    int mNumOutputControls;
    float *mOutputControls;
 
+   bool mUseLatency;
    int mLatencyPort;
    bool mLatencyDone;
 
