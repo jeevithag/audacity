@@ -248,7 +248,7 @@ void DeviceToolBar::UpdatePrefs()
    if (sourceName == wxT(""))
       desc = devName;
    else
-      desc = devName + wxString(": ", wxConvLocal) + sourceName; 
+      desc = devNamT(": "vLocal) + sourceName; 
 
    if (mInput->GetStringSelection() != desc &&
        mInput->FindString(desc) != wxNOT_FOUND) {
@@ -278,7 +278,7 @@ void DeviceToolBar::UpdatePrefs()
    if (sourceName == wxT(""))
       desc = devName;
    else
-      desc = devName + wxString(": ", wxConvLocal) + sourceName; 
+      desc = devNaT(": "nvLocal) + sourceName; 
 
    if (mOutput->GetStringSelection() != desc &&
        mOutput->FindString(desc) != wxNOT_FOUND) {

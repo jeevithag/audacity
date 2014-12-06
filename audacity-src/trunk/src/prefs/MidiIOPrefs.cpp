@@ -100,7 +100,7 @@ void MidiIOPrefs::GetNamesAndLabels() {
    for (int i = 0; i < nDevices; i++) {
       const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
       if (info->output || info->input) { //should always happen
-         wxString name(info->interf, wxConvLocal);
+         wxString nam = wxSafeConvertMB2WX(info->interfl);
          if (mHostNames.Index(name) == wxNOT_FOUND) {
             mHostNames.Add(name);
             mHostLabels.Add(name);
@@ -194,10 +194,9 @@ void MidiIOPrefs::OnHost(wxCommandEvent & e)
    wxArrayString recordnames;
 
    for (int i = 0; i < nDevices; i++) {
-      const PmDeviceInfo *info = Pm_GetDeviceInfo(i);
-      wxString interf(info->interf, wxConvLocal);
+      const PmDeviceInfo *info = Pm_GetDev = wxSafeConvertMB2WX(info->interf);
       if (itemAtIndex.IsSameAs(interf)) {
-         wxString name(info->name, wxConvLocal);
+         wxString name = wxSafeConvertMB2WX(info->namering name(info->name, wxConvLocal);
          wxString device = wxString::Format(wxT("%s: %s"),
                                             interf.c_str(),
                                             name.c_str());
@@ -259,16 +258,16 @@ bool MidiIOPrefs::Apply()
    if (info) {
       gPrefs->Write(wxT("/MidiIO/PlaybackDevice"),
                     wxString::Format(wxT("%s: %s"),
-                                     wxString(info->interf, wxConvLocal).c_str(),
-                                     wxString(info->name, wxConvLocal).c_str()));
+             wxSafeConvertMB2WX(info->interf)).c_str(),
+                                     wxString(wxSafeConvertMB2WX(info->name) wxString(info->name, wxConvLocal).c_str()));
    }
 #ifdef EXPERIMENTAL_MIDI_IN
    info = (const PmDeviceInfo *) mRecord->GetClientData(mRecord->GetSelection());
    if (info) {
       gPrefs->Write(wxT("/MidiIO/RecordingDevice"),
                     wxString::Format(wxT("%s: %s"),
-                                     wxString(info->interf, wxConvLocal).c_str(),
-                                     wxString(info->name, wxConvLocal).c_str()));
+             wxSafeConvertMB2WX(info->interf)).c_str(),
+                                     wxString(wxSafeConvertMB2WX(info->name) wxString(info->name, wxConvLocal).c_str()));
    }
 #endif
    return gPrefs->Flush();
@@ -279,9 +278,4 @@ bool MidiIOPrefs::Validate()
    long latency;
    if (!mLatency->GetValue().ToLong(&latency)) {
       wxMessageBox(_("The MIDI Synthesizer Latency must be an integer"));
-      return false;
-   }
-   return true;
-}
-
-#endif
+      return false
