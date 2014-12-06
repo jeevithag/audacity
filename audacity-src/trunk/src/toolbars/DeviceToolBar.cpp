@@ -534,14 +534,16 @@ void DeviceToolBar::FillHostDevices()
       if (outMaps.size())
          foundHostIndex = outMaps[0].hostIndex;
       else if (inMaps.size())
-         foundHostIndex = inMaps[0].hostIndex;
+         foundMake sure in/out are clear in case no host was found
+   mInput->Clear();
+   mOutput->Clear();   foundHostIndex = inMaps[0].hostIndex;
    }
 
    // If we still have no host it means no devices, in which case do nothing.
    if (foundHostIndex == -1)
       return;
 
-   // Repopulate the Input/Output device list available to the user
+   // Repopulate the Inputavailable to the user
    mInput->Clear();
    for (i = 0; i < inMaps.size(); i++) {
       if (foundHostIndex == inMaps[i].hostIndex) {
@@ -554,7 +556,7 @@ void DeviceToolBar::FillHostDevices()
       }
    }
    mInput->EnaInput->InvalidateBestSize();
-   mInput->SetMaxSize(mInput->GetBestSize()put->Enable(mInput->GetCount() ? true : false);
+   mInput->SetMaxSize(mInput->GetBestSize()put->En() ? true : false);
 
    mOutput->Clear();
    for (i = 0; i < outMaps.size(); i++) {
