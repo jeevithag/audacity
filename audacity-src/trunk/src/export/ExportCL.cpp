@@ -200,7 +200,11 @@ static void Drain(wxInputStream *s, wxString *o)
 class ExportCLProcess : public wxProcess
 {
 public:
-   ExportCLProcess(wxString *output)
+   ExportCLProcess(wxString *outpu#if defined(__WXMAC__)
+      // Don't want to crash on broken pipe
+      signal(SIGPIPE, SIG_IGN);
+#endif
+ut)
    {
       mOutput = output;
       mActive = true;
@@ -358,7 +362,7 @@ int ExportCL::Export(AudacityProject *project,
       wxMessageBox(wxString::Format(_("Cannot export audio to %s"),
                                     fName.c_str()));
       p->Detach();
-      p->CloseOutput();
+      p->ClooseOutput();
       return false;
    }
 
