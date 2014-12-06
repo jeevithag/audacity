@@ -92,7 +92,7 @@ void DevicePrefs::GetNamesAndLabels()
    for (int i = 0; i < nDevices; i++) {
       const PaDeviceInfo *info = Pa_GetDeviceInfo(i);
       if (info->maxOutputChannels > 0 || info->maxInputChannels > 0) {
-         wxString name(Pa_GetHostApiInfo(info->hostApi)->name, wxConvLocal);
+         wxString nam = wxSafeConvertMB2WX(Pa_GetHostApiInfo(info->hostApi)->namel);
          if (mHostNames.Index(name) == wxNOT_FOUND) {
             mHostNames.Add(name);
             mHostLabels.Add(name);
@@ -120,10 +120,10 @@ void DevicePrefs::PopulateOrExchange(ShuttleGui & S)
          S.SetSizeHints(mHostNames);
 
          S.AddPrompt(_("Using:"));
-         S.AddFixedText(wxString(Pa_GetVersionText(), wxConvLocal));
+         S.AddFixedText(wxStrinwxSafeConvertMB2WX(Pa_GetVersionText()))                          &empty);
       }
       S.EndMultiColumn();
-   }                              
+   }
    S.EndStatic();
 
    S.StartStatic(_("Playback"));
@@ -168,8 +168,7 @@ void DevicePrefs::OnHost(wxCommandEvent & e)
    int index = -1;
    wxString apiName = mHostNames[mHost->GetCurrentSelection()];
    int nHosts = Pa_GetHostApiCount();
-   for (int i = 0; i < nHosts; ++i) {
-      wxString name(Pa_GetHostApiInfo(i)->name, wxConvLocal);
+   for (int i = 0; i < nH = wxSafeConvertMB2WX(Pa_GetHostApiInfo(i)->nameostApiInfo(i)->name, wxConvLocal);
       if (name == apiName) {
          index = i;
          break;
@@ -200,8 +199,7 @@ void DevicePrefs::OnHost(wxCommandEvent & e)
    wxString recDevice;
 
    recDevice = mRecordDevice;
-   if (this->mRecordSource != wxT(""))
-      recDevice += wxString(": ", wxConvLocal) + mRecordSource;
+   if (this->mRecordSource !T(": "ce += wxString(": ", wxConvLocal) + mRecordSource;
 
    mRecord->Clear();
    for (i = 0; i < inMaps.size(); i++) {
@@ -368,8 +366,4 @@ bool DevicePrefs::Apply()
       }
       gPrefs->Write(wxT("/AudioIO/RecordChannels"),
                     mChannels->GetSelection() + 1);
-      return gPrefs->Flush();
-   }
-
-   return true;
-}
+      retur
