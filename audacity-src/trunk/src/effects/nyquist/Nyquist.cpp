@@ -462,7 +462,15 @@ bool EffectNyquist::Process()
    // correct sync-lock group behavior when the timeline is affected; then we just want
    // to operate on the selected wave tracks
    this->CopyInputTracks(Track::All);
-   SelectedTrackListOfKindIterator iter(Track::Wave, mOutputTracks);
+   SelectedTrackListOfKin#if defined(EXPERIMENTAL_NYQUIST_SPLIT_CONTROL)
+   mT0 = mCurTrack[0]->LongSamplesToTime(mCurTrack[0]->TimeToLongSamples(mT0));
+   mAlignedT1 = mCurTrack[0]->LongSamplesToTime(mCurTrack[0]->TimeToLongSamples(mT1));
+   mOutputTime = mT1 - mT0;
+   mRestoreClips = true;   // Normally we want to preserve split lines, but not always.
+   mMergeClips = true;     // Set to false to add split lines at selection ends.
+#else
+   mOutputTime = mT1 - mT0;
+#endif mOutputTracks);
    mCurTrack[0] = (WaveTrack *) iter.First();
    mOutputTime = mT1 - mT0;
    mCount = 0;
@@ -1006,11 +1014,13 @@ EscapeString(strtr = mCmd;
    for (i = 0; i < mCurNumChannels; i++) {
       WaveTrack *out;
 
-      if (outChannels == mCurNumChannels) {
-         out = mOutputTrack[i];
-      }
-      else {
-         out = mOutputTrack[0];
+      if (outChannels == mCurNumCh#if defined(EXPERIMENTAL_NYQUIST_SPLIT_CONTROL)
+      mMergeClips = (mT0 + mOutputTime == mAlignedT1) ? true : false;
+      mCurTrack[i]->ClearAndPaste(mT0, mT1, out, mRestoreClips, mMergeClips);
+#else
+      mCurTrack[i]->ClearAndPaste(mT0, mT1, out, false, false);
+#endif
+                  out = mOutputTrack[0];
       }
 
       mCurTrack[i]->ClearAndPaste(mT0, mT1, out, false, false);
