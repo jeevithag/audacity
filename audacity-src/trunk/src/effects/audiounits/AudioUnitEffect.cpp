@@ -1341,7 +1341,7 @@ bool AudioUnitEffect::ProcessFinalize()
    if (mOutputList)
    {
       delete [] mOutputList;
-      mInputList = NULL;
+      mOutputList = NULL;
    }
 
    if (mInputList)
