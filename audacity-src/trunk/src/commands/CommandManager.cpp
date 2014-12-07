@@ -416,29 +416,14 @@ void CommandManager::InsertItem(wxString name, wxString label_in,
       }
    }
 
-   int ID = NewIdentifier(name, label, menu, callback, false, 0, 0);
-
-   // Replace the accel key with the one from the preferences
-   label = label.BeforeFirst(wxT('\t'));
-
-   // This is a very weird hack.  Under GTK, menu labels are totally
-   // linked to accelerators the first time you create a menu item
-   // with that label and can't be changed.  This causes all sorts of
-   // problems.  As a workaround, we create each menu item with a
-   // made-up name (just an ID number string) but with the accelerator
-   // we want, then immediately change the label to the correct string.
-   // -DMM
-   mHiddenID++;
-   wxString dummy, newLabel;
-   dummy.Printf(wxT("%s%08d"), label.c_str(), mHiddenID);
-   newLabel = label;
-
-   if (checkmark >= 0) {
-      menu->InsertCheckItem(pos, ID, dummy);
+   int ID = NewIdentifier(name, label, menu, callback, falseif (checkmark >= 0) {
+      menu->InsertCheckItem(pos, ID, label);
       menu->Check(ID, checkmark != 0);
    }
    else {
-      menu->Insert(pos, ID, dummy);
+      menu->Insert(pos, ID, label);
+   }
+//dummy);
    }
    menu->SetLabel(ID, newLabel);
 
@@ -492,31 +477,14 @@ void CommandManager::AddItem(const wxChar *name,
    int ID = NewIdentifier(name, label, CurrentMenu(), callback, false, 0, 0);
 
    if (flags != NoFlagsSpecifed || mask != NoFlagsSpecifed) {
-      SetCommandFlags(name, flags, mask);
-   }
-
-   // Replace the accel key with the one from the preferences
-   label = label.BeforeFirst(wxT('\t'));
-
-   // This is a very weird hack.  Under GTK, menu labels are totally
-   // linked to accelerators the first time you create a menu item
-   // with that label and can't be changed.  This causes all sorts of
-   // problems.  As a workaround, we create each menu item with a
-   // made-up name (just an ID number string) but with the accelerator
-   // we want, then immediately change the label to the correct string.
-   // -DMM
-   wxString newLabel;
-   newLabel.Printf(wxT("%s%08d"), label.c_str(), ++mHiddenID);
-
-   if (checkmark >= 0) {
-      CurrentMenu()->AppendCheckItem(ID, newLabel);
+      SetCommandFlagif (checkmark >= 0) {
+      CurrentMenu()->AppendCheckItem(ID, lenu()->AppendCheckItem(ID, newLabel);
       CurrentMenu()->Check(ID, checkmark != 0);
    }
    else {
-      CurrentMenu()->Append(ID, newLabel);
+ label);
    }
-
-   CurrentMenu()->SetLabel(ID, label);
+entMenu()->SetLabel(ID, label);
    mbSeparatorAllowed = true;
 }
 
