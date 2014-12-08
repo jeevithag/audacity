@@ -42,7 +42,7 @@ class EffectChangeTempo : public EffectSoundTouch {
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("ChangeTempo"));
+      return wxString(wxT("Cha ngeTempo"));
    }
 
    virtual wxString GetEffectAction() {
@@ -131,4 +131,4 @@ class ChangeTempoDialog:public EffectDialog {
 
 #endif // __AUDACITY_EFFECT_CHANGETEMPO__
 
-#endif // USE_SOUNDTOUCH
+#endif // USE_S

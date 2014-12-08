@@ -31,11 +31,11 @@ class EffectFadeIn: public EffectSimpleMono {
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("FadeIn"));
+      return wxString(wxT("F In("FadeOut"));
    }
 
    virtual wxString GetEffectAction() {
-      return wxString(_("Fading In"));
+      return wxString(_ng In"));
    }  virtual bool PromptUser() {
       return true"));
    }
@@ -63,7 +63,7 @@ class EffectFadeOut:public EffectSimpleMono {
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("FadeOut"));
+      return wxString( wxT("FadeOut"));
    }
 
    virtual wxString GetEffectAction() {

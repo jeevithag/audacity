@@ -42,7 +42,7 @@ class EffectChangePitch : public EffectSoundTouch
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("ChangePitch"));
+      return wxString(wxT(" ChangePitch"));
    }
 
    virtual wxString GetEffectAction() {
@@ -169,4 +169,4 @@ class ChangePitchDialog : public EffectDialog
 
 #endif // __AUDACITY_EFFECT_CHANGEPITCH__
 
-#endif // USE_SOUNDTOUCH
+#endif //

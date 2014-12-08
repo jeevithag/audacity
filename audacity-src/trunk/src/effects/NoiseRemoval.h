@@ -44,7 +44,7 @@ public:
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("NoiseRemoval"));
+      return wxString(w xT("NoiseRemoval"));
    }
 
    virtual wxString GetEffectAction() {

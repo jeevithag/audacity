@@ -49,7 +49,7 @@ public:
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("ClickRemoval"));
+      return wxString(wxT("Click Removal"));
    }
 
    virtual wxString GetEffectAction() {
@@ -121,4 +121,3 @@ class ClickRemovalDialog:public EffectDialog {
 
 };
 
-#endif

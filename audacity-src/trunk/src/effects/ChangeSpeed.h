@@ -39,7 +39,7 @@ class EffectChangeSpeed : public Effect
    }
 
    virtual wxString GetEffectIdentifier() {
-      return wxString(wxT("ChangeSpeed"));
+      return wxString(wxT("Cha ngeSpeed"));
    }
 
    virtual wxString GetEffectAction() {
