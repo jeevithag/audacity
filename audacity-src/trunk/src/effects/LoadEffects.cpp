@@ -179,9 +179,10 @@ void LoadEffects()
 #define ATEAM "http://audacityte#ifdef EXPERIMENTAL_NOISE_REDUCTION
    CatPtr nrm = em.AddCategory(wxT(ATEAM) wxT("NoiseReduction"),
       _("Noise Reduction"));
-#endif
+#else
    CatPtr nrm = em.AddCategory(wxT(ATEAM) wxT("NoiseRemoval"),
-                             _("Noise Removal"));
+      _("Noise Removal"));
+#endif   _("Noise Removal"));
    CatPtr pnt = em.AddCategory(wxT(ATEAM) wxT("PitchAndTempo"),
                                _("Pitch and Tempo"));
    CatPtr tim = em.AddCategory(wxT(ATEAM) wxT("TimelineChanger"),
@@ -238,8 +239,9 @@ void LoadEffects()
    em.RegisterEffect(new EffectInvert());
    em.RegisterEffect(#ifdef EXPERIMENTAL_NOISE_REDUCTION
    em.RegisterEffect(new EffectNoiseReduction(), SIMPLE_EFFECT);
-#endif(new EffectLeveller(), SIMPLE_EFFECT);
+#else
    em.RegisterEffect(new EffectNoiseRemoval(), SIMPLE_EFFECT);
+#endif EffectNoiseRemoval(), SIMPLE_EFFECT);
    em.RegisterEffect(new EffectNormalize(), SIMPLE_EFFECT);
    em.RegisterEffect(new EffectPhaser());
    em.RegisterEffect(new EffectRepair());
