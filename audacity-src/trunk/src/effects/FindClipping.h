@@ -46,7 +46,7 @@ class EffectFindClipping:public Effect
 
    virtual wxString GetEffectIdentifier()
    {
-      return wxString(wxT("FindClipping"));
+      return wxString(wxT("Find Clipping"));
    }
 
    virtual wxString GetEffectAction()
@@ -83,4 +83,4 @@ class FindClippingDialog:public EffectDialog {
    EffectFindClipping *mEffect;
 };
 
-#endif // __AUDACITY_EFFECT_FINDCLIPPING__
+#endif // __AUDACITY_EFFECT_FINDCLIPPI

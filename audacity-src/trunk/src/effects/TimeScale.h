@@ -40,7 +40,7 @@ class EffectTimeScale : public EffectSBSMS {
    }
 
    virtual wxString GetEffectIdentifier() {
-     return wxString(wxT("TimeScale"));
+     return wxString(wxT("Time Scale"));
    }
 
    virtual wxString GetEffectAction() {
@@ -135,4 +135,4 @@ class TimeScaleDialog:public EffectDialog {
 
 #endif // __AUDACITY_EFFECT_TIMESCALE
 
-#endif // USE_SBSMS
+#endif // USE
