@@ -1166,8 +1166,8 @@ d"), (int)(lower + 0.5));
          }
 
          wxString bound;
-         double lower = -FLT_MAX;
-         double upper = FLT_MAXIGN_CENTER_VERTICAL | wxALL, 5);
+         float lower = -FLT_MAX;
+         float upper = FLT_MAXIGN_CENTER_VERTICAL | wxALL, 5);
          ConnectFocus(fields[p]);
 
          wxString bound;
@@ -1188,6 +1188,21 @@ d"), (int)(lower + 0.5));
                      mSampleRate;
             upper *= mSampleRate;
             forceint = true;
+         }
+
+         // Limit to the UI precision
+         lower = ceilf(lower * 1000000.0) / 1000000.0;
+         upper = floorf(upper * 1000000.0) / 1000000.0;
+         mInputControls[p] = roundf(mInputControls[p] * 1000000.0) / 1000000.0;
+
+         if (haslo && mInputControls[p] < lower)
+         {
+            mInputControls[p] = lower;
+         }
+
+         if (hashi && mInputControls[p] > upper)
+         {
+            mInputControls[p] = lower;
          }
 
          // Don't specify a value at creation time.  This prevents unwanted events
@@ -1249,7 +1264,7 @@ ndow *w = new wxScrolledWindow(this,
 
             wxIntegerValidator<float> vld(&mInputControls[p]);
             vld.SetRange(haslo ? lower : INT_MIN,
-                           hashi ? upper : INT_MAX);
+                         hashi ? upper : INT_MAX);
             mFields[p]->SetValidator(vld);
          }
          else
@@ -1257,10 +1272,9 @@ ndow *w = new wxScrolledWindow(this,
             fieldText = Internat::ToDisplayString(mInputControls[p]);
 
             // > 12 decimal places can cause rounding errors in display.
-            wxFloatingPointValidator<float> vld(12, &mInputControls[p]);
-            vld.SetRange(haslo ? lower : -FLT_MAX,
-                           hashi ? upper : FLT_MAX);
-
+            wxFloatingPointValidator<float> vld(6, &mInputControls[p]);
+            vld.SetRange(lower, upper);
+            
             // Set number of decimal places
             if (upper - lower < 10.0)
             {
