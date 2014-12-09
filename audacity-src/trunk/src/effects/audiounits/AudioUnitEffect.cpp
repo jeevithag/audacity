@@ -831,7 +831,7 @@ static const EventTypeSpec windowEventList[] =
    {kEventClassMouse, kEventMouseWheelMoved},
    {kEventClassMouse, kEventMouseScroll},
     
-// {kEventClassWindow, kEventWindowClose},
+   {kEventClassWindow, kEventWindowClose},
 };
 
 pascal OSStatus
@@ -869,12 +869,14 @@ OSStatus AudioUnitEffect::WindowEventHandler(EventRef eventRef)
       }
    }
 
-/* Not used, but leaving just in case
    if (GetEventClass(event) == kEventClassWindow && GetEventKind(event) == kEventWindowClose)
    {
-      result = noErr;
+      if (mDialog)
+      {
+         mDialog->Close();
+         result = noErr;
+      }
    }
-*/
 
    return result;
 }
