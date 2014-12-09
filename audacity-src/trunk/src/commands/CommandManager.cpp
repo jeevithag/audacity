@@ -416,18 +416,16 @@ void CommandManager::InsertItem(wxString name, wxString label_in,
       }
    }
 
-   int ID = NewIdentifier(name, label, menu, callback, falseif (checkmark >= 0) {
+   int ID = NewIdentifier(name, label, menu, callback, false// Remove the accelerator as it will be handled internally
+   label = label.BeforeFirst(wxT('\t'), falseif (checkmark >= 0) {
       menu->InsertCheckItem(pos, ID, label);
       menu->Check(ID, checkmark != 0);
    }
    else {
       menu->Insert(pos, ID, label);
    }
-//dummy);
-   }
-   menu->SetLabel(ID, newLabel);
 
-   mbSeparatorAllowed = true;
+   mbSeparatorAllowed = trued, checkmark);
 }
 
 void CommandManager::AddCheck(const wxChar *name,
@@ -477,7 +475,8 @@ void CommandManager::AddItem(const wxChar *name,
    int ID = NewIdentifier(name, label, CurrentMenu(), callback, false, 0, 0);
 
    if (flags != NoFlagsSpecifed || mask != NoFlagsSpecifed) {
-      SetCommandFlagif (checkmark >= 0) {
+      SetCommandFlag// Remove the accelerator as it will be handled internally
+   label = label.BeforeFirst(wxT('\t'));dFlagif (checkmark >= 0) {
       CurrentMenu()->AppendCheckItem(ID, lenu()->AppendCheckItem(ID, newLabel);
       CurrentMenu()->Check(ID, checkmark != 0);
    }
