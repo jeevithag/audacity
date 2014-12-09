@@ -2522,6 +2522,12 @@ bool VSTEffect::Load()
             }
          }
 
+         // Make sure we start out with a valid program selection
+         // I've found one plugin (SoundHack +morphfilter) that will
+         // crash Audacity when saving the initial default parameters
+         // with this.
+         callSetProgram(0);
+
          // Pretty confident that we're good to go
          success = true;
       }
@@ -2862,12 +2868,15 @@ void VSTEffect::callSetParameter(int index, float value)
 
 void VSTEffect::callSetProgram(int index)
 {
-   callDispatcher(effSetProgram, 0, index, NULL, 0.0);
+   callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
 
+   callDispatcher(effSetProgram, 0, index, NULL, 0.0);
    for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
    {
       mSlaves[i]->callSetProgram(index);
    }
+
+   callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
 }h"
 
 //////////////////////////////////////////////////////////////////////////////
