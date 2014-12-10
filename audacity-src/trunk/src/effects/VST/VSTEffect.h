@@ -244,7 +244,8 @@ t h);
    void callProcessReplacing(float **inputs, float **outputs, int sampleframes);
    void callSetParameter(int index, value);
    float callGetParameter(int index);
-   void callSetProgramameter(int ind private:
+   void callSetProgramameter(int in   void callSetChunk(bool isPgm, int len, void *buf);
+   void callSetChunk(bool isPgm, int len, void *buf, VstPatchChunkInfo *info ind private:
    EffectHostInterface *mHost;
    PluginID mID;
    wxString mPath;
@@ -308,8 +309,11 @@ t h);
    wxStaticText **mDisplays;
    wxStaticText **mLabels;
 
+   bool mInSet;
    bool mInChunk;
    wxString mChunk;
+   long mXMLVersion;
+   VstPatchChunkInfo mXMLInfo;
 
 #if defined(__WXMAC__)
    static pascal OSStatus OverlayEventHandler(EventHandlerCallRef handler, EventRef event, void *data);
