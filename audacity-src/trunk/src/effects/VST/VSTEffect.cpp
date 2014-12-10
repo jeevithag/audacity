@@ -1867,19 +1867,23 @@ sampleCount VSTEffect::RealtimeProcess(int group, float **inbuf, float **outbuf,
    {
       void *chunk = NULL;
 
-      clen = (int) callDispatcher(effGetChunk, 1, 0, &chunk, 0.0);
+      clen = (int) callDispatcher(effGetChunk, 0, 0, &chunk, 0.0);
       if (clen != 0)
       {
-         slave->callDispatcher(effSetChunk, 1, clen, chunk, 0.0);
+         slave->callSetChunk(false, clen, chunk);
       }
    }
 
    if (clen == 0)
    {
+      callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
+
       for (int i = 0; i < mAEffect->numParams; i++)
       {
          slave->callSetParameter(i, callGetParameter(i));
       }
+
+      callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
    }
 
    return slave->RealtimeInitialize();
@@ -1995,7 +1999,9 @@ bool VSTEffect::GetAutomationParameters(EffectAutomationParameters & parms)
 
 bool VSTEffect::SetAutomationParameters(EffectAutomationParameters & parms)
 {
-   for (int i = 0; i < mAEffect->numParams; i++)
+   callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0)idSizer->AddGrowableCol(1);
+
+   // Find the longes
    {
       wxString name = GetString(effGetParamName, i);
       if (name.IsEmpty())
@@ -2011,6 +2017,7 @@ bool VSTEffect::SetAutomationParameters(EffectAutomationParameters & parms)
 
       callSetParameter(i, d);
    }
+   callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
 
    return true;
 }
@@ -2602,6 +2609,18 @@ void VSTEffect::LoadParameters(const wxString & group)
 {
    wxString value;
 
+   VstPatchChunkInfo info = {1, mAEffect->uniqueID, mAEffect->version, mAEffect->numParams};
+   mHost->GetPrivateConfig(group, wxT("UniqueID"), info.pluginUniqueID, info.pluginUniqueID);
+   mHost->GetPrivateConfig(group, wxT("Version"), info.pluginVersion, info.pluginVersion);
+   mHost->GetPrivateConfig(group, wxT("Elements"), info.numElements, info.numElements);
+
+   if ((info.pluginUniqueID != mAEffect->uniqueID) ||
+       (info.pluginVersion != mAEffect->version) ||
+       (info.numElements != mAEffect->numParams))
+   {
+      return;
+   }
+
    if (mHost->GetPrivateConfig(group, wxT("Chunk"), value, wxEmptyString))
    {
       char *buf = new char[value.length() / 4 * 3];
@@ -2609,17 +2628,19 @@ void VSTEffect::LoadParameters(const wxString & group)
       int len = VSTEffect::b64decode(value, buf);
       if (len)
       {
-         callDispatcher(effSetChunk, 1, len, buf, 0.0);
-         for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
-         {
-            mSlaves[i]->callDispatcher(effSetChunk, 1, len, buf, 0.0);
-         }
+         callSetChunk(true, len, buf, &info);
       }
       delete [] buf;
 
       return;
    }
 
+   if (callDispatcher(effBeginLoadProgram, 0, 0, &info, 0.0) == -1)
+   {
+      return;
+   }
+
+   callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
    if (mHost->GetPrivateConfig(group, wxT("Value"), value, wxEmptyString))
    {
       size_t cnt = mSlaves.GetCount();
@@ -2640,10 +2661,15 @@ void VSTEffect::LoadParameters(const wxString & group)
          }
       }
    }
+   callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
 }
 
 void VSTEffect::SaveParameters(const wxString & group)
 {
+   mHost->SetPrivateConfig(group, wxT("UniqueID"), mAEffect->uniqueID);
+   mHost->SetPrivateConfig(group, wxT("Version"), mAEffect->version);
+   mHost->SetPrivateConfig(group, wxT("Elements"), mAEffect->numParams);
+
    if (mAEffect->flags & effFlagsProgramChunks)
    {
       void *chunk = NULL;
@@ -2858,10 +2884,7 @@ void VSTEffect::callSetParameter(int index, float value)
 
       for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
       {
-         if (mSlaves[i]->callDispatcher(effCanBeAutomated, 0, index, NULL, 0.0))
-         {
-            mSlaves[i]->callSetParameter(index, value);
-         }
+         mSlaves[i]->callSetParameter(index, value);
       }
    }
 }
@@ -2877,6 +2900,46 @@ void VSTEffect::callSetProgram(int index)
    }
 
    callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
+}h"void VSTEffect::callSetChunk(bool isPgm, int len, void *buf)
+{
+   VstPatchChunkInfo info;
+
+   memset(&info, 0, sizeof(info));
+   info.version = 1;
+   info.pluginUniqueID = mAEffect->uniqueID;
+   info.pluginVersion = mAEffect->version;
+   info.numElements = isPgm ? mAEffect->numParams : mAEffect->numPrograms;
+
+   callSetChunk(isPgm, len, buf, &info);
+}
+
+void VSTEffect::callSetChunk(bool isPgm, int len, void *buf, VstPatchChunkInfo *info)
+{
+   if (isPgm)
+   {
+      // Ask the effect if this is an acceptable program
+      if (callDispatcher(effBeginLoadProgram, 0, 0, info, 0.0) == -1)
+      {
+         return;
+      }
+   }
+   else
+   {
+      // Ask the effect if this is an acceptable bank
+      if (callDispatcher(effBeginLoadBank, 0, 0, info, 0.0) == -1)
+      {
+         return;
+      }
+   }
+
+   callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
+   callDispatcher(effSetChunk, isPgm ? 1 : 0, len, buf, 0.0);
+   callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
+
+   for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
+   {
+      mSlaves[i]->callSetChunk(isPgm, len, buf, info);
+   }
 }h"
 
 //////////////////////////////////////////////////////////////////////////////
@@ -3410,13 +3473,13 @@ _("Error Loading VST Presets"),
       // Most references to the data are via an "int" array
       int32_t *iptr = (int32_t *) bptr;
 
-      // Verify that we have at least enough the header
+      // Verify that we have at least enough for the header
       if (len < 156)
       {
          break;
       }
 
-      // Verify that we probably have a FX file
+      // Verify that we probably have an FX file
       if (wxINT32_SWAP_ON_LE(iptr[0]) != CCONST('C', 'c', 'n', 'K'))
       {
          break;
@@ -3431,22 +3494,28 @@ _("Error Loading VST Presets"),
          break;
       }
 
+      VstPatchChunkInfo info =
+      {
+         1,
+         wxINT32_SWAP_ON_LE(iptr[4]),
+         wxINT32_SWAP_ON_LE(iptr[5]),
+         wxINT32_SWAP_ON_LE(iptr[6])
+      };
+
       // Ensure this program looks to belong to the current plugin
-      if (wxINT32_SWAP_ON_LE(iptr[4]) != mAEffect->uniqueID)
+      if ((info.pluginUniqueID != mAEffect->uniqueID) &&
+          (info.pluginVersion != mAEffect->version) &&
+          (info.numElements != mAEffect->numPrograms))
       {
          break;
       }
 
       // Get the number of programs
-      int numProgs = wxINT32_SWAP_ON_LE(iptr[6]);
-      if (numProgs != mAEffect->numPrograms)
-      {
-         break;
-      }
+      int numProgs = info.numElements;
 
       // Get the current program index
       int curProg = 0;
-      if (version == 2)
+      if (version >= 2)
       {
          curProg = wxINT32_SWAP_ON_LE(iptr[7]);
          if (curProg < 0 || curProg >= numProgs)
@@ -3475,7 +3544,7 @@ _("Error Loading VST Presets"),
          }
 
          // Ask the effect if this is an acceptable bank
-         if (callDispatcher(effBeginLoadBank, 0, 0, &iptr, 0.0) == -1)
+         if (callDispatcher(effBeginLoadBank, 0, 0, &info, 0.0) == -1)
          {
             return false;
          }
@@ -3513,14 +3582,8 @@ _("Error Loading VST Presets"),
             break;
          }
 
-         // Ask the effect if this is an acceptable bank
-         if (callDispatcher(effBeginLoadBank, 0, 0, &iptr, 0.0) == -1)
-         {
-            return false;
-         }
-
          // Set the entire bank in one shot
-         callDispatcher(effSetChunk, 0, size, &iptr[40], 0.0);
+         callSetChunk(false, size, &iptr[40], &info);
 
          // Success
          ret = true;
@@ -3532,7 +3595,7 @@ _("Error Loading VST Presets"),
       }
 
       // Set the active program
-      if (ret && version == 2)
+      if (ret && version >= 2)
       {
          callSetProgram(curProg);
       }
@@ -3627,18 +3690,24 @@ bool VSTEffect::LoadFXProgram(unsigned char **bptr, ssize_t & len, int index, bo
    }
 #endif
 
+   VstPatchChunkInfo info =
+   {
+      1,
+      wxINT32_SWAP_ON_LE(iptr[4]),
+      wxINT32_SWAP_ON_LE(iptr[5]),
+      wxINT32_SWAP_ON_LE(iptr[6])
+   };
+
    // Ensure this program looks to belong to the current plugin
-   if (wxINT32_SWAP_ON_LE(iptr[4]) != mAEffect->uniqueID)
+   if ((info.pluginUniqueID != mAEffect->uniqueID) &&
+         (info.pluginVersion != mAEffect->version) &&
+         (info.numElements != mAEffect->numParams))
    {
       return false;
    }
 
    // Get the number of parameters
-   int numParams = wxINT32_SWAP_ON_LE(iptr[6]);
-   if (numParams != mAEffect->numParams)
-   {
-      return false;
-   }
+   int numParams = info.numElements;
 
    // At this point, we have to have enough to include the program name as well
    if (len < 56)
@@ -3676,7 +3745,7 @@ bool VSTEffect::LoadFXProgram(unsigned char **bptr, ssize_t & len, int index, bo
       if (!dryrun)
       {
          // Ask the effect if this is an acceptable program
-         if (callDispatcher(effBeginLoadProgram, 0, 0, &iptr, 0.0) == -1)
+         if (callDispatcher(effBeginLoadProgram, 0, 0, &info, 0.0) == -1)
          {
             return false;
          }
@@ -3725,15 +3794,7 @@ bool VSTEffect::LoadFXProgram(unsigned char **bptr, ssize_t & len, int index, bo
       // Set the entire program in one shot
       if (!dryrun)
       {
-         // Ask the effect if this is an acceptable program
-         if (callDispatcher(effBeginLoadProgram, 0, 0, &iptr, 0.0) == -1)
-         {
-            return false;
-         }
-
-         callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
-         callDispatcher(effSetChunk, 1, size, &iptr[15], 0.0);
-         callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
+         callSetChunk(true, size, &iptr[15], &info);
       }
 
       // Update in case we're loading an "FxBk" format bank file
@@ -3756,16 +3817,21 @@ bool VSTEffect::LoadFXProgram(unsigned char **bptr, ssize_t & len, int index, bo
 
 bool VSTEffect::LoadXML(const wxFileName & fn)
 {
-   // Tell the effect to prepare
-   callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
+   mInChunk = false;
+   mInSet = false;
 
    // default to read as XML file
    // Load the program
    XMLFileReader reader;
    bool ok = reader.Parse(this, fn.GetFullPath());
 
-   // Tell the effect we're done
-   callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
+   // Something went wrong with the file, clean up
+   if (mInSet)
+   {
+      callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
+
+      mInSet = false;
+   }
 
    if (!ok)
    {
@@ -3965,11 +4031,13 @@ void VSTEffect::SaveXML(const wxFileName & fn)
    xmlFile.Open(fn.GetFullPath(), wxT("wb"));
 
    xmlFile.StartTag(wxT("vstprogrampersistence"));
-   xmlFile.WriteAttr(wxT("version"), wxT("1"));
+   xmlFile.WriteAttr(wxT("version"), wxT("2"));
 
    xmlFile.StartTag(wxT("effect"));
    xmlFile.WriteAttr(wxT("name"), GetName());
-   xmlFile.WriteAttr(wxT("version"), callDispatcher(effGetVendorVersion, 0, 0, NULL, 0.0));
+   xmlFile.WriteAttr(wxT("uniqueID"), mAEffect->uniqueID);
+   xmlFile.WriteAttr(wxT("version"), mAEffect->version);
+   xmlFile.WriteAttr(wxT("numParams"), mAEffect->numParams);
 
    xmlFile.StartTag(wxT("program"));
    xmlFile.WriteAttr(wxT("name"), wxEmptyString); //mProgram->GetValue());
@@ -4035,11 +4103,15 @@ bool VSTEffect::HandleXMLTag(const wxChar *tag, const wxChar **attrs)
 
          if (wxStrcmp(attr, wxT("version")) == 0)
          {
-            if (!XMLValueChecker::IsGoodInt(strValue))
+            if (!XMLValueChecker::IsGoodInt(strValue) || !strValue.ToLong(&mXMLVersion))
             {
                return false;
             }
-            // Nothing to do with it for now
+
+            if (mXMLVersion < 1 || mXMLVersion > 2)
+            {
+               return false;
+            }
          }
          else
          {
@@ -4052,6 +4124,8 @@ bool VSTEffect::HandleXMLTag(const wxChar *tag, const wxChar **attrs)
 
    if (wxStrcmp(tag, wxT("effect")) == 0)
    {
+      mXMLInfo = {1, mAEffect->uniqueID, mAEffect->version, mAEffect->numParams};
+
       while (*attrs)
       {
          const wxChar *attr = *attrs++;
@@ -4084,11 +4158,33 @@ bool VSTEffect::HandleXMLTag(const wxChar *tag, const wxChar **attrs)
          }
          else if (wxStrcmp(attr, wxT("version")) == 0)
          {
-            if (!XMLValueChecker::IsGoodInt(strValue))
+            long version;
+            if (!XMLValueChecker::IsGoodInt(strValue) || !strValue.ToLong(&version))
             {
                return false;
             }
-            // Nothing to do with it for now
+
+            mXMLInfo.pluginVersion = (int) version;
+         }
+         else if (mXMLVersion > 1 && wxStrcmp(attr, wxT("uniqueID")) == 0)
+         {
+            long uniqueID;
+            if (!XMLValueChecker::IsGoodInt(strValue) || !strValue.ToLong(&uniqueID))
+            {
+               return false;
+            }
+
+            mXMLInfo.pluginUniqueID = (int) uniqueID;
+         }
+         else if (mXMLVersion > 1 && wxStrcmp(attr, wxT("numParams")) == 0)
+         {
+            long numParams;
+            if (!XMLValueChecker::IsGoodInt(strValue) || !strValue.ToLong(&numParams))
+            {
+               return false;
+            }
+
+            mXMLInfo.numElements = (int) numParams;
          }
          else
          {
@@ -4140,6 +4236,15 @@ bool VSTEffect::HandleXMLTag(const wxChar *tag, const wxChar **attrs)
       }
 
       mInChunk = false;
+
+      if (callDispatcher(effBeginLoadProgram, 0, 0, &mXMLInfo, 0.0) == -1)
+      {
+         return false;
+      }
+
+      callDispatcher(effBeginSetProgram, 0, 0, NULL, 0.0);
+
+      mInSet = true;
 
       return true;
    }
@@ -4227,13 +4332,23 @@ void VSTEffect::HandleXMLEndTag(const wxChar *tag)
          int len = VSTEffect::b64decode(mChunk, buf);
          if (len)
          {
-            callDispatcher(effSetChunk, 1, len, buf, 0.0);
+            callSetChunk(true, len, buf, &mXMLInfo);
          }
 
          delete [] buf;
          mChunk.clear();
       }
       mInChunk = false;
+   }
+
+   if (wxStrcmp(tag, wxT("program")) == 0)
+   {
+      if (mInSet)
+      {
+         callDispatcher(effEndSetProgram, 0, 0, NULL, 0.0);
+
+         mInSet = false;
+      }
    }
 }
 
