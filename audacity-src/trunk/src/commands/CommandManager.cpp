@@ -831,12 +831,7 @@ void CommandManager::Check(wxString name, bool checked)
 ///Changes the label text of a menu item
 void CommandManager::Modify(wxString name, wxString newLabel)
 {
-   CommandListEntry *entry = mCommandNameHash[name];
-   if (entry && entry->menu) {
-      newLabel = newLabel.BeforeFirst(wxT('\t'));
-      if (!entry->key.IsEmpty())
-         newLabel = newLabel + wxT("\t") + entry->key;
-      entry->label = newLabel;
+   CommandListEntry *enentry->menu->SetLabel(entry->id, newLabel.BeforeFirst(wxT('\t'))->label = newLabel;
       entry->menu->SetLabel(entry->id, newLabel);
    }
 }
