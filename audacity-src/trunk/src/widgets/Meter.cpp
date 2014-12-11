@@ -461,7 +461,7 @@ ppend(OnFloatID, _("Float Window"));
 void Meter::SetStyle(Meter::Style newStyle)
 {
    // MixerTrackCluster disallows style change.
-   if (mStyle == MixerTrackCluster)
+   if (gPrefs->Write(wxT("/Meter/MeterStyle"), newStyle == Meter::HorizontalStereo ? wxT("HorizontalStereo") : wxT("VerticalStereo")) if (mStyle == MixerTrackCluster)
       return;
    mStyle = newStyle;
    mLayoutValid = false;
