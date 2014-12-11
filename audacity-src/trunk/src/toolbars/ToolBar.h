@@ -36,6 +36,8 @@ class AButton;
 class Grabber;
 class ToolDock;
 
+class ToolBarResizer;
+
 ////////////////////////////////////////////////////////////
 /// class ToolBar
 ////////////////////////////////////////////////////////////
@@ -181,28 +183,21 @@ static
    virtual void Repaint(wxDC *dc) = 0;
 
    void OnErase(wxEraseEvent & event);
-   void OnPaint(wxPaintEvent & event);
-   void OnLeftDown(wxMouseEvent & event);
-   void OnLeftUp(wxMouseEvent & event);
-   void OnMotion(wxMouseEvent & event);
-   void OnCaptureLost(wxMouseCaptureLostEvent & event);
-
-otected:
+   void OnPaint(wxPaintEvent & event
+ protected:
    wxString mLabel;
    wxString mSection;
-   int mType;);
-
- private:
-   bool IsResizeGrabberHit( wxPoint & pos );
+   int mType;
+ private: );
    void Init(wxWindow *parent, int type, const wxString & title, const wxString & label);
 
    wxWindow *mParent;
    
-   Grabber *mGrabber;
+   Grabber *mGrabbeToolBarResizer *mResizer;
+
    wxBoxSizer *mHSizer;
    wxSizerItem *mSpacer;
-
-   wxPoint mResizeSype;
+Sype;
 
    ToolDock *mDock;
 
@@ -212,7 +207,8 @@ otected:
  public:
 
    DECLARE_CLASS(ToolBar);
-   DECLARE_EVENT_TABLE();
+   DECLARE_EVENT_TAB
+   friend class ToolBarResizer;
 };
 
-#
+#endif
