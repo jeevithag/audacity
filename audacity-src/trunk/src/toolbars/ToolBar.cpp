@@ -52,6 +52,199 @@ in which buttons can be placed.
 #include "../widgets/Grabber.h"
 
 ////////////////////////////////////////////////////////////
+/ToolBarResizer
+////////////////////////////////////////////////////////////
+
+//
+// Width of the resize grab area
+//
+#define RWIDTH 4
+
+class ToolBarResizer : public wxWindow
+{
+public:
+   ToolBarResizer(ToolBar *mBar);
+   virtual ~ToolBarResizer();
+
+private:
+   void OnErase(wxEraseEvent & event);
+   void OnPaint(wxPaintEvent & event);
+   void OnLeftDown(wxMouseEvent & event);
+   void OnLeftUp(wxMouseEvent & event);
+   void OnEnter(wxMouseEvent & event);
+   void OnLeave(wxMouseEvent & event);
+   void OnMotion(wxMouseEvent & event);
+   void OnCaptureLost(wxMouseCaptureLostEvent & event);
+
+private:
+   ToolBar *mBar;
+   wxPoint mResizeStart;
+
+   DECLARE_EVENT_TABLE();
+};
+
+//
+// Event table
+//
+BEGIN_EVENT_TABLE( ToolBarResizer, wxWindow )
+   EVT_ERASE_BACKGROUND( ToolBarResizer::OnErase )
+   EVT_PAINT( ToolBarResizer::OnPaint )
+   EVT_LEFT_DOWN( ToolBarResizer::OnLeftDown )
+   EVT_LEFT_UP( ToolBarResizer::OnLeftUp )
+   EVT_MOTION( ToolBarResizer::OnMotion )
+   EVT_ENTER_WINDOW( ToolBarResizer::OnEnter )
+   EVT_LEAVE_WINDOW( ToolBarResizer::OnLeave )
+   EVT_MOUSE_CAPTURE_LOST( ToolBarResizer::OnCaptureLost )
+END_EVENT_TABLE();
+
+ToolBarResizer::ToolBarResizer(ToolBar *bar)
+:  wxWindow(bar, wxID_ANY, wxDefaultPosition, wxSize(RWIDTH, -1))
+{
+   mBar = bar;
+}
+
+ToolBarResizer::~ToolBarResizer()
+{
+}
+
+//
+// Handle background erasure
+//
+void ToolBarResizeoid ToolBar::OnErase( wxEraseEvent & WXUNUSED(event) )
+{
+   // Ignore it to prevent flashing
+}
+
+//
+// This draws the background of a toolbar
+//
+voResizeoid ToolBar::OnPaint( wxPaintEvent & event )
+{
+   wxPaintDC dc( (wxWindow *) event.GetEventObject() );
+
+   // Start with a clean background
+   //
+   // Under GTK, we specifically set the toolbar background to the background
+   // colour in the system theme.
+#if defined( __WXGTK__ )
+   dc.SetBackground( wxBrush( wxSystemSettings::GetColour( wxSYS_COLOUR_BACKGROUND ) ) );
+#endif
+
+   dc.   wxSize sz = GetSize();
+
+wxLogDebug(wxT("x = %d y = %d"), sz.x, sz.y);
+
+   AColor::Dark( &dc, false );
+   AColor::Line(dc, sz.x - 4,  0, sz.x - 4, sz.y );
+   AColor::Line(dc, sz.x - 1,  0, sz.x - 1, sz.y );
+}
+
+//
+// Handle toolbar resizing
+//
+void ToolBarResize/
+void ToolBar::OnLeftDown( wxMouseEvent & event )
+{
+   // Go ahead and set the event to propagate
+   event.SkRetrieve the mouse position
+   mResizeStart = ClientToScreen( event.GetPosition() );
+
+   // We want all of the mouse events
+   CaptureMouse();
+
+//   SetCursor( wxCURSOR_SIZEWE );
+}
+
+void ToolBarResizer::OnLeftUpr::OnLeftDown( wxMouseEvent & event )
+{
+   // Go ahead and set the event to propagate
+   eventif( HasCapture() )
+   {
+      ReleaseMouse();
+   }
+
+//   SetCursor( wxCURSOR_ARROW );
+}
+
+void ToolBarResizer::OnEnterr::OnLeftDown( wxMouseEvent & event )
+{
+   // Go ahead and set the event to propagate
+   eventif( !HasCapture() )
+   {
+      SetCursor( wxCURSOR_SIZEWE );
+   }
+}
+
+void ToolBarResizer::OnLeaver::OnLeftDown( wxMouseEvent & event )
+{
+   // Go ahead and set the event to propagate
+   eventif( !HasCapture() )
+   {
+      SetCursor( wxCURSOR_ARROW );
+   }
+}
+
+void ToolBarResizer::OnMotioar::OnLeftDown( wxMouseEvent & event )
+{
+   // Go ahead and set the event to propagate
+   event.Sk
+   }
+
+   // Retrieve the mouse position
+   wxPoint raw_pos = event.GetPosition();
+   wxPoint pos = ClientToScreen( raw_poevent.Dragging() )
+   {
+      wxRect r = mBar->GetRect();
+      wxSize msz = mBar->GetMinSize();
+      wxSize psz = mBar-> wxSize psz = GetParent()->GetClientSize();
+
+      // Adjust the size by the difference between the
+      // last mouse and current mouse positions.
+      r.width += ( pos.x - mResizeStart.x );
+
+      // Constrain
+      if( r.width < msz.x )
+      {
+         // Don't allow resizing to go too small
+         r.width = msz.x;
+      }
+      else if( r.GetRight() > psz.x - 3 )
+      {
+         // Don't allow resizing to go too large
+         //
+         // The 3 magic pixels are because I'm too chicken to change the
+         // calculations in ToolDock::LayoutToolBars() even though I'm
+         // the one that set them up.  :-)
+         r.SetRight( psz.x - 3 );
+      }
+      else
+      {         
+         // Remember for next go round
+         mResizeStart = pos;
+      }
+
+      /mBar->/ Resize the bar
+      SetSize( r.GetSize() );
+
+      // Tell everyone we'mBar->Updated();
+
+      // Refresh our world
+      mBar->GetParent()->Refresh();
+      mBar->GetParent()->Update();
+   }
+}
+
+void ToolBarResize();
+   }
+}
+
+void ToolBar::OnCaptureLost( wxMouseCaptureLostEvent & WXUNUSED(event) )
+{
+   if( HasCapture() )
+   {
+      h"
+
+////////////////////////////////////////////////////////////
 /// Methods for ToolBar
 ////////////////////////////////////////////////////////////
 
@@ -66,20 +259,11 @@ IMPLEMENT_CLASS( ToolBar, wxPanel );
 DEFINE_EVENT_TYPE(EVT_TOOLBAR_UPDATED)
 
 //
-// Width of the resize grab area
-//
-#define RWIDTH 4
-
-//
 // Event table
 //
 BEGIN_EVENT_TABLE( ToolBar, wxPanel )
    EVT_PAINT( ToolBar::OnPaint )
    EVT_ERASE_BACKGROUND( ToolBar::OnErase )
-   EVT_LEFT_DOWN( ToolBar::OnLeftDown )
-   EVT_LEFT_UP( ToolBar::OnLeftUp )
-   EVT_MOTION( ToolBar::OnMotion )
-   EVT_MOUSE_CAPTURE_LOST( ToolBar::OnCaptureLost )
 END_EVENT_TABLE()  
 
 //
@@ -102,7 +286,9 @@ ToolBar::ToolBar( int type,
    mHSizer = NULL;
    mSpacer = NULL;
    mDock = NULL;
-   mVisible = fa   mPositionedsible = false;
+   mVisible = fa   mPositionedsible = fa
+   mGrabber = NULL;
+   mResizer = NULLfalse;
 }
 
 //
@@ -260,7 +446,10 @@ void ToolBar::ReCreateButtons()
    // Add some space for the resize border
    if( IsResizable() )
    {
-      mSpacer = ms->Add( RWIDTH, 1 );
+ // Create the resizer and add it to the main sizer
+      mResizer = new ToolBarResizer( this );
+      ms->Add( mResizer, 0, wxEXPAND | wxALIGN_RIGHT | wxALIGN_TOP | wxLEFT, 1 );
+      mResizer->SetToolTip( _("Click and drag to resize toolbar")TH, 1 );
    }
 
    // Set the sizer
@@ -295,8 +484,16 @@ void ToolBar::ReCreateButtons()
 void ToolBar::UpdatePrefs()
 {
 #if wxUSE_TOOLTIPS
-   // Change the tooltip of the grabber
-   mGrabber->SetToolTip( GetTitle() );
+   // Change the tooltip of the grabbeif ( mGrabber )
+   {
+      mGrabber->SetToolTip( GetTitle() );
+   }
+
+   // Change the tooltip of the resizer
+   if ( mResizer )
+   {
+      mResizer->SetToolTip( _("Click and drag to resize toolbar") );
+   }() );
 #endif
 
    return;
@@ -324,7 +521,13 @@ void ToolBar::SetDocked( ToolDock *dock, bool pushed )
 #endif
 
    // Set the grabber button state
-   mGrabber->PushButton( pushed );
+   mGrabber->PushButton( pushe
+   if (mResizer)
+   {
+      mResizer->Show(mDock != NULL);
+      Layout();
+      Fit();
+   }ed );
 }
 
 //
@@ -611,149 +814,9 @@ void ToolBar::OnPaint( wxPaintEvent & event )
          AColor::Line(dc, 0, y, sz.x, y );
       }
    }
-#endif
-#endif
-
-   if( IsResizable() && IsDocked() )
-   {
-      wxSize sz = GetSize();
-
-      AColor::Dark( &dc, false );
-      AColor::Line(dc, sz.x - 4,  0, sz.x - 4, sz.y );
-      AColor::Line(dc, sz.x - 1,  0, sz.x - 1, sz.y );
-   }
-}
+#}
 
 int ToolBar::GetResizeGrabberWidth()
 {
    return RWIDTH;
 }
-
-
-/// @return true iff pos is in resize grabber.
-bool ToolBar::IsResizeGrabberHit( wxPoint & pos )
-{
-   wxRect rect = GetRect();
-
-   // Adjust to size of resize grabber
-   rect.x = rect.width - RWIDTH;
-   rect.y = 0;
-   rect.width = RWIDTH;
-   return rect.Contains( pos );
-}
-
-//
-// Handle toolbar resizing
-//
-void ToolBar::OnLeftDown( wxMouseEvent & event )
-{
-   // Go ahead and set the event to propagate
-   event.Skip();
-
-   // Don't do anything if we're not docked
-   if( !IsDocked() )
-   {
-      return;
-   }
-
-   // Can we be resized?
-   if( IsResizable() )
-   {
-      wxPoint pos = event.GetPosition();
-      // Is left click within resize grabber?
-      if( IsResizeGrabberHit( pos ) )
-      {
-         // Retrieve the mouse position
-         mResizeStart = ClientToScreen( pos );
-         // We want all of the mouse events
-         CaptureMouse();
-      }
-   }
-}
-
-void ToolBar::OnLeftUp( wxMouseEvent & event )
-{
-   // Go ahead and set the event to propagate
-   event.Skip();
-
-   if( HasCapture() )
-   {
-      ReleaseMouse();
-   }
-
-   SetCursor( wxCURSOR_ARROW );
-}
-
-void ToolBar::OnMotion( wxMouseEvent & event )
-{
-   // Go ahead and set the event to propagate
-   event.Skip();
-
-   // Don't do anything if we're not docked
-   if( !IsDocked() )
-   {
-      return;
-   }
-
-   // Retrieve the mouse position
-   wxPoint raw_pos = event.GetPosition();
-   wxPoint pos = ClientToScreen( raw_pos );
-
-   if( !HasCapture() )
-   {
-      // JKC: Wrong place for this?  Surely the cursor should change on 
-      // mouse-down and capture-lost rather than with mouse movement?
-      if( IsResizable() )
-      {
-         // Is left click within resize grabber?
-         SetCursor( IsResizeGrabberHit( raw_pos ) ? wxCURSOR_SIZEWE : wxCURSOR_ARROW);
-      }
-   }
-   else if( event.Dragging() )
-   {
-      wxRect r = GetRect();
-      wxSize msz = GetMinSize();
-      wxSize psz = GetParent()->GetClientSize();
-
-      // Adjust the size by the difference between the
-      // last mouse and current mouse positions.
-      r.width += ( pos.x - mResizeStart.x );
-
-      // Constrain
-      if( r.width < msz.x )
-      {
-         // Don't allow resizing to go too small
-         r.width = msz.x;
-      }
-      else if( r.GetRight() > psz.x - 3 )
-      {
-         // Don't allow resizing to go too large
-         //
-         // The 3 magic pixels are because I'm too chicken to change the
-         // calculations in ToolDock::LayoutToolBars() even though I'm
-         // the one that set them up.  :-)
-         r.SetRight( psz.x - 3 );
-      }
-      else
-      {         
-         // Remember for next go round
-         mResizeStart = pos;
-      }
-
-      // Resize the bar
-      SetSize( r.GetSize() );
-
-      // Tell everyone we've changed sizes
-      Updated();
-
-      // Refresh our world
-      GetParent()->Refresh();
-      GetParent()->Update();
-   }
-}
-
-void ToolBar::OnCaptureLost( wxMouseCaptureLostEvent & WXUNUSED(event) )
-{
-   if( HasCapture() )
-   {
-      
