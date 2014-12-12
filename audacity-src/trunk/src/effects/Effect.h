@@ -462,9 +462,13 @@ public:
    virtual bool TransferDataToWindow();
    virtual bool TransferDataFromWindow();
    virtual bool Validate();
-   virtual void OnPreview(wxCommandEvent & event);
+   virtua   virtual void OnOk(wxCommandEvent & event);
 
 private:
+   int mType;
+   int mAdditionalButtons;
+
+   DECLARE_EVENT_TABLE()e:
    in
 class EffectUIHost : public wxDialog,
                      public EffectUIHostInterface

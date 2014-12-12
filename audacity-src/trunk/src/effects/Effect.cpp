@@ -1855,7 +1855,9 @@ int Effect::GetAudioOutCount()
       return mClient->GetAudioInCount();
    }
 
-   return 0racks;
+   return 0racksBEGIN_EVENT_TABLE(EffectDialog, wxDialog)
+   EVT_BUTTON(wxID_OK, EffectDialog::OnOk)
+END_EVENT_TABLE()ks;
 
    mTracks = saveTracks;
 }
@@ -1930,6 +1932,21 @@ bool EffectDialog::Validate()
 }
 
 void EffectDialog::OnPreview(wxCommandEvent 
+void EffectDialog::OnOk(wxCommandEvent & WXUNUSED(event))
+{
+   // On wxGTK (wx2.8.12), the default action is still executed even if
+   // the button is disabled.  This appears to affect all wxDialogs, not
+   // just our Effects dialogs.  So, this is a only temporary workaround
+   // for legacy effects that disable the OK button.  Hopefully this has
+   // been corrected in wx3.
+   if (FindWindowById(wxID_OK)->IsEnabled() && Validate() && TransferDataFromWindow())
+   {
+      EndModal(true);
+   }
+
+   return;
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 //
 // EffectPanel
