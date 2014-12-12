@@ -1710,7 +1710,16 @@ bool AdornedRulerPanel::IsWithinMarker(int mousePosX, double markerTime)
    return mousePosX >= boundLeft && mousePosX < boundRight;
 }
 
-void AdornedRulerPanel::OnMouseEvents(wxMouseEvent &evt)
+void AdornedRulerPanel::OnMouevt.Leaving())
+   {
+#if defined(__WXMAC__)
+      // We must install the cursor ourselves since the window under
+      // the mouse is no longer this one and wx2.8.12 makes that check.
+      // Should re-evaluate with wx3.
+      wxSTANDARD_CURSOR->MacInstall();
+#endif
+   }
+   elseOnMouseEvents(wxMouseEvent &evt)
 {
    bool isWithinStart = IsWithinMarker(evt.GetX(), mPlayRegionStart);
    bool isWithinEnd = IsWithinMarker(evt.GetX(), mPlayRegionEnd);
