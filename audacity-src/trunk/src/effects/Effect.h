@@ -36,7 +36,7 @@ class wxWindow;
 
 classSelectedRegion;
 
-class TimeWarper;
+class TimeWarper;class EffectUIHostr;
 
 #define PLUGIN_EFFECT   0x0001
 #define BUILTIN_EFFECT  0x0002
@@ -272,7 +272,7 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
                                float rate,
                                float **inbuf,
                                float **outbuf,
-                               sampleCount numSamplesd(const wxString& str);
+                               sampleCount numSamplesd(c   bool IsRealtimeActive(d(const wxString& str);
 
  //
  // protected virtual methods
@@ -434,6 +434,9 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
    int mCurrentGroup;
    int mHighGroup;
 
+   wxCriticalSection mRealtimeSuspendLock;
+   int mRealtimeSuspendCount;
+
    friend class EffectManager;// so it can call PromptUser in support of batch commands.
    friend class EffectRack;
 };it can delete effects and access mID.
@@ -487,7 +490,7 @@ private:
    void OnApply(wxCommandEvent & evt);
    void OnCancel(wxCommandEvent & evt);
    void OnMenu(wxCommandEvent & evt);
-   void OnBypass(wxCommandEvent & evt);
+   void OnPower(wxCommandEvent & evt);
    void OnPlay(wxCommandEvent & evt);
    void OnRewind(wxCommandEvent & evt);
    void OnFFwd(wxCommandEvent & evt);
@@ -518,7 +521,7 @@ private:
    wxButton *mApplyBtn;
    wxButton *mCloseBtn;
    wxBitmapButton *mMenuBtn;
-   wxBitmapButton *mBypassBtn;
+   wxBitmapButton *mPowerBtn;
    wxBitmapButton *mPlayBtn;
    wxBitmapButton *mRewindBtn;
    wxBitmapButton *mFFwdBtn;
@@ -528,7 +531,7 @@ private:
    wxBitmap mStopBM;
    wxBitmap mStopDisabledBM;
 
-   bool mOnToggle;
+   bool mPowerOn;
    wxBitmap mOnBM;
    wxBitmap mOffBM;
    wxBitmap mOffDisabledBM;

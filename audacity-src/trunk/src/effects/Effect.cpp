@@ -86,6 +86,10 @@ Effect::Effect()
    mNumTracks = 0;
    mNumGroups = 0;   mProgress = NULL0;
 
+  mRealtimeSuspendLock.Enter();
+   mRealtimeSuspendCount = 1;    // Effects are initially suspended
+   mRealtimeSuspendLock.Leave()0;
+
    // Can change effect flags later (this is the new way)
    // OR using the old way, over-ride GetEffectFlags().
    mFlags = BUILTIN_EFFECT | PROCESS_EFFECT | ADVANCED_EFFECT;
@@ -1554,7 +1558,13 @@ bool Effect::RealtimeSuspend()
 #if defined(EXPERIMENTAL_REALTIME_EFFECTS)
    if (mClient)
    {
-      return mClient->RealtimeSuspend();
+      if (mClient->RealtimeSuspend())
+      {
+         mRealtimeSuspendLock.Enter();
+         mRealtimeSuspendCount++;
+         mRealtimeSuspendLock.Leave();
+         return true;
+      }
    }
 #endif
 
@@ -1566,7 +1576,13 @@ bool Effect::RealtimeResume()
 #if defined(EXPERIMENTAL_REALTIME_EFFECTS)
    if (mClient)
    {
-      return mClient->RealtimeResume();
+      if (mClient->RealtimeResume())
+      {
+         mRealtimeSuspendLock.Enter();
+         mRealtimeSuspendCount--;
+         mRealtimeSuspendLock.Leave();
+         return true;
+      }
    }
 #endif
 
@@ -1588,7 +1604,7 @@ sampleCount Effect::RealtimeProcess(int group,
    //
    // Effects always require a certain number of input and output buffers,
    // so if the number of channels we're curently processing are different
-   // that was the effect expects, then we use a few methods of satisfying
+   // than what the effect expects, then we use a few methods of satisfying
    // the effects requirements.
    float **clientIn = (float **) alloca(mNumAudioIn * sizeof(float *));
    float **clientOut = (float **) alloca(mNumAudioOut * sizeof(float *));
@@ -1700,7 +1716,9 @@ sampleCount Effect::RealtimeProcess(int group,
    return len;
 #else
    return 0;
-#endif return _("Pre&view");
+#endif retbool Effect::IsRealtimeActive()
+{
+   return mRealtimeSuspendCount == 0; return _("Pre&view");
 }
 
 void Effect::Preview(bool dryOnly)
@@ -2006,7 +2024,7 @@ enum
    kUserPresetsDummyID = 30006,
    kDeletePresetDummyID = 30007,
    kMenuID = 30100,
-   kBypassID = 30101,
+   kPowerID = 30101,
    kPlayID = 30102,
    kRewindID = 30103,
    kFFwdID = 30104,
@@ -2022,7 +2040,7 @@ BEGIN_EVENT_TABLE(EffectUIHost, wxDialog)
    EVT_BUTTON(wxID_APPLY, EffectUIHost::OnApply)
    EVT_BUTTON(wxID_CANCEL, EffectUIHost::OnCancel)
    EVT_BUTTON(kMenuID, EffectUIHost::OnMenu)
-   EVT_BUTTON(kBypassID, EffectUIHost::OnBypass)
+   EVT_BUTTON(kPowerID, EffectUIHost::OnPower)
    EVT_BUTTON(kPlayID, EffectUIHost::OnPlay)
    EVT_BUTTON(kRewindID, EffectUIHost::OnRewind)
    EVT_BUTTON(kFFwdID, EffectUIHost::OnFFwd)
@@ -2050,6 +2068,8 @@ EffectUIHost::EffectUIHost(wxWindow *parent,
    mClient = client;
 
    mInitialized = false;
+
+   mPowerOn = true;
 
    mClient->SetUIHost(this);
 }
@@ -2098,11 +2118,10 @@ bool EffectUIHost::Initialize()
    mOnBM = CreateBitmap(effect_on_xpm, true, false);
    mOffBM = CreateBitmap(effect_off_xpm, true, false);
    mOffDisabledBM = CreateBitmap(effect_off_disabled_xpm, true, false);
-   mBypassBtn = new wxBitmapButton(bar, kBypassID, mOnBM);
-   mBypassBtn->SetBitmapDisabled(mOffDisabledBM);
-   SetLabelAndTip(mBypassBtn, _("B&ypass effect"));
-   mOnToggle = true;
-   bs->Add(mBypassBtn);
+   mPowerBtn = new wxBitmapButton(bar, kPowerID, mOnBM);
+   mPowerBtn->SetBitmapDisabled(mOffDisabledBM);
+   SetLabelAndTip(mPowerBtn, _("P&ower On/Off"));
+   bs->Add(mPowerBtn);
 
    bs->Add(5, 5);
 
@@ -2378,17 +2397,17 @@ void EffectUIHost::OnMenu(wxCommandEvent & evt)
    delete menu;
 }
 
-void EffectUIHost::OnBypass(wxCommandEvent & WXUNUSED(evt))
+void EffectUIHost::OnPower(wxCommandEvent & WXUNUSED(evt))
 {
-   EffectManager & em = EffectManager::Get();
+   mPowerOn = !mPowerOn;
 
-   if (em.RealtimeIsSuspended())
+   if (mPowerOn)
    {
-      em.RealtimeResume();
+      mEffect->RealtimeResume();
    }
    else
    {
-      em.RealtimeSuspend();
+      mEffect->RealtimeSuspend();
    }
 
    UpdateControls();
@@ -2676,21 +2695,14 @@ void EffectUIHost::SetLabelAndTip(wxBitmapButton *btn, const wxString & label)
 void EffectUIHost::UpdateControls()
 {
    mApplyBtn->Enable(!mCapturing);
-   mBypassBtn->Enable(!mCapturing);
+   mPowerBtn->Enable(!mCapturing);
    mPlayBtn->Enable(!mCapturing);
    mRewindBtn->Enable(!mCapturing);
    mFFwdBtn->Enable(!mCapturing);
 
-   mOnToggle = !EffectManager::Get().RealtimeIsSuspended();
-   if (mOnToggle && mCapturing)
-   {
-      mOnToggle = false;
-      EffectManager::Get().RealtimeSuspend();
-   }
-
    mPlayBtn->SetBitmapLabel(mPlaying ? mStopBM : mPlayBM);
    mPlayBtn->SetBitmapDisabled(mPlaying ? mStopDisabledBM: mPlayDisabledBM);
-   mBypassBtn->SetBitmapLabel(mOnToggle ? mOnBM : mOffBM);
+   mPowerBtn->SetBitmapLabel(mPowerOn ? mOnBM : mOffBM);
 }
 
 void EffectUIHost::LoadUserPresets()
