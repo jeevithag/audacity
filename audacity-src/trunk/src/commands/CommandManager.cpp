@@ -894,7 +894,18 @@ void CommandManager::HandleMenuClose(wxMenuEvent &evt)
       return;
 
    // Turn off the accelerators
-   ToggleAccels(mOpenMenu, false);
+   Toggle#if defined(__WXMSW__)
+   // On Windows, the last accelerator entry will remain active due to the way that
+   // wxMenuBar::RebuildAccelTable() functions.  Just so happens that if that last
+   // entry is an unmodified character, then that character will not be usable in
+   // a label track until a different menu has been opened...thus replacing that
+   // dangling accelerator entry.
+   //
+   // This should go away (or at least be re-evaluated) when moving to wx3 as they've
+   // completely redesigned the accelerator table handling.
+   wxAcceleratorTable & at = const_cast<wxAcceleratorTable &>(GetActiveProject()->GetMenuBar()->GetAccelTable());
+   at = wxNullAcceleratorTable;
+#endifleAccels(mOpenMenu, false);
 
    // Forget about it
    mOpenMenu = NULL;
