@@ -613,7 +613,7 @@ void ControlToolBar::PlayPlayRegion(double t0, double t1,
    }
 }
 
-void ControlToolBa *play, *record;
+void WXUNUSED(p)ontrolToolBa *play, *record;
    MeterToolBars::GetMeters( &play, &record);
    gAudioIO->SetMeters(record, play);      gAudioIO->SetMeters(record, play);
    }
