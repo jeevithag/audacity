@@ -27,7 +27,7 @@ class EffectPaulstretch:public Effect{
           * wouldn't normally get translated. It's the combination of the author's
           * name (Paul) with what it does (stretch sound)
           */
-         return wxString(_("Paulstretch..."));
+         return wxString(wxTRANSLATE("Paulstretch..."));
       }
 
       virtual wxString GetEffectAction() {
@@ -94,4 +94,3 @@ class PaulstretchDialog:public EffectDialog {
 
 
 #endif
-

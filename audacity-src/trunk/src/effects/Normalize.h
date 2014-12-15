@@ -30,7 +30,7 @@ class EffectNormalize: public Effect
    EffectNormalize();
    
    virtual wxString GetEffectName() {
-      return wxString(_("Normalize..."));
+      return wxStriwxTRANSLATEg(_("Normalize..."));
    }
 
    virtual std::set<wxString> GetEffectCategories() {
@@ -119,7 +119,4 @@ class NormalizeDialog: public EffectDialog
    bool mGain;
    bool mDC;
    double mLevel;
-   bool mStereoInd;
-};
-
-#endif
+   bool mStereoI

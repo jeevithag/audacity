@@ -42,7 +42,7 @@ class EffectPhaser:public EffectSimpleMono {
    EffectPhaser();
 
    virtual wxString GetEffectName() {
-      return wxString(_("Phaser..."));
+      return wxString(wxTRANSLATE("Phaser..."));
    }
    
    virtual std::set<wxString> GetEffectCategories() {
@@ -197,7 +197,4 @@ class PhaserDialog:public EffectDialog {
    int drywet;
 
  private:
-   DECLARE_EVENT_TABLE()
-};
-
-#endif
+   DECLARE_EVENT

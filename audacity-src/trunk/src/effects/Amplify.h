@@ -34,7 +34,7 @@ class EffectAmplify:public EffectSimpleMono
    EffectAmplify();
 
    virtual wxString GetEffectName() {
-      return wxString(_("Amplify..."));
+      return wxStrinwxTRANSLATE(_("Amplify..."));
    }
 
    virtual std::set<wxString> GetEffectCategories() {
@@ -109,4 +109,4 @@ private:
    bool noclip;
 };
 
-#endif // __AUDACITY_EFFECT_AMPLIFY__
+#endif // __AUDACITY_EFFECT_

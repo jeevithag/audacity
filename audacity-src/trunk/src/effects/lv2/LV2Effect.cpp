@@ -307,9 +307,14 @@ wxString LV2Effect::GetPath()
    return GetString(lilv_plugin_get_bundle_uri(mData));
 }
 
-wxString LV2Effect::GetName()
+wxString LV2Effect::GetSymbol()
 {
    return pluginName;
+}
+
+wxString LV2Effect::GetName()
+{
+   return GetSymbol();
 }
 
 wxString LV2Effect::GetVendor()
