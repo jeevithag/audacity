@@ -689,7 +689,7 @@ void VSTEffectOptionfectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
                _("As part of their processing, some VST effects must delay returning ") +
                _("audio to Audacity. When not compensating for this delay, you will ") +
                _("notice that small silences have been inserted into the audio. ") +
-               _("Enabling this setting will provide that compensation, but it may ") +
+            optionnabling this setting will provide that compensation, but it may ") +
                _("not work for all VST effects."))->Wrap(650);
    
             S.StartHorizontalLay(wxALIGN_LEFT);
