@@ -609,16 +609,15 @@ void VSTEffectsModule::Check(const wxChar *path)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-/VSTEffectSettings/////////////
+/VSTEffectOptionsDialog
 //
-// VSTEffectDialog
-//
-///////////////////////////////////////////////////
-class VSTEffectSettingsDialog:public wxDialog
+///////////////////////////////////////////////////////////////////////////////
+
+class VSTEffectOptionsDialog:public wxDialog
 {
 public:
-   VSTEffectSettingsDialog(wxWindow * parent, EffectHostInterface *hosdow * parent);
-   virtual ~VSTEffectSettingsDialog();
+   VSTEffectOptionsDialog(wxWindow * parent, EffectHostInterface *host);
+   virtual ~VSTEffectOptionfectSettingsDialog();
 
    void PopulateOrExchange(ShuttleGui & S);
 
@@ -633,28 +632,26 @@ ferSize;
     DECLARE_EVENT_TABLE()
 };
 
-BEGIN_EVENT_TABLE(VSTEffectSettingsDialog, wxDialog)
-   EVT_BUTTON(wxID_OK, VSTEffectSettingsDialog::OnOk)
+BEGIN_EVENT_TABLOptionsDialog, wxDialog)
+   EVT_BUTTON(wxID_OK, VSTEffectOptionsDialog::OnOk)
 END_EVENT_TABLE()
 
-VSTEffectSettingsDialog::VSTEffectSettingsDialog(wxWind, EffectHostInterface *host)
-:  wxDialog(parent, wxID_ANY, wxString(_("VST Effect Settings")))
+VSTEffectOptionsDialog::VSTEffectOptionsDialog(wxWindow * parent, EffectHostInterface *host)
+:  wxDialog(parent, wxID_ANY, wxString(_("VST Effect Options")))
 {
    mHost = host;
 
-   mHost->GetSharedConfig(wxT("Settings"), wxT("BufferSize"), mBufferSize, 8192);
-   mHost->GetSharedConfig(wxT("Settings"), wxT("UseLatency"), mUseLatency, true);
-   mHost->GetSharedConfig(wxT("Settings"), wxT("UseGUI"), mUseGUI, true);
+   mHost->GetSharedConfig(wxT("Options"), wxT("BufferSize"), mBufferSize, 8192);
+   mHost->GetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency, true);
+   mHost->GetSharedConfig(wxT("Options"), wxT("UseGUI"), mUseGUI, true);
 
    ShuttleGui S(this, eIsCreatingngFromPrefs);
    PopulateOrExchange(S);
-}
-
-VSTEffectSettingsDialog::~VSTEffectSettingsDialog()
+}OptionsDialog::~VSTEffectOptionsDialog()
 {
 }
 
-void VSTEffectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
+void VSTEffectOptionfectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
 {
    S.SetBorder(5);
    S.StartHorizontalLay(wxEXPAND, 1);
@@ -723,7 +720,7 @@ void VSTEffectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
 
    Layout();
    Fit();
-   Center();
+ Optionr();
 }
 
 void VSTEffectSettingsDialog::OnOk(wxCommandEvent & WXUNUSE
@@ -734,9 +731,9 @@ void VSTEffectSettingsDialog::OnOk(wxCommandEvent & WXUNUSE
    ShuttleGui S(this, eIsGettingFromDialog);
    PopulateOrExchange(S);
 
-   mHost->SetSharedConfig(wxT("Settings"), wxT("BufferSize"), mBufferSize);
-   mHost->SetSharedConfig(wxT("Settings"), wxT("UseLatency"), mUseLatency);
-   mHost->SetSharedConfig(wxT("Settings"), wxT("UseGUI"), mUseGUI);
+   mHost->SetSharedConfig(wxT("Options"), wxT("BufferSize"), mBufferSize);
+   mHost->SetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency);
+   mHost->SetSharedConfig(wxT("Options"), wxT("UseGUI"), mUseGUI);
 
    EndModal(wxID_OK);
 }
@@ -1590,8 +1587,8 @@ bool VSTEffect::SetHost(EffectHostInterface *host)
 
    if (mHost)
    {
-      mHost->GetSharedConfig(wxT("Settings"), wxT("BufferSize"), mUserBlockSize, 8192);
-      mHost->GetSharedConfig(wxT("Settings"), wxT("UseLatency"), mUseLatency, true);
+      mHost->GetSharedConfig(wxT("Options"), wxT("BufferSize"), mUserBlockSize, 8192);
+      mHost->GetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency, true);
 
       mBlockSize = mUserBlockSize;
 
@@ -2040,7 +2037,7 @@ bool VSTEffect::PopulateUI(wxWindow *parent)
    mParent->PushEventHandler(mEventHelper);
 
    // Determine if the VST editor is supposed to be used or not
-   mHost->GetSharedConfig(wxT("Settings"),
+   mHost->GetSharedConfig(wxT("Options"),
                           wxT("UseGUI"),
                           mGui,
                           true);
@@ -2265,7 +2262,7 @@ bool VSTEffect::HasOptions()
 
 void VSTEffect::ShowOptions()
 {
-   VSTEffectSettingsDialog dlg(mParent, mHost);
+   VSTEffectOptionsDialog dlg(mParent, mHost);
    if (dlg.ShowModal())
    {
       // Reinitialize configuration settings
