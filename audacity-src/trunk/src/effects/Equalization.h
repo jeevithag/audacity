@@ -86,7 +86,7 @@ public:
    virtual ~EffectEqualization();
 
    virtual wxString GetEffectName() {
-      return wxString(_("Equalization..."));
+      return wxString(wxTRANSLATE("Equalization..."));
    }
 
    virtual std::set<wxString> GetEffectCategories() {
@@ -502,4 +502,4 @@ private:
 
 #endif // wxUSE_ACCESSIBILITY
 
-#endif
+#e

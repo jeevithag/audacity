@@ -148,16 +148,21 @@ wxString EffectNyquist::GetPath()
    return mFileName.GetFullPath();
 }
 
-wxString EffectNyquist::GetName()
+wxString EffectNyquist::GetSymbol()
 {
    return mName;
+}
+
+wxString EffectNyquist::GetName()
+{
+   return GetSymbol();
 }
 
 wxString EffectNyquist::GetVendor()
 {
    if (GetID() == wxT("nyquist prompt"))
    {
-      return wxT("Audacity");
+      return _("Audacity");
    }
 
    return mAuthor;

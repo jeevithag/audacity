@@ -105,14 +105,19 @@ wxString LadspaEffectsModule::GetPath()
    return mPath;
 }
 
+wxString LadspaEffectsModule::GetSymbol()
+{
+   return wxT("Ladspa Effects");
+}
+
 wxString LadspaEffectsModule::GetName()
 {
-   return _("Ladspa Effect Module");
+   return wxTRANSLATE("Ladspa Effects");
 }
 
 wxString LadspaEffectsModule::GetVendor()
 {
-   return _("The Audacity Team");
+   return wxTRANSLATE("The Audacity Team");
 }
 
 wxString LadspaEffectsModule::GetVersion()
@@ -123,7 +128,7 @@ wxString LadspaEffectsModule::GetVersion()
 
 wxString LadspaEffectsModule::GetDescription()
 {
-   return _("Provides Ladspa Effects");
+   return wxTRANSLATE("Provides Ladspa Effects");
 }
 
 // ============================================================================
@@ -346,7 +351,7 @@ bool LadspaEffectsModule::RegisterPlugin(PluginManagerInterface & pm, const wxSt
    return index > 0;
 }
 
-bool LadspaEffectsModule::IsPluginValid(const PluginID & ID,
+bool LadspaEffectsModule::IsPluginValid(const PluginID & WXUNUSED(ID),
                                         const wxString & path)
 {
    return wxFileName::FileExists(path);
@@ -611,9 +616,14 @@ wxString LadspaEffect::GetPath()
    return mPath;
 }
 
-wxString LadspaEffect::GetName()
+wxString LadspaEffect::GetSymbol()
 {
    return LAT1CTOWX(mData->Name);
+}
+
+wxString LadspaEffect::GetName()
+{
+   return GetSymbol();
 }
 
 wxString LadspaEffect::GetVendor()
@@ -1002,7 +1012,7 @@ sampleCount LadspaEffect::RealtimeProcess(int group,
    return numSamples;
 }
 
-bool LadspaEffect::RealtimeAddProcessor(int numChannels, float sampleRate)
+bool LadspaEffect::RealtimeAddProcessor(int WXUNUSED(numChannels), float sampleRate)
 {
    LADSPA_Handle slave = InitInstance(sampleRate);
    if (!slave)

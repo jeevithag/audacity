@@ -29,7 +29,7 @@ class EffectChangeSpeed : public Effect
    EffectChangeSpeed();
 
    virtual wxString GetEffectName() {
-      return wxString(_("Change Speed..."));
+      return wxStriwxTRANSLATEg(_("Change Speed..."));
    }
 
    virtual std::set<wxString> GetEffectCategories() {

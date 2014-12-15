@@ -150,14 +150,19 @@ wxString LV2EffectsModule::GetPath()
    return mPath;
 }
 
+wxString LV2EffectsModule::GetSymbol()
+{
+   return wxT("LV2 Effects");
+}
+
 wxString LV2EffectsModule::GetName()
 {
-   return _("LV2 Effects Module");
+   return wxTRANSLATE("LV2 Effects");
 }
 
 wxString LV2EffectsModule::GetVendor()
 {
-   return _("The Audacity Team");
+   return wxTRANSLATE("The Audacity Team");
 }
 
 wxString LV2EffectsModule::GetVersion()
@@ -168,7 +173,7 @@ wxString LV2EffectsModule::GetVersion()
 
 wxString LV2EffectsModule::GetDescription()
 {
-   return _("Provides LV2 Effects support to Audacity");
+   return wxTRANSLATE("Provides LV2 Effects support to Audacity");
 }
 
 // ============================================================================
@@ -254,7 +259,7 @@ void UnloadLV2Plugins()
    return;
 }
 
-bool LV2EffectsModule::AutoRegisterPlugins(PluginManagerInterface & pm)
+bool LV2EffectsModule::AutoRegisterPlugins(PluginManagerInterface & WXUNUSED(pm))
 {
    EffectManager& em = EffectManager::Get(ad_all(gWorld);
    
@@ -303,20 +308,20 @@ bool LV2EffectsModule::AutoRegisterPlugins(PluginManagerInterface & pm)
    return true;
 }
 
-wxArrayString LV2EffectsModule::FindPlugins(PluginManagerInterface & pm)
+wxArrayString LV2EffectsModule::FindPlugins(PluginManagerInterface & WXUNUSED(pm))
 {
    // Nothing to do here yet
    return wxArrayString();
 }
 
-bool LV2EffectsModule::RegisterPlugin(PluginManagerInterface & pm, const wxString & path)
+bool LV2EffectsModule::RegisterPlugin(PluginManagerInterface & WXUNUSED(pm), const wxString & WXUNUSED(path))
 {
    // Nothing to do here yet
    return false;
 }
 
 bool LV2EffectsModule::IsPluginValid(const PluginID & ID,
-                                     const wxString & path)
+                                     const wxString & WXUNUSED(path))
 {
    LilvNode *uri = lilv_new_uri(gWorld, ID.ToUTF8());
    const LilvPlugin *plugin = lilv_plugins_get_by_uri(lilv_world_get_all_plugins(gWorld), uri);
@@ -325,15 +330,15 @@ bool LV2EffectsModule::IsPluginValid(const PluginID & ID,
    return plugin != NULL;
 }
 
-IdentInterface *LV2EffectsModule::CreateInstance(const PluginID & ID,
-                                                 const wxString & path)
+IdentInterface *LV2EffectsModule::CreateInstance(const PluginID & WXUNUSED(ID),
+                                                 const wxString & WXUNUSED(path))
 {
    // Nothing to do here yet since we are autoregistering (and creating legacy
    // effects anyway).
    return NULL;
 }
 
-void LV2EffectsModule::DeleteInstance(IdentInterface *instance)
+void LV2EffectsModule::DeleteInstance(IdentInterface *WXUNUSED(instance))
 {
    // Nothing to do here yet
 }

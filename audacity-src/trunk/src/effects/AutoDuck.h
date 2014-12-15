@@ -98,7 +98,7 @@ public:
    EffectAutoDuck();
    
    virtual wxString GetEffectName()
-   {
+   wxTRANSLATE
       return wxString(_("Auto Duck..."));
    }
    
@@ -138,7 +138,4 @@ private:
    double mThresholdDb;
    double mMaximumPause;
 
-   WaveTrack* mControlTrack;
-};
-
-#endif
+   W

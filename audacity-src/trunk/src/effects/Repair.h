@@ -26,7 +26,7 @@ public:
    virtual ~EffectRepair();
 
    virtual wxString GetEffectName() {
-      return wxString(_("Repair"));
+      return wxSwxTRANSLATEring(_("Repair"));
    }
 
    virtual std::set<wxString> GetEffectCategories() {
@@ -55,4 +55,4 @@ private:
                    sampleCount repairStart, sampleCount repairLen);
 };
 
-#endif // __AUDACITY_EFFECT_REPAIT__
+#endif // __AUDACITY_E
