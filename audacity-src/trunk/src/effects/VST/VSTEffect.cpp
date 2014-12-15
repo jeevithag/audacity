@@ -812,11 +812,38 @@ DEFINE_LOCAL_EVENT_TYPE(EVT_SIZEWINDOW);
 DEFINE_LOCAL_EVENT_TYPE(EVT_UPDATEDISPLAY);dateDisplay)
 END_EVENT_TABLE(To use, change the SDK in the project to at least 10.5
 extern void DebugPrintControlHierarchy(WindowRef inWindow);
-extern void DebugPrintWindowList(void);ABLE()
+extern void DebugPrintWindowList(void);ABLE(Event handler to track when the mouse enters/exits the various view
+static const EventTypeSpec trackingEventList[] =
+{                             
+   {kEventClassControl, kEventControlTrackingAreaEntered},
+   {kEventClassControl, kEventControlTrackingAreaExited},
+};                            
+                              
+pascal OSStatus VSTEffect::Trackingtatus VSTEffectDialog::OverlayEventHandler(EventHandlerCallRef handler, EventRef event, void 
+{
+   returnTrackingEvent(event);
+}
 
-#if defined(__WXMAC__)
+OSStatus VSTEffect::OnTrackingEvent(EventRef event)
+{
+   OSStatus result = eventNotHandledErr;
+   
+   if (GetEventKind(event) == kEventControlTrackingAreaEntered)
+   {
+      // Should we save the existing cursor???
+      SetThemeCursor(kThemeArrowCursor);
+   }
 
-// ----------------------------------------------------------------------------
+   if (GetEventKind(event) == kEventControlTrackingAreaExited)
+   {
+      // Possibly restore a saved cursor
+   }
+
+   return result;
+}
+
+//  floater is clicked.
+// ----------------------------------------------------------------------------------
 // Most of the following is used to deal with VST effects that create an overlay
 // window on top of ours.  This is usually done because Cocoa is being used
 // instead of Carbon.
@@ -1119,6 +1146,23 @@ OSStatus VSTEffectDialog::OnWindowEvent(EventHandlerCallRef handler, EventRef ev
                                       OverlayEventList,
                                       this,
            
+            ControlRef root = HIViewGetRoot(mOverlayRef);
+            HIViewRef view;
+            HIViewFindByID(root, kHIViewWindowContentID, &view);
+            InstallControlEventHandler(root,
+                                       mTrackingHandlerUPP,
+                                       GetEventTypeCount(trackingEventList),
+                                       trackingEventList,
+                                       this,
+                                       &mOverlayRootTrackingHandlerRef);
+            InstallControlEventHandler(view,
+                                       mTrackingHandlerUPP,
+                                       GetEventTypeCount(trackingEventList),
+                                       trackingEventList,
+                                       this,
+                                       &mOverlayViewTrackingHandlerRef);
+            HIViewNewTrackingArea(root, NULL, 0, NULL);
+            HIViewNewTrackingArea(view, NULL, 0, NULL   
 //#if !defined(EXPERIMENTAL_REALTIME_EFFECTS)
             // Since we set the activation scope to independent,
             // we need to make sure the overlay gets activated.
@@ -1407,6 +1451,13 @@ NY, title),
    mWindowRef = 0;
    mWindowEventHandlerUPP = 0;
    mWindowEventHandlerRef = 0;
+
+   mRootTrackingHandlerRef = 0;
+   mViewTrackingHandlerRef = 0;
+   mSubviewTrackingHandlerRef = 0;
+   mOverlayRootTrackingHandlerRef = 0;
+   mOverlayViewTrackingHandlerRef = 0;
+
 #elif defined(__WXMSW__)
    mHwnd = 0;
 #else
@@ -3080,6 +3131,18 @@ void VSTEffect::RemoveHandler()
       mWindowRef = 0;
    }
 
+   if (mOverlayViewTrackingHandlerRef)
+   {
+      ::RemoveEventHandler(mOverlayViewTrackingHandlerRef);
+      mOverlayViewTrackingHandlerRef = 0;
+   }
+
+   if (mOverlayRootTrackingHandlerRef)
+   {
+      ::RemoveEventHandler(mOverlayRootTrackingHandlerRef);
+      mOverlayRootTrackingHandlerRef = 0;
+   }
+
    if (mOverlayEventHandlerRef)
   )
 {
@@ -3091,7 +3154,28 @@ void VSTEffect::RemoveHandler()
    }
 
    if (mOverlayEventHandlerUPP) {
-      DisposeEventHandlerUPP(mOverlayEventHandlerUPP);
+      DisposeEventHandlerUPP(mOverlayEventHandSubviewTrackingHandlerRef)
+   {
+      ::RemoveEventHandler(mSubviewTrackingHandlerRef);
+      mSubviewTrackingHandlerRef = 0;
+   }
+
+   if (mViewTrackingHandlerRef)
+   {
+      ::RemoveEventHandler(mViewTrackingHandlerRef);
+      mViewTrackingHandlerRef = 0;
+   }
+
+   if (mRootTrackingHandlerRef)
+   {
+      ::RemoveEventHandler(mRootTrackingHandlerRef);
+      mRootTrackingHandlerRef = 0;
+   }
+
+   if (mTrackingHandlerUPP)
+   {
+      DisposeEventHandlerUPP(mTrackingHandlerUPP);
+      mTrackingntHandlerUPP(mOverlayEventHandlerUPP);
       mOverla
   yEventHandlerUPP = 0;
    }
@@ -3152,10 +3236,9 @@ void VSTEffectDialog::BuildFancy()
                              GetEventTypeCount(WindowEventList),
                              WindowEventList,
                              this,
-                             &mWindowEventHandlerRef);
-
-   // Find the content view within our window
+                             &mWindowEventHandlControlRef root = HIViewGetRoot(mWindowRef);
    HIViewRef view;
+   HIViewFindByID(rootIViewRef view;
    HIViewFindByID(HIViewGetRoot(mWindowRef), kHIViewWindowContenw);
 
    // And ask the effect to add it's GUI
@@ -3170,7 +3253,29 @@ void VSTEffectDialog::BuildFancy()
       // will not try to support those and fall back to the
       // textual interface.fect->callDispatcher(effEditClose, 0, 0, mWindowRef, 0.0);
       mGui = false;
-      RemoveHandler();
+        // Install the tracking event handler on our views
+   mTrackingHandlerUPP = NewEventHandlerUPP(VSTEffect::TrackingEventHandler);
+   InstallControlEventHandler(root,
+                              mTrackingHandlerUPP,
+                              GetEventTypeCount(trackingEventList),
+                              trackingEventList,
+                              this,
+                              &mRootTrackingHandlerRef);
+   InstallControlEventHandler(view,
+                              mTrackingHandlerUPP,
+                              GetEventTypeCount(trackingEventList),
+                              trackingEventList,
+                              this,
+                              &mViewTrackingHandlerRef);
+   InstallControlEventHandler(subview,
+                              mTrackingHandlerUPP,
+                              GetEventTypeCount(trackingEventList),
+                              trackingEventList,
+                              this,
+                              &mSubviewTrackingHandlerRef);
+   HIViewNewTrackingArea(root, NULL, 0, NULL);
+   HIViewNewTrackingArea(view, NULL, 0, NULL);
+   HIViewNewTrackingArea(subview, NULL, 0, NULL);   RemoveHandler();
       Build// Use a panel to host the plugins GUIuildPlPanel *w = new wxPanel(mParent, wxID_ANY);
    mHwnd = w->GetHWND();
    callDispatcher(effEditOpen, 0, 0, mHwnd, 0.0);
@@ -3834,11 +3939,8 @@ bool VSTEffect::LoadXML(const wxFileName & fn)
    {
       // Inform user of load failure
       wxMessageBox(reader.GetErrorStr(),
-gramName, fn, i);
-      }
-
-      if (error) {
-         wxMessageBox(_(wxOK | wxCENTRE,
+                   _("Error Loading VST Presets"),
+                   wxOK | wxCENTRE,
                    mParent);
       return false;
    }
