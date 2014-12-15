@@ -272,15 +272,15 @@ OSType AudioUnitEffectsModule::ToOSType(const wxString & type)
 
 ///////////////////////////////////////////////////////////////////////////////
 //
-// AudioUnitEffectSettingsDialog
+// AudioUnitEffectOptionsDialog
 //
 ///////////////////////////////////////////////////////////////////////////////
 
-class AudioUnitEffectSettingsDialog:public wxDialog
+class AudioUnitEffectOptionsDialog:public wxDialog
 {
 public:
-   AudioUnitEffectSettingsDialog(wxWindow * parent, EffectHostInterface *host);
-   virtual ~AudioUnitEffectSettingsDialog();
+   AudioUnitEffectOptionsDialog(wxWindow * parent, EffectHostInterface *host);
+   virtual ~AudioUnitEffectOptionsDialog();
 
    void PopulateOrExchange(ShuttleGui & S);
 
@@ -294,27 +294,27 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-BEGIN_EVENT_TABLE(AudioUnitEffectSettingsDialog, wxDialog)
-   EVT_BUTTON(wxID_OK, AudioUnitEffectSettingsDialog::OnOk)
+BEGIN_EVENT_TABLE(AudioUnitEffectOptionsDialog, wxDialog)
+   EVT_BUTTON(wxID_OK, AudioUnitEffectOptionsDialog::OnOk)
 END_EVENT_TABLE()
 
-AudioUnitEffectSettingsDialog::AudioUnitEffectSettingsDialog(wxWindow * parent, EffectHostInterface *host)
-:  wxDialog(parent, wxID_ANY, wxString(_("Audio Unit Effect Settings")))
+AudioUnitEffectOptionsDialog::AudioUnitEffectOptionsDialog(wxWindow * parent, EffectHostInterface *host)
+:  wxDialog(parent, wxID_ANY, wxString(_("Audio Unit Effect Options")))
 {
    mHost = host;
 
-   mHost->GetSharedConfig(wxT("Settings"), wxT("UseLatency"), mUseLatency, true);
-   mHost->GetSharedConfig(wxT("Settings"), wxT("UseGUI"), mUseGUI, true);
+   mHost->GetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency, true);
+   mHost->GetSharedConfig(wxT("Options"), wxT("UseGUI"), mUseGUI, true);
 
    ShuttleGui S(this, eIsCreating);
    PopulateOrExchange(S);
 }
 
-AudioUnitEffectSettingsDialog::~AudioUnitEffectSettingsDialog()
+AudioUnitEffectOptionsDialog::~AudioUnitEffectOptionsDialog()
 {
 }
 
-void AudioUnitEffectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
+void AudioUnitEffectOptionsDialog::PopulateOrExchange(ShuttleGui & S)
 {
    S.SetBorder(5);
    S.StartHorizontalLay(wxEXPAND, 1);
@@ -361,7 +361,7 @@ void AudioUnitEffectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
    Center();
 }
 
-void AudioUnitEffectSettingsDialog::OnOk(wxCommandEvent & WXUNUSED(evt))
+void AudioUnitEffectOptionsDialog::OnOk(wxCommandEvent & WXUNUSED(evt))
 {
    if (!Validate())
    {
@@ -371,8 +371,8 @@ void AudioUnitEffectSettingsDialog::OnOk(wxCommandEvent & WXUNUSED(evt))
    ShuttleGui S(this, eIsGettingFromDialog);
    PopulateOrExchange(S);
 
-   mHost->SetSharedConfig(wxT("Settings"), wxT("UseLatency"), mUseLatency);
-   mHost->SetSharedConfig(wxT("Settings"), wxT("UseGUI"), mUseGUI);
+   mHost->SetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency);
+   mHost->SetSharedConfig(wxT("Options"), wxT("UseGUI"), mUseGUI);
 
    EndModal(wxID_OK);
 }
@@ -1128,8 +1128,8 @@ oUnitSetProperty(trackUnit,
    // mHost will be null during registration
    if (mHost)
    {
-      mHost->GetSharedConfig(wxT("Settings"), wxT("UseLatency"), mUseLatency, true);
-      mHost->GetSharedConfig(wxT("Settings"), wxT("UseGUI"), mUseGUI, true);
+      mHost->GetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency, true);
+      mHost->GetSharedConfig(wxT("Options"), wxT("UseGUI"), mUseGUI, true);
 
       bool haveDefaults;
       mHost->GetPrivateConfig(mHost->GetFactoryDefaultsGroup(), wxT("Initialized"), haveDefaults, false);
@@ -2058,8 +2058,11 @@ bool AudioUnitEffect::HasOptions()
 
 void AudioUnitEffect::ShowOptions()
 {
-   AudioUnitEffectSettingsDialog dlg(mParent, mHost);
+   AudioUnitEffectOptionsDialog dlg(mParent, mHost);
    dlg.ShowModal();
+
+   mHost->GetSharedConfig(wxT("Options"), wxT("UseLatency"), mUseLatency, true);
+   mHost->GetSharedConfig(wxT("Options"), wxT("UseGUI"), mUseGUI, true);
 }
 
 // ============================================================================
