@@ -1355,6 +1355,11 @@ indow *w = new wxScrolledWindow(this,
    return true;
 }
 
+bool LadspaEffect::IsGraphicalUI()
+{
+   return false;
+}
+
 bool LadspaEffect::ValidateUI()
 {
    if (!mParent->Validate())
