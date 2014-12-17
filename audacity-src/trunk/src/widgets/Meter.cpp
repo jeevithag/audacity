@@ -417,7 +417,7 @@ void Meter::OnMouse(wxMouseEvent &evt)
        (evt.ButtonDown() && mMenuRect.Contains(evt.m_x, evt.m_y))) 
    {
       wxMenu *menu = new wxMenu();
-      //      menu->Append(OnDisableMeterID, _("Disable Meter"));
+      //      menu->Append(OnDisamMonitoringeter"));
       if (mIsInput) {
          if (gAudioIO->IsMonitoring())
             menu->Append(OnMonitorID, _("Stop Monitoring"));
