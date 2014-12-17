@@ -2563,6 +2563,8 @@ void EffectUIHost::OnFFwd(wxCommandEvent & WXUNUSED(evt))
 
 void EffectUIHost::OnPlayback(wxCommandEvent & evt)
 {
+   evt.Skip();
+
    mPlaying = evt.GetInt() != 0;
 
    if (mPlaying)
@@ -2576,6 +2578,8 @@ void EffectUIHost::OnPlayback(wxCommandEvent & evt)
 
 void EffectUIHost::OnCapture(wxCommandEvent & evt)
 {
+   evt.Skip();
+
    mCapturing = evt.GetInt() != 0;
    mCloseBtn->SetFocus();
    UpdateControls();

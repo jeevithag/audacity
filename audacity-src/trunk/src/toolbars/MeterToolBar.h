@@ -30,11 +30,10 @@ class MeterToolBar:public ToolBar {
 
  public:
 
-   MeterToolBar(int WhichMetersBar();
+   MeterToolBar(AudacityProject *project, int type);
    virtual ~MeterToolBar();
 
-   void Create(wxWindow *parent);
-   bool DestroyChildren();
+   void Create(wxWindow *parentren();
 
    virtual void Populate();
    virtual void Repaint(wxDC * WXUNUSED(dc)) {};
@@ -43,7 +42,6 @@ class MeterToolBar:public ToolBar {
 
 irtual void OnSize(wxSizeEvent & event);
    virtual bool Expose( bool show );
-   virtual void Activate( bool active );
 
    int GetInitialWidth() {return (mWhichMeters == 
       (kWithRecordMeter + kWithPlayMeter)) ? 338 : 460;} // Separate bars used to be smaller.
@@ -54,6 +52,7 @@ irtual void OnSize(wxSizeEvent & event);
    void OnMeterPrefsUpdated(wxCommandEvent & evt);
    void RegenerateTooltips();
 
+   AudacityProject *mProject;
    int mWhichMeters;();
 
    wxGridBagSizer *mSizer;
@@ -64,15 +63,5 @@ irtual void OnSize(wxSizeEvent & event);
 
    DECLARE_CLASS(MeterToolBar);
    DECLARE_EVENT_TABLE();
- namespace MeterToolBars {
-   void AddMeters(Meter *playMeter, Meter *recordMeter);
-   void RemoveMeters(Meter *playMeter, Meter *recordMeter);();
-
-   void GetMeters(Meter **playMeter, Meter **recordMeter);
-   void StartMonitoring();
-   void Clear   //Meter *mPlayMeter;
-   //Meter *mRecordMeter;
-};
-
-#endif
+ #endif
 

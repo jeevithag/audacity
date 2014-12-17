@@ -33,6 +33,7 @@
 #include "MeterToolBar.h"
 
 #include "../AudioIO.h"
+#include "..ProjectO.h"
 #include "../widgets/Meter.h"
 
 IMPLEMENT_CLASS(MeterToolBar, ToolBar);
@@ -46,19 +47,21 @@ BEGIN_EVENT_TABLE( MeterToolBar, ToolBar )
 END_EVENT_TABLE()
 
 //Standard contructor
-MeterToolBar::MeterToolBarint WhichMeters)
-: ToolBar(MeterBarID, _("Combined Meter"), wxT("CombinedMeter"), true)
+MeterToolBar::MeterToolBarAudacityProject *project, int type)
+: ToolBar(type, _("Combined Meter"), wxT("CombinedMeter"), true)
 {
-   mWhichMeters = WhichMeters;
-   if( mWhichMeters == kWithRecordMeter ){
-      mType = RecordMeterBarID;
+   mProject = project;
+
+   if( mType == RecordMeterBarID ){
+      mWhichMeters = kWithRecordMeter;
       mLabel = _("Recording Meter");
       mSection = wxT("RecordMeter");
-   }
-   if( mWhichMeters == kWithPlayMeter ){
-      mType = PlayMeterBarID;
+   } else if( mType == PlayMeterBarID ){
+      mWhichMeters = kWithPlayMeter;
       mLabel = _("Playback Meter");
       mSection = wxT("PlayMeter");
+   } else {
+      mWhichMeters = kWithPlayMeter | kWithRecordMeter;
    }{
    mSizer = NULL;
    mPlayMeter = NULL;
@@ -66,8 +69,7 @@ MeterToolBar::MeterToolBarint WhichMeters)
 }
 
 MeterToolBar::~MeterToolBar()
-{   MeterToolBars::RemoveMeters(mPlayMeter, mRecordMeter);{
-}
+{}
 
 
 void MeterToolBar::Create(wxWindow * parent)
@@ -115,8 +117,7 @@ void MeterToolBar::Populate()
        apparently is helpful to partially sighted people.  */
       mPlayMeter->SetLabel( _("Meter-Play"));
       mSizer->Add( mPlayMeter, wxGBPosition( (mWhichMeters & kWithRecordMeter)?1:0, 01 ), wxDefaultSpan, wxEXPAND );   }
-   if( IsVisible() )
-      MeterToolBars::AddMeters( mPlayMeter, mRecordMeter );
+
    RegenerateTooltips();
 }
 
@@ -145,15 +146,6 @@ void MeterToolBar::RegenerateTooltips()
    if( mRecordMeter )
       mRecordMeter->SetToolTip( _("Recording Level.")) );
 #endif
-}
-
-bool MeterToolBar::DestroyChildren()
-{
-  MeterToolBars::RemoveMeters( mPlayMeter, mRecordMeter );{
-   mPlayMeter = NULL;
-   mRecordMeter = NULL;
-
-   return ToolBar::DestroyChildren();
 }
 
 void MeterToolBar::OMeterPrefsUpdated(wxCommandEvent & WXUNUSED(evt))
@@ -213,21 +205,26 @@ void MeterToolBar::OnSize( wxSizeEvent & WXUNUSED(event) )
 
 bool MeterToolBar::Expose( bool show )
 {
-   if( show )
-      MeterToolBars::AddMeters( mPlayMeter, mRecordMeter );
-   else
-      MeterToolBars::RemoveMeters( mPlayMeter, mRecordMeter );
+   bool updated = false;
+   if( show ) {
+      if( mPlayMeter ) {
+         mProject->SetPlaybackMeter( mPlayMeter );
+      }
+
+      if( mRecordMeter ) {
+         mProject->SetCaptureMeter( mRecordMeter );
+      }
+   } else {
+      if( mPlayMeter && mProject->GetPlaybackMeter() == mPlayMeter ) {
+         mProject->SetPlaybackMeter( NULL );
+      }
+
+      if( mRecordMeter && mProject->GetCaptureMeter() == mRecordMeter ) {
+         mProject->SetCaptureMeter( NULL );
+      }
+   }
+
    return ToolBar::Expose( show );
-}
-
-void MeterToolBar::Activate( bool active )
-{
-   if( active )
-      MeterToolBars::AddMeters( mPlayMeter, mRecordMeter );
-   else
-      MeterToolBars::RemoveMeters( mPlayMeter, mRecordMeter );
-
-   gAudioIO->SetMeters(mRecordMeter, mPlayMeter);
 }
 
 wxSize MeterToolBar::GetDockedSize()
@@ -245,41 +242,3 @@ wxSize MeterToolBar::GetDockedSize()
    return sz;
 }
 
-// Locally defined - we can change implementation easily later.
-namespace MeterToolBars {
-   Meter * mPlayMeter=NULL;
-   Meter * mRecordMeter=NULL;
-}
-
-void MeterToolBars::AddMeters(Meter *playMeter, Meter *recordMeter)
-{
-   if( playMeter != NULL )      mPlayMeter = playMeter;
-   if( recordMeter != NULL )    mRecordMeter = recordMeter;
-}
-
-void MeterToolBars::RemoveMeters(Meter *playMeter, Meter *recordMeter)
-{
-   if( mPlayMeter == playMeter )      mPlayMeter = NULL;
-   if( mRecordMeter == recordMeter )  mRecordMeter = NULL;
-}
-
-void MeterToolBarsr::GetMeters(Meter **playMeter, Meter **recordMeter)
-{
-   *playMeter = mPlayMeter;
-   *recordMeter = mRecordMeter;
-}
-
-void MeterToolBas::StartMonitoring()
-{
-   if( mRecordMeter == NULL )
-      return;{
-   wxASSERT( mRecordMeter );
-   mRecordMeter->StartMonitoring();
-   //wxASSERT( mPlayMeter );
-   //mPlayMeter->StartMonitoring();}
-
-void MeterToolBarsr::Clear()
-{
-   if (mPlayMeter)   mPlayMeter->Clear();
-   if (mRecordMeter) mRecordMeter->Clear();
-}
