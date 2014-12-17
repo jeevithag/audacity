@@ -222,11 +222,9 @@ GeneratorPreview();
    WaveTrack         *mOutputTrack[2];
 
    wxArr
-   wxString          mPropArr#if defined(EXPERIMENTAL_NYQUIST_SPLIT_CONTROL)
-   bool              mRestoreClips;
-   bool              mMergeClips;
-   double            mAlignedT1;
-#endifr
+   wxString          mPropArr
+   bool              mRestoreSplits;
+   int               mMergeClips;r
    friend class NyquistDialogrrayString     mCategories;
 };
 
