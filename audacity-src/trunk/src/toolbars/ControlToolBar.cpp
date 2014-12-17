@@ -62,7 +62,7 @@
 #include "../Project.h"
 #include "../Theme.h"
 #include "../Track.h"
-#include "../widgets/AButton.h"
+#include "../widgets/AButton#include "../widgets/Metertton.h"
 
 IMPLEMENT_CLASS(ControlToolBar, ToolBar);
 
@@ -588,7 +588,7 @@ void ControlToolBar::PlayPlayRegion(double t0, double t1,
          mBusyProject = p;
 #if defined(EXPERIMENTAL_SEEK_BEHIND_CURSOR)
          //AC: If init_seek was set, now's the time to make it happen.
-         gAudioIO->SeekStream(init_seek);
+         gseek);
 #endif
          SetVUMeters(p);
       }
@@ -609,13 +609,7 @@ void ControlToolBar::PlayPlayRegion(double t0, double t1,
    if (!success) {
       SetPlay(false);
       SetStop(false);
-      SetRecord(false);
-   }
-}
-
-void WXUNUSED(p)ontrolToolBa *play, *record;
-   MeterToolBars::GetMeters( &play, &record);
-   gAudioIO->SetMeters(record, play);      gAudioIO->SetMeters(record, play);
+      Se(record, play);
    }
 }
 
@@ -702,7 +696,7 @@ void ControlToolBar::StopPlaying(bool stopStream /* = true*/)
    #endif
 
    mPause->PopUp();
-   mPaused=false;
+   mPaused=fal
    //Make sure you tell gAudioIO to unpause
       gAudioIO->SetPaused(mPaused);
       ClearCutPreviewTracks();
@@ -712,7 +706,16 @@ void ControlToolBar::StopPlaying(bool stopStream /* = true*/)
    // So that we continue monitoring after playing or recording.
    // also clean the MeterQueues
    AudacityProject *project = GetActiveProject();
-   if( pMeterToolBars::yStartMonitoring();
+  
+      Meter *meter = project->GetPlaybackMeter();
+      if( meter ) {
+         meter->Clear();
+      }
+      
+      meter = project->GetPlaybackMeter();
+      if( meter ) {
+         meter->Clear();
+      }nitoring();
       project->GetMeterToolBar()->Clear();
    }
 }
@@ -860,9 +863,7 @@ void ControlToolBar::OnRecord(wxCommandEvent &evt)
                                         midiTracks,
 #endif
                                         t->GetTimeTrack(),
-                                        p->GetRate(), t0, t1, p);
-
-      bool success = (token != 0);
+                                        p->GetRate(), t0, t1 = (token != 0);
       
       if (success) {
          p->SetAudioIOToken(token);

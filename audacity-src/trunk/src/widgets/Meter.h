@@ -179,6 +179,8 @@ class Meter : public wxPanel
    void OnSize(wxSizeEvent &evt);
    void OnMouse(wxMouseEvent &evt);
 
+ AudioIOMonitor(wxCommande(wxMouseEvent &evt);
+
    void OnMeterUpdate(wxTimerEvent &evt);
 
    void HandlePaint(wxDC &dc);
@@ -231,7 +233,7 @@ class Meter : public wxPanel
    double    mT;
    double    mRate;
    long      mMeterRefreshRate;
-   long      mMeterDisabled; //is used as a bool, needs long for easy gPrefs...
+   long      mMeterDisabled; //is used as a bool, needs long for easy gPbool      mMonitoring;sy gPrefs...
 
    int       mNumBars;
    MeterBar  mBar[kMaxMeterBars];
