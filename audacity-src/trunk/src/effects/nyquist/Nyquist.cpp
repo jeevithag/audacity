@@ -94,7 +94,9 @@ EffectNyquist::EffectNyquist(wxString fName)
    mDebug = false;
    mIsSal = false;
    mOK = false;   mAuthor = wxT("N/A");
-   mCopyright = wxT("N/A")e;
+   mCopyright = wxT("N/A")e;   // set clip/split handling when applying over clip boundary.
+   mRestoreSplits = true;  // Default: Restore split lines. 
+   mMergeClips = -1;       // Default (auto):  Merge if length remains unchanged.;
 
    Version = 4e;
 
@@ -235,7 +237,7 @@ bool EffectNyquist::SupportsChains()
    return (GetEffectFlags() & PROCESS_EFFECT) != 0;
 }
 
-bool EffectNyquist::TransferParameters( Shuttle & shuttle )
+bool EffectNNyquist::TransferParameters( Shuttle & shuttle )
 {
    for (size_t i = 0; i < mControls.GetCount(); i++) {
       NyqControl *ctrl = &mControls[i];
@@ -467,15 +469,7 @@ bool EffectNyquist::Process()
    // correct sync-lock group behavior when the timeline is affected; then we just want
    // to operate on the selected wave tracks
    this->CopyInputTracks(Track::All);
-   SelectedTrackListOfKin#if defined(EXPERIMENTAL_NYQUIST_SPLIT_CONTROL)
-   mT0 = mCurTrack[0]->LongSamplesToTime(mCurTrack[0]->TimeToLongSamples(mT0));
-   mAlignedT1 = mCurTrack[0]->LongSamplesToTime(mCurTrack[0]->TimeToLongSamples(mT1));
-   mOutputTime = mT1 - mT0;
-   mRestoreClips = true;   // Normally we want to preserve split lines, but not always.
-   mMergeClips = true;     // Set to false to add split lines at selection ends.
-#else
-   mOutputTime = mT1 - mT0;
-#endif mOutputTracks);
+   SelectedTrackListOfKin   mOutputTime = mT1 - mT0; mOutputTracks);
    mCurTrack[0] = (WaveTrack *) iter.First();
    mOutputTime = mT1 - mT0;
    mCount = 0;
@@ -666,9 +660,9 @@ bool EffectNyquist::Process()
             goto finish;
          }
          mProgressTot += mProgressIn + mProgressOut;
-      }
-
-      mCurTrack[0] = (WaveTrack *) iter.Next();
+      }if (mOutputTime > 0.0) {
+      mT1 = mT0 + mOutputTime;
+   }WaveTrack *) iter.Next();
       mCount += mCurNumChannels;
    }
 
@@ -897,6 +891,10 @@ EscapeString(strtr = mCmd;
 
    int i;
    for (i = 0; i < mCurNumChannels; i++) {
+   !rval) {
+      wxLogWarning(wxT("Nyquist returned NIL"));
+      return true;
+   }++) {
       mCurBuffer[i] = NULL;
    wxMessageBox(NyquistToWxString(nyx_get_string()return false;
    }
@@ -955,13 +953,10 @@ EscapeString(strtr = mCmd;
 
          nyx_get_label(l, &(!(GetEffectFlags() & PROCESS_EFFECT)|| mInteractive)&t1, &str);
 
-         ltrack->AddLabel(t0 + mT0, t1 + mT0, UTF8CTOWX(str));
-      }
-      return true;
-   }
-
-   if (rval != nyx_audio) {
-      wxMessageBox(_("Nyquist did not return audio.\n"), wxT("Nyquist"),
+         ltrack->AddLabel(t0 // This should not happen, but leaving in for now just in case (Dec 2014)
+      wxMessageBox(_("Undefined return value.\n")ed the value:") + wxString(wxT(" %d")),
+                 nyx_get_int());
+    id not return audio.\n"), wxT("Nyquist"),
                    wxOK | wxCENTRE, mParent);
       return false;
    }
@@ -1014,7 +1009,17 @@ EscapeString(strtr = mCmd;
 
    for (i = 0; i < outChannels; i++) {
       mOutputTrack[i]->Flush();
-      if (mCurBuffer[i]) {
+      if (mCurBuffer[
+      if (mOutputTime <= 0) {
+         wxMessageBox(_("Nyquist did not return audio.\n"),
+                      wxT("Nyquist"),
+                      wxOK | wxCENTRE, mParent);
+         for (i = 0; i < outChannels; i++) {
+            delete mOutputTrack[i];
+            mOutputTrack[i] = NULL;
+         }
+         return true;
+      }[i]) {
          DeleteSamples(mCurBuffer[i]);
       }
       mOutputTime = mOutputTrack[i]->GetEndTime();
@@ -1023,12 +1028,15 @@ EscapeString(strtr = mCmd;
    for (i = 0; i < mCurNumChannels; i++) {
       WaveTrack *out;
 
-      if (outChannels == mCurNumCh#if defined(EXPERIMENTAL_NYQUIST_SPLIT_CONTROL)
-      mMergeClips = (mT0 + mOutputTime == mAlignedT1) ? true : false;
-      mCurTrack[i]->ClearAndPaste(mT0, mT1, out, mRestoreClips, mMergeClips);
-#else
-      mCurTrack[i]->ClearAndPaste(mT0, mT1, out, false, false);
-#endif
+      if (outChannels == mCurNumCh      if (mMergeClips < 0) {
+         // Use sample counts to determine default behaviour - times will rarely be equal.
+         bool bMergeClips = (out->TimeToLongSamples(mT0) + out->TimeToLongSamples(mOutputTime) == 
+                                                                     out->TimeToLongSamples(mT1));
+         mCurTrack[i]->ClearAndPaste(mT0, mT1, out, mRestoreSplits, bMergeClips);
+      }
+      else {
+         mCurTrack[i]->ClearAndPaste(mT0, mT1, out, mRestoreSplits, mMergeClips);
+      }
                   out = mOutputTrack[0];
       }
 
@@ -1237,7 +1245,23 @@ void EffectNyquist::Parse(wxString line)
       if (tokens[1] == wxT("enabled") || tokens[1] == wxT("true")) {
          mEnablePreview = true;
       }te(tokens[1]);
+      #if defined(EXPERIMENTAL_NYQUIST_SPLIT_CONTROL)
+   if (len >= 2 && tokens[0] == wxT("mergeclips")) {
+      long v;
+      // -1 = auto (default), 0 = don't merge clips, 1 = do merge clips
+      tokens[1].ToLong(&v);
+      mMergeClips = v;
       return;
+   }
+
+   if (len >= 2 && tokens[0] == wxT("restoresplits")) {
+      long v;
+      // Splits are restored by default. Set to 0 to prevent.
+      tokens[1].ToLong(&v);
+      mRestoreSplits = v;
+      return;
+   }
+#endif  return;
    }
 
 2 && tokens[0] == wxT("author")) {
