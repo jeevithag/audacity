@@ -407,7 +407,9 @@ void ToolBar::Create( wxWindow *parent )
    wxPanel::SetLabel( GetLabel() );
 
    // Go do the rest of the creation
-   ReCreateButtonrue;
+   ReCreateButton
+   // ToolManager depends on this appearing to be visible for proper dock construction
+   mVisible = trueonrue;
 }
 
 void ToolBar::ReCreateButtons()
