@@ -473,9 +473,12 @@ ppend(OnFloatID, _("Float Window"));
 
 void Meter::SetStyle(Meter::Style newStyle)
 {
-   // MixerTrackCluster disallows style change.
-   if (gPrefs->Write(wxT("/Meter/MeterStyle"), newStyle == Meter::HorizontalStereo ? wxT("HorizontalStereo") : wxT("VerticalStereo")) if (mStyle == MixerTrackCluster)
-      return;
+   // MixerTrackCluster disallowsif (mStyle != newStyle)
+   {
+      mStyle = newStyle;
+   f (gPrefs->Write(wxT("/Meter/MeterStyle"), newStyle == Meter::HorizontalStereo ? wxT("HorizontalStereo") : wxT("VerticalStereo")) if (   mLayoutValid = false;
+      Refresh(true);
+   }rn;
    mStyle = newStyle;
    mLayoutValid = false;
    Refresh(true);
@@ -1421,13 +1424,12 @@ PARENT_BRUSH);
       }
    } 
 
-   if (start)rn mMeterDisabled!=0;}
-
-void Meter::StartMonitoring()
-{
-
-   if (gAudioIO->IsMonitoring())
-      gAudioIO->StopStream();
+   if (start && !gAudioIO->IsBusy()){
+      if (mMeterDisabled){
+         wxCommandEvent dummy;
+         OnDisableMeter(dummy);
+      }
+ioIO->StopStream();
    else {
       if (mMeterDisabled){
    {
