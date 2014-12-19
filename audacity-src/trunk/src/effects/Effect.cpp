@@ -2077,9 +2077,14 @@ EffectUIHost::EffectUIHost(wxWindow *parent,
    mEffect = effect;
    mClient = client;
 
+   mProject = GetActiveProject();
+
    mInitialized = false;
 
+   mDisableTransport = false;
+
    mEnable = false;
+
    mPlayPos = 0.0;
 
    mClient->SetUIHost(this);
@@ -2312,9 +2317,7 @@ void EffectUIHost::OnClose(wxCloseEvent & WXUNUSED(evt))
 
 void EffectUIHost::OnApply(wxCommandEvent & WXUNUSED(evt))
 {
-   AudacityProject *p = GetActiveProject();
-
-   if (p->mViewInfo.selectedRegion.isPoint())
+   if (mProject->mViewInfo.selectedRegion.isPoint())
    {
       wxMessageBox(_("You must select audio in the project window."));
       return;
@@ -2502,26 +2505,24 @@ void EffectUIHost::OnEnable(wxCommandEvent & WXUNUSED(evt))
 
 void EffectUIHost::OnPlay(wxCommandEvent & WXUNUSED(evt))
 {
-   AudacityProject *p = GetActiveProject();
-
    if (mPlaying)
    {
       mPlayPos = gAudioIO->GetStreamTime();
-      p->GetControlToolBar()->StopPlaying();
+      mProject->GetControlToolBar()->StopPlaying();
    }
    else
    {
-      if (p->IsPlayRegionLocked())
+      if (mProject->IsPlayRegionLocked())
       {
          double t0, t1;
-         p->GetPlayRegion(&t0, &t1);
+         mProject->GetPlayRegion(&t0, &t1);
          mRegion.setTimes(t0, t1);
          mPlayPos = mRegion.t0();
       }
-      else if (p->mViewInfo.selectedRegion.t0() != mRegion.t0() ||
-               p->mViewInfo.selectedRegion.t1() != mRegion.t1())
+      else if (mProject->mViewInfo.selectedRegion.t0() != mRegion.t0() ||
+               mProject->mViewInfo.selectedRegion.t1() != mRegion.t1())
       {
-         mRegion = p->mViewInfo.selectedRegion;
+         mRegion = mProject->mViewInfo.selectedRegion;
          mPlayPos = mRegion.t0();
       }
 
@@ -2530,7 +2531,7 @@ void EffectUIHost::OnPlay(wxCommandEvent & WXUNUSED(evt))
          mPlayPos = mRegion.t1();
       }
 
-      p->GetControlToolBar()->PlayPlayRegion(mPlayPos, mRegion.t1());
+      mProject->GetControlToolBar()->PlayPlayRegion(mPlayPos, mRegion.t1());
    }
 }
 
@@ -2581,11 +2582,26 @@ void EffectUIHost::OnPlayback(wxCommandEvent & evt)
 {
    evt.Skip();
 
-   mPlaying = evt.GetInt() != 0;
+   if (evt.GetInt() != 0)
+   {
+      if (evt.GetEventObject() != mProject)
+      {
+         mDisableTransport = true;
+      }
+      else
+      {
+         mPlaying = true;
+      }
+   }
+   else
+   {
+      mDisableTransport = false;
+      mPlaying = false;
+   }
 
    if (mPlaying)
    {
-      mRegion = GetActiveProject()->mViewInfo.selectedRegion;
+      mRegion = mProject->mViewInfo.selectedRegion;
       mPlayPos = mRegion.t0();
    }
 
@@ -2596,8 +2612,23 @@ void EffectUIHost::OnCapture(wxCommandEvent & evt)
 {
    evt.Skip();
 
-   mCapturing = evt.GetInt() != 0;
-   mCloseBtn->SetFocus();
+   if (evt.GetInt() != 0)
+   {
+      if (evt.GetEventObject() != mProject)
+      {
+         mDisableTransport = true;
+      }
+      else
+      {
+         mCapturing = true;
+      }
+   }
+   else
+   {
+      mDisableTransport = false;
+      mCapturing = false;
+   }
+
    UpdateControls();
 }
 
@@ -2752,9 +2783,21 @@ wxBitmap EffectUIHost::CreateBitmap(const char *xpm[], bool up, bool pusher)
 
 void EffectUIHost::UpdateControls()
 {
+   if (mCapturing || mDisableTransport)
+   {
+      // Don't allow focus to get trapped
+      wxWindow *focus = FindFocus();
+      if (focus == mRewindBtn || focus == mFFwdBtn || focus == mPlayBtn || focus == mEnableBtn)
+      {
+         mCloseBtn->SetFocus();
+      }
+   }
+
    mApplyBtn->Enable(!mCapturing);
-   mRewindBtn->Enable(!mCapturing);
-   mFFwdBtn->Enable(!mCapturing);
+   mRewindBtn->Enable(!(mCapturing || mDisableTransport));
+   mFFwdBtn->Enable(!(mCapturing || mDisableTransport));
+   (!mIsGUI ? mPlayToggleBtn : mPlayBtn)->Enable(!(mCapturing || mDisableTransport));
+   (!mIsGUI ? mEnableToggleBtn : mEnableBtn)->Enable(!(mCapturing || mDisableTransport));
 
    wxBitmapButton *bb;
 
@@ -2765,8 +2808,6 @@ void EffectUIHost::UpdateControls()
          /* i18n-hint: The access key "&P" should be the same in
             "Stop &Playback" and "Start &Playback" */
          mPlayToggleBtn->SetLabel(_("Stop &Playback"));
-         //mPlayToggleBtn->SetValue(true);
-         mPlayToggleBtn->Enable(!mCapturing);
          mPlayToggleBtn->Refresh();
       }
       else
@@ -2774,7 +2815,6 @@ void EffectUIHost::UpdateControls()
          bb = (wxBitmapButton *) mPlayBtn;
          bb->SetBitmapLabel(mStopBM);
          bb->SetBitmapDisabled(mStopDisabledBM);
-         mPlayBtn->Enable(!mCapturing);
 #if defined(__WXMAC__)
          mPlayBtn->SetName(_("Stop &Playback"));
 #else
@@ -2789,8 +2829,6 @@ void EffectUIHost::UpdateControls()
          /* i18n-hint: The access key "&P" should be the same in
             "Stop &Playback" and "Start &Playback" */
          mPlayToggleBtn->SetLabel(_("Start &Playback"));
-         //mPlayToggleBtn->SetValue(false);
-         mPlayToggleBtn->Enable(!mCapturing);
          mPlayToggleBtn->Refresh();
       }
       else
@@ -2798,7 +2836,6 @@ void EffectUIHost::UpdateControls()
          bb = (wxBitmapButton *) mPlayBtn;
          bb->SetBitmapLabel(mPlayBM);
          bb->SetBitmapDisabled(mPlayDisabledBM);
-         mPlayBtn->Enable(!mCapturing);
 #if defined(__WXMAC__)
          mPlayBtn->SetName(_("Start &Playback"));
 #else
@@ -2814,8 +2851,6 @@ void EffectUIHost::UpdateControls()
          /* i18n-hint: The access key "&O" should be the same in
             "Enable &Effect" and "Disable &Effect" */
          mEnableToggleBtn->SetLabel(_("Enable &Effect"));
-         //mEnableToggleBtn->SetValue(true);
-         mEnableToggleBtn->Enable(!mCapturing);
          mEnableToggleBtn->Refresh();
       }
       else
@@ -2823,7 +2858,6 @@ void EffectUIHost::UpdateControls()
          bb = (wxBitmapButton *) mEnableBtn;
          bb->SetBitmapLabel(mEnableBM);
          bb->SetBitmapDisabled(mEnableDisabledBM);
-         mEnableBtn->Enable(!mCapturing);
 #if defined(__WXMAC__)
          mEnableBtn->SetName(_("Enable &Effect"));
 #else
@@ -2838,8 +2872,6 @@ void EffectUIHost::UpdateControls()
          /* i18n-hint: The access key "&O" should be the same in
             "Enable &Effect" and "Disable &Effect" */
          mEnableToggleBtn->SetLabel(_("Disable &Effect"));
-         //mEnableToggleBtn->SetValue(false);
-         mEnableToggleBtn->Enable(!mCapturing);
          mEnableToggleBtn->Refresh();
       }
       else
@@ -2847,7 +2879,6 @@ void EffectUIHost::UpdateControls()
          bb = (wxBitmapButton *) mEnableBtn;
          bb->SetBitmapLabel(mDisableBM);
          bb->SetBitmapDisabled(mDisableDisabledBM);
-         mEnableBtn->Enable(!mCapturing);
 #if defined(__WXMAC__)
          mEnableBtn->SetName(_("Disable &Effect"));
 #else

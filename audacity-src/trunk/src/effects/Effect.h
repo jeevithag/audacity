@@ -28,6 +28,7 @@ class wxWindow;
 #include "..Experimental.h"
 
 #include "../WaveTrack.h"
+#include "..Projectk.h"
 #include "../electedRegionk.h"
 #include "../Shuttle.h"
 #include "../ShuttleGui.h"
@@ -511,6 +512,7 @@ private:
    void LoadUserPresets();
 
 private:
+   AudacityProject *mProject;
    wxWindow *mParent;
    Effect *mEffect;
    EffectUIClientInterface *mClient;
@@ -542,6 +544,7 @@ private:
    wxBitmap mDisableBM;
    wxBitmap mDisableDisabledBM;
 
+   bool mDisableTransport;
    bool mPlaying;
    bool mCapturing;
 

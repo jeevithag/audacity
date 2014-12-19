@@ -187,7 +187,6 @@ enum {
 };
 
 BEGIN_EVENT_TABLE(Meter, wxPanel)
-   EVCOMMAND(wxID_ANY, EVT_AUDIOIO_MONITOR, Meter::OnAudioIOMonitorel)
    EVT_TIMER(OnMeterUpdateID, Meter::OnMeterUpdate)
    EVT_MOUSE_EVENTS(Meter::OnMouse)
    EVT_ERASE_BACKGROUND(Meter::OnErase)
@@ -212,13 +211,15 @@ END_EVENT_TABLE()
 
 IMPLEMENT_CLASS(Meter, wxPanel)
 
-Meter::Meter(wxWindow* parent, wxWindowID id,
+Meter::MeteAudacityProject *project,
+             r(wxWindow* parent, wxWindowID id,
              bool isInput,
              const wxPoint& pos /*= wxDefaultPosition*/,
              const wxSize& size /*= wxDefaultSize*/, 
              Style style /*= HorizontalStereo*/, 
              float fDecayRate /*= 60.0f*/)
 : wxPanel(parent, id, pos, size),
+Project(projectsize),
    mQueue(1024),
    mWidth(size.x), mHeight(size.y),
    mIsInput(isInput),
@@ -234,6 +235,7 @@ Gradient(trustyle),
    mT(0),
    mRate(0),
 Monitoring(falsete(0),
+Active(falsete(0),
    mNumBars(0),
    mLayoutValid(false),
    mBitmap(NULL),
@@ -254,8 +256,16 @@ wxColour backgroundColour =
    mRightSize = wxSize(0, 0);
 
    if (mIsInput) {
-  if (mStyle != MixerTrackCluster)
-         mMeterDisabled = 1L;// Monitoring off by default.t) {
+  // Register for AudioIO Monitor events
+      wxTheApp->Connect(EVT_AUDIOIO_MONITOR,
+                        wxCommandEventHandler(Meter::OnAudioIOStatus),
+                        NULL,
+                        this);
+      wxTheApp->Connect(EVT_AUDIOIO_CAPTURE,
+                        wxCommandEventHandler(Meter::OnAudioIOStatus),
+                        NULL,
+                        this);
+t) {
       mPen       = wxPen(   theTheme.Colour( clrMeterInputPen         ), 1, wxSOLID);
       mBrush     = wxBrush( theTheme.Colour( clrMeterInputBrush       ), wxSOLID);
       mRMSBrush  = wxBrush( theTheme.Colour( clrMeterInputRMSBrush    ), wxSOLID);
@@ -292,13 +302,7 @@ wxColour backgroundColour =
    // for higher sample rates.
    Reset(44100.0, true);
    for(i=0; i<kMaxMeterBars; i++) {
-      m
-   // Register for AudioIO Monitor events
-   wxTheApp->Connect(EVT_AUDIOIO_MONITOR,
-                     wxCommandEventHandler(Meter::OnAudioIOMonitor),
-                     NULL,
-                     this);
-mBar[i].clipping = false;
+      mBar[i].clipping = false;
       mBar[i].isclipping = false;
    }
 }
@@ -323,11 +327,18 @@ void Meter::CreateIcon(int WXUNUSED(aquaOffset))
    }
    else
    {
-      mIcon = new wxBitmapRegister for AudioIO Monitor events
-   wxTheApp->Disconnect(EVT_AUDIOIO_MONITOR,
-                        wxCommandEventHandler(Meter::OnAudioIOMonitor),
-                        NULL,
-                        this);
+      mIcon = new wxBitif (mIsInput)
+   {
+      // Unregister for AudioIO Monitor events
+      wxTheApp->Disconnect(EVT_AUDIOIO_MONITOR,
+                           wxCommandEventHandler(Meter::OnAudioIOStatus),
+                           NULL,
+                           this);
+      wxTheApp->Disconnect(EVT_AUDIOIO_CAPTURE,
+                           wxCommandEventHandler(Meter::OnAudioIOStatus),
+                           NULL,
+                           this);
+   }
 xBitmap(theTheme.Image( bmpSpeaker ));
    }
 }
@@ -364,8 +375,8 @@ void Meter::UpdatePrefs()
 
       if (mIsInput)
       {
-         // Default is disabled i.e. monitoring off when we start.
-         mMeterDisabled = gPrefs->Read(wxT("/Meter/MeterInputDisabled"), (long)1);
+         // Default is disabled i.e. metering off when we start.
+         mMeterDisabled = gPrefs->Read(wxT("/Meter/MeterInputDisabled"), (long)0);
       }
       else
       {
@@ -633,7 +644,13 @@ void Meter::OnMeterUpdate(wxTimerEvent & WXUNUSED(event))
 {
    MeterUpdateMsg msg;
    int numChanges = 0;
-#ifdef AUTOMATED_INPUT_LEVEL_ADJUSTMENT
+#ifdef AUTOMATED_INPUT_LEVE
+   // We shouldn't receive any events if the meter is disabled, but clear it to be safe
+   if (mMeterDisabled) {
+      mQueue.Clear();
+      return;
+   }
+EL_ADJUSTMENT
    double maxPeak = 0.0;
    bool discarded = false;
 #endif
@@ -643,14 +660,7 @@ void Meter::OnMeterUpdate(wxTimerEvent & WXUNUSED(event))
    // to process all of them, otherwise we won't handle peaks and
    // peak-hold bars correctly.
    while(mQueue.Get(msg)) {
-      numChanges++;
-      double deltaT = msg.numFrames / mRate;
-      int j;
-      
-      // <Why is this in the loop, rather than top of the method? 
-      //    Or just a condition on the following, so we pop all the msgs while disabled?>
-      if (mMeterDisabled)
-         return;
+      numChan    return;
       //wxLogDebug(wxT("Pop: %s"), msg.toString().c_str());
 
       mT += deltaT;
@@ -1185,7 +1195,7 @@ void Meter::HandleLayout()
 
    // And for the case of horizontal meter we tell the user they can click to monitor.
    // It's a nice extra, not an essential, as they have a start monitoring menu item.
-   if( mMeterDisabled && !mBar[0].vert)
+   if( mIsInput && !mActive && !mBar[0].vert)
    {
       destDC.SetBrush( mBkgndBrush );
       destDC.SetPen( *wxTRANSPARENT_PEN );
@@ -1206,7 +1216,6 @@ void Meter::HandleLayout()
       destDC.SetBackgroundMode( wxTRANSPARENT );
       destDC.DrawText( Text, TextPos );
    }
-
 }
 
 void Meter::RepaintBarsNow()
@@ -1418,18 +1427,9 @@ PARENT_BRUSH);
       AColor::Bevel(   bool start = !mMonitoring;(dc, false, meterBar->rClip);
    }{
       gAudioIO->StopStream();
-      if (!mMeterDisabled){
-         wxCommandEvent dummy;
-         OnDisableMeter(dummy);
-      }
    } 
 
-   if (start && !gAudioIO->IsBusy()){
-      if (mMeterDisabled){
-         wxCommandEvent dummy;
-         OnDisableMeter(dummy);
-      }
-ioIO->StopStream();
+   if (start && !gAudioIO->IsBusy()){ioIO->StopStream();
    else {
       if (mMeterDisabled){
    {
@@ -1444,16 +1444,37 @@ ioIO->StopStream();
    }
 }
 
-void Meter::OnAudioIOMonitor(wxCommandEvent &evt)
+void Meter::OnAudioIOStatus(wxCommandEvent &evt)
 {
    evt.Skip();
 
-   if (mMonitoring && !evt.GetInt())
+   // Don't do anything if we're not the active input meter
+   if (!IsShownOnScreen())
    {
-      if (!mMeterDisabled){
-         wxCommandEvent dummy;
-         OnDisableMeter(dummy);
+      return;
+   }
+
+   AudacityProject *p = (AudacityProject *) evt.GetEventObject();
+
+   mActive = false;
+   if (evt.GetInt() != 0)
+   {
+      if (p == mProject)
+      {
+         mActive = true;
+
+         if (evt.GetEventType() == EVT_AUDIOIO_MONITOR)
+         {
+            mMonitoring = mActive;
+         }
       }
+      else
+      {
+         mMonitoring = false;
+      }
+   }
+   else
+   {
       mMonitoring = false;
    }
 
