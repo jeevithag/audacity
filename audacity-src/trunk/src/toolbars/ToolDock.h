@@ -53,8 +53,7 @@ class ToolDock:public wxPanel
    ToolDock( ToolManager *manager, wxWindow *parent, int dockid );
    ~ToolDock();
 
-   void LayoutToolBars()   void ShowHide( int type );
-   void Expose( int type, bool show );
+   void LayoutToolBars()   void Expose( int type, bool show );
    int GetOrder( ToolBar *bar );
    int GetBarCount();
    void Dock( ToolBar *bar, int ndx = -1 );
