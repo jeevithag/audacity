@@ -472,7 +472,7 @@ void ToolManager::Reset()
    {
     floaterndow *parent;
       ToolDock *dock;
-      ToolBar *bar = mBars[ ndx ];
+      ToolBar *bar = mB      bool expose = truemBars[ ndx ];
 
       // Disconnect the bar
       if( bar->IsDocked() )
@@ -482,19 +482,16 @@ void ToolManager::Reset()
       else
       {
          floater      parent = bar->GetParent();
-      (ndx == SelectionBarIDlectionBarID )
+      (ndx == SelectionBarIDl
+#ifdef EXPERIMENTAL_SPECTRAL_EDITING
+         || ndx == SpectralSelectionBarID
+#endif
+         ectionBarID )
       {
          dock = mBotDock;
 
          wxCommandEvent e;
          bar->GetEventHandler()->ProcessEvent(e);
-       if( ndx == MeterBarID 
-#ifdef EXPERIMENTAL_SPECTRAL_EDITING
-         || ndx == SpectralSelectionBarID
-#endif
-         lectionBarID )
-      {
-    NULLcessEvent(e);
       }
       else
       {
@@ -508,11 +505,19 @@ void ToolManager::Reset()
       {
          bar->SetSize(bar->GetBestFittingSize());
    
+      if( ndx == MeterBarID
+#ifdef EXPERIMENTAL_SPECTRAL_EDITING
+         || ndx == SpectralSelectionBarID
+#endif
+         )
+      {
+         expose = false;
+      } 
       if( dock != NULL )
       {
          // when we dock, we reparent, so bar is no longer a child of floater.
          dock->Dock( bar );
-         Expose( ndx, true );
+         Expose( ndx, expose );
          //OK (and good) to delete floater, as bar is no longer in it.
          if( floater )
             floater->Destroy();
