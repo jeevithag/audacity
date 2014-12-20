@@ -538,7 +538,7 @@ void ToolManager::Reset()
          floater->CentreOnParent( );
          floater->Move( floater->GetPosition() + wxSize( ndx * 10 - 200, ndx * 10 ));
          bar->SetDocked( NULL, false );
-         bar->Expose( false );
+         Expose( ndx, false );
       }
 y();
       }
@@ -698,13 +698,11 @@ ate( mTopDock );
             f->SetSize( sz );
             f->Lay   if( (x!=-1) && (y!=-1) )
                bar->SetPositioned       f->Layout();
-         }
+        Inform toolbar of change
+         bar->SetDocked( NULL, false );
 
          // Show or hide it
-         bar->Expose( show[ ndx ] );
-
-         // Inform toolbar of change
-         bar->SetDocked( NULL, false );
+         Expose( ndx, show[ ndx ]ked( NULL, false );
       }
 
       // Change back to the bar root
@@ -730,15 +728,9 @@ ate( mTopDock );
             ToolBar *t = mBars[ ndx ];
 
             // Dock it
-            d->Dock( t );
-
-            // Hide the bar 
-            if( !show[ t->GetId() ] )
-            {
-               d->ShowHide( t->GetId() );
-         else
-            {
-               t->Expose( show[ ndx ]wHide( t->GetId() );
+                      
+            // Show or hide it
+            Expose( t->GetId(), show[ t->GetId() ] ); );
             }
          }
       }
@@ -749,14 +741,8 @@ ate( mTopDock );
          ToolBar *t = mBars[ unordered[ dock ][ ord ] ];
 
          // Dock it
-         d->Dock( t );
-
-         // Hide the bar 
-         if( !show[ t->GetId() ] )
-         {
-            d->ShowHide( t->GetId() );   else
-         {
-            t->Expose( show[ ndx ]owHide( t->GetId() );
+         d->Dock( tShow or hide the bar
+         Expose( t->GetId(), show[ t->GetId() ] );Id() );
          }
       }
    }
@@ -895,22 +881,7 @@ bool ToolManager::IsVisible( int type )
 //
 // Toggles the visible/hidden state of a toolbar
 //
-void ToolManager::ShowHide( int type )
-{
-   ToolBar *t = mBars[ type ];
-
-   // Handle docked and floaters differently
-   if( t->IsDocked() )
-   {
-      t->GetDock()->ShowHide( type );
-   }
-   else
-   {
-      t->Expose( !t->IsVisvoid ToolManager::Hide( int type )
-{
-   if( !IsVisible( type ) )
-      return;
-   ShowHide( type );sVisible() );
+void ToolManager::ShowHideExpose( type, !mBars[ type ]->IsVisible() );sVisible() );
    }
 }
 
