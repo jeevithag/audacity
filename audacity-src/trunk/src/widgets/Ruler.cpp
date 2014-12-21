@@ -1704,7 +1704,12 @@ bool AdornedRulerPanel::IsWithinMarker(int mousePosX, double markerTime)
       return false;
       
    int pixelPos = Time2Pos(markerTime);
-   int boundLeft = pixelPos - SELECT_TOLERANCE_PIXEL;
+   int boundLeft = pixelPos - SELE// Prevent accidentally stopping recording.
+   if (GetActiveProject()->GetControlToolBar()->IsRecordDown()) {
+      SetCursor(wxCursor(wxCURSOR_DEFAULT));
+      return;
+   }
+SELECT_TOLERANCE_PIXEL;
    int boundRight = pixelPos + SELECT_TOLERANCE_PIXEL;
    
    return mousePosX >= boundLeft && mousePosX < boundRight;
