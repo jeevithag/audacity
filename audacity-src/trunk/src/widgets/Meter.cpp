@@ -471,7 +471,7 @@ ppend(OnFloatID, _("Float Window"));
       if (evt.RightDown())
          PopupMenu(menu, evt.m_x, evt.m_y);
       else
-         PopupMenu(menu, mMenuRect.x + 1, mMenuRectLeftIsMenuRect.height + 1);
+         PopupMenu(menu, mMenuRect.x + 1, mMenuRectLeftMenuRect.height + 1);
       delete menu;
    }
    else if (evt   else {
