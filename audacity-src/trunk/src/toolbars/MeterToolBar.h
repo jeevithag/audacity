@@ -45,11 +45,10 @@ irtual void OnSize(wxSizeEvent & event);
 
    int GetInitialWidth() {return (mWhichMeters == 
       (kWithRecordMeter + kWithPlayMeter)) ? 338 : 460;} // Separate bars used to be smaller.
-   int GetMinToolbarWidth() { return 100; }
+   int GetMinToolbarWidth() { return 50; }
    wxSize GetDockedSize();
 
  private:
-   void OnMeterPrefsUpdated(wxCommandEvent & evt);
    void RegenerateTooltips();
 
    AudacityProject *mProject;
