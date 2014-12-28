@@ -369,7 +369,7 @@ bool ToolBar::IsVisible()
 //
 bool ToolBar::Expose( bool show )
 {
-   bool was = mVisible;SetVisible( show ) s   how;
+   bool was = mVisible;SetVisible( show ) show;
 
    if( IsDocked() )
    {

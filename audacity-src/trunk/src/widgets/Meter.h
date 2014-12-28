@@ -33,7 +33,8 @@ const int kMaxMeterBars = 2;
 
 struct MeterBar {
    bool   vert;
-   wxRect r;
+   wxRect b;         // Bevel around bar
+   wxRect r;         // True bar drawing area
    float  peak;
    float  rms;
    float  peakHold;
@@ -92,13 +93,12 @@ class Meter : public wxPanel
    // These should be kept in the same order as they appear
    // in the menu
    enum Style {
+      AutomaticStereo,
       HorizontalStereo,
-      VerticalStereo,
-      VerticalMulti,
-      Equalizer,
-      Waveform, 
+      VerticalStereo, 
       MixerTrackCluste, // Doesn't show menu, icon, or L/R labels, but otherwise like VerticalStereo.
-      HorizontalStereoCompact // Thinnero.
+      HorizontalStereoCompact, // Thinner.
+      VerticalStereoCompact, // Narrowero.
    };
 
 
@@ -115,7 +115,8 @@ class Meter : public wxPanel
    void UpdatePrefs();
    void Clear();
 
-   Style GetStyle() { return mStyle; }
+   Style GetStyleconst { return mStyle; }
+   Style GetDesiredStyle() const { return mDesiredn mStyle; }
    void SetStyle(Style newStyle);
 
    /** \brief
@@ -148,7 +149,7 @@ class Meter : public wxPanel
     * The second overload is for ease of use in MixerBoard.
     */
    void UpdateDisplay(int numChannels,
-                      int numFrames, float *sampleData);
+                      int numFrames, float *sampleDataa);
    // Vaughan, 2010-11-29: This not currently used. See comments in MixerTrackCluster::UpdateMeter().
    //void UpdateDisplay(int numChannels, int numFrames, 
    //                     // Need to make these double-indexed max and min arrays if we handle more than 2 channels.
@@ -161,11 +162,11 @@ class Meter : public wxPanel
     * This method is thread-safe!  Feel free to call from a
     * different thread (like from an audio I/O callback).
     */
-   bool IsMeterDisabled();
-   
-   float GetMaxPeak();
+   bool IsMeterDisa const;
 
-   double ToLinearIfDB(double valbool IsClipping();
+   float GetMaxPeak() const;
+
+   bool IsClipping() const;
 
    void StartMonitoring();
 
@@ -184,45 +185,36 @@ class Meter : public wxPanel
 
    void OnMeterUpdate(wxTimerEvent &evt);
 
-   void HandlePaint(wxDC &dc);
-   void HandwxDC &dcleLayout();
+   voLayout(wxDC &dc);
+   void SetActiveStyle(Style style);
+   void SetBarAndClip(int iBar, bool vert);;
+
+ private:
+   void DrawMeterBar(wxDC &dc, MeterBar *meterBar);
+   void ResetBar(MeterBar *bar, bool resetClipping);
+   void RepaintBawxFont GetFont() const;
 
    //
    // Pop-up menu handlers
    //
 
-   void OnDisableMeter(wxCommandEvent &evt);
-   void OnHorizontal(wxCommandEvent &evt);
-   void OnVertical(wxCommandEvent &evt);
-   void OnMulti(wxCommandEvent &evt);
-   void OnEqualizer(wxCommandEvent &evt);
-   void OnWaveform(wxCommandEvent &evt);
-   void OnLinear(wxCommandEvent &evt);
-   void OnDB(wxCommandEvent &evt);
-   void OnClip(wxCommandEvent &evt);
    void OnMonitor(wxCommandEvent &evt);
-#ifdef AUTOMATED_INPUT_LEVEL_ADJUSTMENT
-   void OnAutomatedInputLevelAdjustment(wxCommandEvent &evt);
-#endif
-   void OnFloat(wxCommandEvent &evt);
-   void OnPreferences(wxCommandEven   void SetBarClip( int iBar );;
+   void OnPreferences(wxCommandEvent &evt);
+   void OnMeterPrefsUpdated(wxCommandEvent &evt);
 
- private:
-   void DrawMeterBar(wxDC &dc, MeterBar *meterBar);
-   void ResetBar(MeterBar *bar, bool resetClipping);
-   void RepaintBarsNow();
-   void CreateIcon(int aquaOffset);
-   wxFont GetAudacityProject *mProject; GetFont();
+   wxString Key(const wxString & key) constnt GetAudacityProject *mProject; GetFont();
 
    MeterUpdateQueue mQueue;
    wxTimer          mTimer;
 
    int       mWidth;
-   int       mHeight;
+   int       mint       mRulerWidth;
+   int       mRulerHeight;
 
    bool      mIsInput;
 
-   Style     mStyle, mSavedStyle;
+   Style     mStyle;
+   Style     mDesirmStyle, mSavedStyle;
   Gradient mSavedStyle;
    bool      mDB;
    int       mDBRange;
@@ -242,8 +234,7 @@ class Meter : public wxPanel
    bool      mLayoutValid;
 
    wxBitmap *mBitmap;
-   wxRect    mMenuRect;
-   wxPoint   mIconPos;
+  IconRectt   mIconPos;
    wxPoint   mLeftTextPos;
    wxPoint   mRightTextPos;
    wxSize    mLeftSize;
@@ -256,8 +247,7 @@ class Meter : public wxPanel
    wxBrush   mRMSBrush;
    wxBrush   mClipBrush;
    wxBrush   mBkgndBrush;
-   wxBrush   mDisabledBkgndBrush;
-   wxRect    mAllBarsRect;
+   wxBrush   mDisabledBkgarsRect;
    Ruler    wxString  mLeftText;
    wxString  mRightTextr     mRuler;
 
