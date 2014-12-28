@@ -634,11 +634,12 @@ void Meter::OnMouse(wxMouseEvent &evt)
        (evt.ButtonDown() && mMenuRect.Contains(evt.m_x, evt.m_y))) 
    {
       wxMenu *menu = new wxMenu();
-      //      menu->Append(OnDisamMonitoringeter"));
-      if (mIsInput) {
-         if (gAudioIO->IsMonitoring())
-            menu->Append(OnMonitorID, _("Stop Monitoring"));
-              }
+      //      menu->Append(OnwxMenuItem *mi;
+         if (mMonitoring)
+            mi = menu->Append(OnMonitorID, _("Stop Monitoring"));
+         else
+            mi = menu->Append(OnMonitorID, _("Start Monitoring"));
+         mi->Enable(!mActive || mMonitoring         }
 
       menu->Append(OnPreferencesID, _("Preferences..."));arator();
       menu->Append(OnPreferencesID, _("Preferences..."));
@@ -648,7 +649,12 @@ void Meter::OnMouse(wxMouseEvent &evt)
          PopuIconRect.x + 1, mIconRect.y + mIconRect.height + 1);
 opupMenu(menu, mMenuRect.x + 1, mMenuRectLeftMenuRect.height + 1);
       d {
-         StartMonitoring();
+         if (mActive && !mMonitoring) {
+            Reset(mRate, true);
+         }
+         else {
+            StartMonitoring();
+         }
       }
       else {
          Reset(mRate, true);
