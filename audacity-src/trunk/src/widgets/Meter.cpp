@@ -1664,12 +1664,6 @@ void Meter::OnAudioIOStatus(wxCommandEvent &evt)
 {
    evt.Skip();
 
-   // Don't do anything if we're not the active input meter
-   if (!IsShownOnScreen())
-   {
-      return;
-   }
-
    AudacityProject *p = (AudacityProject *) evt.GetEventObject();
 
    mActive = false;
@@ -1694,7 +1688,11 @@ void Meter::OnAudioIOStatus(wxCommandEvent &evt)
       mMonitoring = false;
    }
 
-   Refresh(false);
+   // Only refresh is we're the active meter
+   if (IsShownOnScreen())
+   {
+      Refresh(false);
+   }
 }
 
 //
