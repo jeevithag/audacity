@@ -1725,9 +1725,12 @@ void Meter::OnMeterPrefsUpdated(wxCommandEvent & evt)
    wxRadioButton *vertical;
    int meterRefreshRate = mMeterRefreshRate;
 
+   wxString title(mIsInput ? _("Recording Meter Preferences") : _("Playback Meter Preferences"));
+
    // Dialog is a child of the project, rather than of the toolbar.
    // This determines where it pops up.
-   wxDialog dlg(GetActiveProject(), wxID_ANY, wxString(_("Meter Preferences")));
+
+   wxDialog dlg(GetActiveProject(), wxID_ANY, title);
    ShuttleGui S(&dlg, eIsCreating);
    S.StartVerticalLay();
    {
