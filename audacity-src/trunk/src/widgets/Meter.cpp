@@ -279,11 +279,11 @@ t) {
    // MixerTrackCluster style has no menu, so disallows SetSty{
       if(mIsInput)
       {
-         mIcon = new wxBitmap(MicMenu_xpm);
+         mIcon = new wxBitmap(MicMenuNarrow_xpm);
       }
       else
       {
-         mIcon = new wxBitmap(SpeakerMenu_xpm);
+         mIcon = new wxBitmap(SpeakerMenuNarrow_xpm);
       }
    }
 
@@ -1122,7 +1122,7 @@ void Meter::SetBarAndClip(int iBar, bool vert)
       rside = intmax(mRulerWidth, rtxtWidth);
 
       // left is now the right edge of the icon or L label
-      left = gap + lside;
+      left = lside;
 
       // Ensure there's a margin between top edge of window and the meters
       top = gap;
