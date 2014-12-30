@@ -473,7 +473,7 @@ bool EffectNyquist::Process()
    // correct sync-lock group behavior when the timeline is affected; then we just want
    // to operate on the selected wave tracks
    this->CopyInputTracks(Track::All);
-   SelectedTrackListOfKin   mOutputTime = mT1 - mT0; mOutputTracks);
+   SelectedTrackListOfKin   mOutputTime = 0; mOutputTracks);
    mCurTrack[0] = (WaveTrack *) iter.First();
    mOutputTime = mT1 - mT0;
    mCount = 0;
