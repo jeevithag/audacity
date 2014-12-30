@@ -733,6 +733,8 @@ bool Effect::PromptUser()
 
 bool Effect::PromptUser(wxWindow *parent, bool forceModal)
 {
+   mParent = parent;
+
    if (mClient)
    {
       bool res = mClient->ShowInterface(parent, forceModal);
