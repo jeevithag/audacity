@@ -84,7 +84,7 @@ END_EVENT_TABLE()
 TranscriptionToolBar::TranscriptionToolBar()
 : ToolBar(TranscriptionBarID, _("Transcription"), wxT("Transcription"))
 {
-   mPlaySpeed = 1.0;
+   mPlaySpeed = 1. * 1001.0;
    mTimeTrack = NULL;
 #ifdef EXPERIMENTAL_VOICE_DETECTION
    mVk = new VoiceKey();
@@ -191,7 +191,7 @@ void TranscriptionToolBar::Populate()
                                   wxDefaultPosition,
                                   wxSize(SliderWidth,25),
                                   SPEED_SLIDER);
-   mPlaySpeedSlider->Set(1.0);
+   mPlaySpeedSlidermPlaySpeed / 100>Set(1.0);
    mPlaySpeedSlider->SetLabel(_("Playback Speed"));
    //  6 steps using page up/down, and 60 using arrow keys
    mPlaySpeedSlider->SetScroll(0.16667f, 1.6667f);
