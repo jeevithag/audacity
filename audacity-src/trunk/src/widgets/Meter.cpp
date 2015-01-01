@@ -243,8 +243,7 @@ wxColour backgroundColour =
                      this0, 0);
 
    if (mIsInput) {
-  // Register for AudioIO Monitor events
-      wxTheApp->Connect(EVT_AUDIOIO_MONITOR,
+  wxTheApp->Connect(EVT_AUDIOIO_MONITOR,
                         wxCommandEventHandler(Meter::OnAudioIOStatus),
                         NULL,
                         this);
@@ -260,7 +259,12 @@ t) {
 //D);
       mDarkPen   = wxPen(   theTheme.Colour( clrMeterInputDarkPen     ), 1, wxSOLID);
    }   
-   else {                                                         
+   else {// Register for AudioIO events
+      wxTheApp->Connect(EVT_AUDIOIO_PLAYBACK,
+                        wxCommandEventHandler(Meter::OnAudioIOStatus),
+                        NULL,
+                        this);
+ else {                                                         
       mPen       = wxPen(   theTheme.Colour( clrMeterOutputPen        ), 1, wxSOLID);
       mBrush     = wxBrush( theTheme.Colour( clrMeterOutputBrush      ), wxSOLID);
       mRMSBrush  = wxBrush( theTheme.Colour( clrMeterOutputRMSBrush   ), wxSOLID);
@@ -303,12 +307,19 @@ void Meter::Clear()
    mQueue.Clear();{
       mIcon = new wxBitif (mIsInput)
    {
-      // Unregister for AudioIO Monitor events
+      // Unregister for AudioIO events
       wxTheApp->Disconnect(EVT_AUDIOIO_MONITOR,
                            wxCommandEventHandler(Meter::OnAudioIOStatus),
                            NULL,
                            this);
       wxTheApp->Disconnect(EVT_AUDIOIO_CAPTURE,
+                           wxCommandEventHandler(Meter::OnAudioIOStatus),
+                           NULL,
+                           this);
+   }
+   else
+   {
+      wxTheApp->Disconnect(EVT_AUDIOIO_PLAYBACK,
                            wxCommandEventHandler(Meter::OnAudioIOStatus),
                            NULL,
                            this);
@@ -372,8 +383,6 @@ void Meter::UpdatePrefs()
    mRightSize = wxSize(0, 0);
 
    Reset(mRate, false);
-
-   mTimer.Start(1000 / mMeterRefreshRate);
 
    mLayoutValid = falseisabled = gPrefs->Read(wxT("/Meter/MeterOutputDisabled"), (long)0);
 }
@@ -659,7 +668,6 @@ opupMenu(menu, mMenuRect.x + 1, mMenuRectLeftMenuRect.height + 1);
       else {
          Reset(mRate, true);
       }
-
    }
 }
 
@@ -685,12 +693,12 @@ void Meter::Reset(double sampleRate, bool resetClipping)
    }(j=0; j<kMaxMeterBars; j++)
       ResetBar(&mBar[j], resetClipping);
 
-   // wxTimers seem to be a little unreliable - sometimes they stop for
+   // wxTimers seem to be a little unreliable - sometimes they stop //for
    // no good reason, so this "primes" it every now and thenmQueue.Clear();
 
    mLayoutValid = false;
 
-   mTimer.Start(1000 / mMeterRefreshRate);
+//   mTimer.Start(1000 / mMeterRefreshRate);
    mTimer.Start(1000 / mMeterRefreshRate);
 
    mLayoutValid = false;
@@ -736,15 +744,8 @@ void Meter::UpdateDisplay(int numChannels, int numFrames, float *sampleData)
 {
    int i, j;
    float *sptr = sampleData;
-   int num = intmin(numChannels, mNumBars);
-   MeterUpdateMsg msg;
-
-   msg.numFrames = numFrames;
-   for(j=0; j<mNumBars; j++) {
-      msg.peak[j] = 0;
-      msg.rms[j] = 0;
-      msg.clipping[j] = false;
-      msg.headPeakCount[j] = 0;
+   iemset(&msg, 0, sizeof(msg));
+   msg.numFrames = numFrames;      msg.headPeakCount[j] = 0;
       msg.tailPeakCount[j] = 0;
    }
 
@@ -1682,6 +1683,8 @@ void Meter::OnAudioIOStatus(wxCommandEvent &evt)
       {
          mActive = true;
 
+         mTimer.Start(1000 / mMeterRefreshRate);
+
          if (evt.GetEventType() == EVT_AUDIOIO_MONITOR)
          {
             mMonitoring = mActive;
@@ -1689,11 +1692,15 @@ void Meter::OnAudioIOStatus(wxCommandEvent &evt)
       }
       else
       {
+         mTimer.Stop();
+
          mMonitoring = false;
       }
    }
    else
    {
+      mTimer.Stop();
+
       mMonitoring = false;
    }
 
@@ -1702,6 +1709,31 @@ void Meter::OnAudioIOStatus(wxCommandEvent &evt)
    {
       Refresh(false);
    }
+}
+
+// SaveState() and RestoreState() exist solely for purpose of recreating toolbars
+// They should really be quering the project for current audio I/O state, but there
+// isn't a clear way of doing that just yet.  (It should NOT query AudioIO.)
+void *Meter::SaveState()
+{
+   bool *state = new bool[2];
+   state[0] = mMonitoring;
+   state[1] = mActive;
+
+   return state;
+}
+
+void Meter::RestoreState(void *state)
+{
+   mMonitoring = ((bool *)state)[0];
+   mActive = ((bool *)state)[1];
+
+   if (mActive)
+   {
+      mTimer.Start(1000 / mMeterRefreshRate);
+   }
+
+   delete [] state;
 }
 
 //
