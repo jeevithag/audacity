@@ -314,19 +314,43 @@ void ControlToolBar::ArrangeButtons()
    SetMinSize( GetSizer()->GetMinSize() );
 }
 
-void ControlToolBar::ReCreateButtons()
+void ControlToolBar::ReCreateBbool playDown = false;
+   bool playShift = false;
+   bool pauseDown = false;
+   bool recordDown = false;
+   bool recordShift = false;
+ateButtons()
 {
    // ToolBar::ReCreateButtons() will get rid of its sizer and
    // since we've attached our sizer to it, ours will get deleted too
    // so clean ours up first.
-   if( mSizer )
-   {
+   if( mSizerplayDown = mPlay->IsDown();
+      playShift = mPlay->WasShiftDown();
+      pauseDown = mPause->IsDown();
+      recordDown = mRecord->IsDown();
+      recordShift = mRecord->WasShiftDown();
       Detach( mSizer );
+ach( mSizer );
       delete mSizer;
       mSizer = NULL;
    }
 
-   ToolBar::ReCreateButtons();
+   ToolBar::ReCreateBif (playDown)
+   {
+      SetPlay(playDown, playShift, false);
+   }
+
+   if (pauseDown)
+   {
+      mPause->PushDown();
+   }
+
+   if (recordDown)
+   {
+      SetRecord(recordDown, recordShift);
+   }
+
+   EnableDisablolBar::ReCreateButtons();
 
    RegenerateToolsTooltips();
 }
@@ -365,9 +389,12 @@ void ControlToolBar::EnableDisableButtons()
     const bool enablePlay = (!recording) || (tracks && !busy);
    mPlay->SetEnabled(enablePlay);
    // Enable and disable the other play button 
-   TranscriptionToolBar *const pttb = p->GetTranscriptionToolBar();
-   if (pttb)
-      pttb->SetEnabled(enablePlay);
+   if (p)
+   {
+      TranscriptionToolBar *const pttb = p->GetTranscriptionToolBar();
+      if (pttb)
+         pttb->SetEnabled(enablePlay);
+   }
 ) || (tracks && !busy));
    mRecord->SetEnabled(!busy && !playing);
 
@@ -403,10 +430,16 @@ void ControlToolBar::SetStop(bool down)
    EnableDisableButtons();
 }
 
-void ControlToolBar::SetRecord(bool down)
+void ControlTool, bool append)
 {
    if (down)
+   {
+      mRecord->SetAlternateIdx(append ? 1 : 0);
       mRecord->PushDown();
+   }
+   else
+   {
+      mRecord->SetAlternateIdx(0);d->PushDown();
    else {
       mRecord->PopUp();
    }
@@ -720,7 +753,7 @@ void ControlToolBar::OnRecord(wxCommandEvent &evt)
 
    if( evt.GetInt() == 1 ) // used when called by keyboard shortcut. Default (0) ignored.
       mRecord->SetShift(true);
-   if( evt.GetInt() == 2 )
+   if( evt.GetInt() == , mRecord->WasShiftDown()2 )
       mRecord->SetShift(false);
 
    SetRecord(true);
