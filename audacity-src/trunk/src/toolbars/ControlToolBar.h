@@ -56,7 +56,7 @@ class ControlToolBar:public ToolBar {
    //These allow buttons to be controlled externally:
    void SetPlay(bool , bool looped=false, bool cutPreview = falsedown);
    void SetStop(bool down);
-   void SetRecord(bool down);
+   void SetRecord(bool , bool append=falsedown);
 
    bool IsRecordDown();
 
