@@ -1189,10 +1189,10 @@ void EffectNyquist::Parse(wxString line)
 
    len = tokens.GetCount();
    if (len < 1) {
-      return;
-   }
-
-   if (len == 2 && tokens[0] == wxT("nyquist") && tokens[1] == wxT("plug-in")) {
+      retu// As of version 4 plugins ";nyquist plug-in" is depricated in favour of ";nyquist plugin".
+   // The hyphenated version must be maintained while we support plugin versions < 4.
+   if (len == 2 && tokens[0] == wxT("nyquist") &&
+      (tokens[1] == wxT("plugin") || tokens[1] == wxT("plug-in")wxT("plug-in")) {
       mOK = true;
       return;
    }
