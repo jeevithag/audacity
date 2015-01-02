@@ -1545,7 +1545,7 @@ bool Effect::RealtimeInitialize()
 #if defined(EXPERIMENTAL_REALTIME_EFFECTS)
    if (mClient)
    {
-      mHighGroup = -1;
+      mBlockSize = mClient->GetBlockSize(512);
       return mClient->RealtimeInitialize();
    }
 #endif
@@ -1601,9 +1601,81 @@ bool Effect::RealtimeResume()
    return false;
 }
 
+// RealtimeAddProcessor and RealtimeProcess use the same method of
+// determining the current processor index, so updates to one should
+// be reflected in the other.
+bool Effect::RealtimeAddProcessor(int group, int chans, float rate)
+{
+   int ichans = chans;
+   int ochans = chans;
+   int gchans = chans;
+
+   // Reset processor index
+   if (group == 0)
+   {
+      mCurrentProcessor = 0;
+      mGroupProcessor.Clear();
+   }
+
+   // Remember the processor starting index
+   mGroupProcessor.Add(mCurrentProcessor);
+
+   // Call the client until we run out of input or output channels
+   while (ichans > 0 && ochans > 0)
+   {
+      // If we don't have enough input channels to accomodate the client's
+      // requirements, then we replicate the input channels until the
+      // client's needs are met.
+      if (ichans < mNumAudioIn)
+      {
+         // All input channels have been consumed
+         ichans = 0;
+      }
+      // Otherwise fullfil the client's needs with as many input channels as possible.
+      // After calling the client with this set, we will loop back up to process more
+      // of the input/output channels.
+      else if (ichans >= mNumAudioIn)
+      {
+         gchans = mNumAudioIn;
+         ichans -= gchans;
+      }
+
+      // If we don't have enough output channels to accomodate the client's
+      // requirements, then we provide all of the output channels and fulfill
+      // the client's needs with dummy buffers.  These will just get tossed.
+      if (ochans < mNumAudioOut)
+      {
+         // All output channels have been consumed
+         ochans = 0;
+      }
+      // Otherwise fullfil the client's needs with as many output channels as possible.
+      // After calling the client with this set, we will loop back up to process more
+      // of the input/output channels.
+      else if (ochans >= mNumAudioOut)
+      {
+         ochans -= mNumAudioOut;
+      }
+
+      // Add a new processor
+      mClient->RealtimeAddProcessor(gchans, rate);
+
+      // Bump to next processor
+      mCurrentProcessor++;
+   }
+
+   return true;
+}
+
+bool Effect::RealtimeProcessStart()
+{
+   return mClient->RealtimeProcessStart();
+}
+
+// RealtimeAddProcessor and RealtimeProcess use the same method of
+// determining the current processor group, so updates to one should
+// be reflected in the other.
 sampleCount Effect::RealtimeProcess(int group,
                                     int chans,
-                                    float rate,
                                     float **inbuf,
                                     float **outbuf,
                                     sampleCount numSamples)
@@ -1628,10 +1700,7 @@ sampleCount Effect::RealtimeProcess(int group,
    int indx = 0;
    int ondx = 0;
 
-   if (group == 0)
-   {
-      mCurrentGroup = 0;
-   }
+   int processor = mGroupProcessor[group];
 
    // Call the client until we run out of input or output channels
    while (ichans > 0 && ochans > 0)
@@ -1696,21 +1765,12 @@ sampleCount Effect::RealtimeProcess(int group,
          }
       }
 
-      // If the current group hasn't yet been seen, then we must
-      // add a new processor to handle this channel (sub)group
-      if (mCurrentGroup > mHighGroup)
-      {
-         mClient->RealtimeAddProcessor(gchans, rate);
-         mHighGroup = mCurrentGroup;
-      }
-
       // Finally call the plugin to process the block
       len = 0;
-      sampleCount maxBlock = mClient->GetBlockSize(numSamples);
-      for (sampleCount block = 0; block < numSamples; block += maxBlock)
+      for (sampleCount block = 0; block < numSamples; block += mBlockSize)
       {
-         sampleCount cnt = (block + maxBlock > numSamples ? numSamples - block : maxBlock);
-         len += mClient->RealtimeProcess(mCurrentGroup, clientIn, clientOut, cnt);
+         sampleCount cnt = (block + mBlockSize > numSamples ? numSamples - block : mBlockSize);
+         len += mClient->RealtimeProcess(processor, clientIn, clientOut, cnt);
 
          for (int i = 0 ; i < mNumAudioIn; i++)
          {
@@ -1722,13 +1782,20 @@ sampleCount Effect::RealtimeProcess(int group,
             clientOut[i] += cnt;
          }
       }
-      mCurrentGroup++;
+
+      // Bump to next processor
+      processor++;
    }
 
    return len;
 #else
    return 0;
-#endif retbool Effect::IsRealtimeActive()
+#endif
+}
+
+bool Effect::RealtimeProcessEnd()
+{
+   return mClient->RealtimeProcessEnd(); retbool Effect::IsRealtimeActive()
 {
    return mRealtimeSuspendCount == 0; return _("Pre&view");
 }
@@ -2254,17 +2321,6 @@ bool EffectUIHost::Initialize()
 
    mClient->LoadUserPreset(mEffect->GetCurrentSettingsGroup());
 
-   // Initialize the effect realtime processing
-   if (!mEffect->RealtimeInitialize())
-   {
-      return false;
-   }
-
-   if (mDisableTransport)
-   {
-      mEffect->RealtimeSuspend();
-   }
-
    EffectManager::Get().RealtimeAddEffect(mEffect);
 
    wxTheApp->Connect(EVT_AUDIOIO_PLAYBACK,
@@ -2299,7 +2355,6 @@ void EffectUIHost::OnClose(wxCloseEvent & WXUNUSED(evt))
                            this);
 
       EffectManager::Get().RealtimeRemoveEffect(mEffect);
-      mEffect->RealtimeFinalize();
    }
 
    Hide();
@@ -2342,7 +2397,6 @@ void EffectUIHost::OnApply(wxCommandEvent & WXUNUSED(evt))
                               this);
 
          EffectManager::Get().RealtimeRemoveEffect(mEffect);
-         mEffect->RealtimeFinalize();
       }
 
       SetReturnCode(true);
@@ -2377,7 +2431,6 @@ void EffectUIHost::OnCancel(wxCommandEvent & WXUNUSED(evt))
                            this);
 
       EffectManager::Get().RealtimeRemoveEffect(mEffect);
-      mEffect->RealtimeFinalize();
    }
 
    if (IsModal())
