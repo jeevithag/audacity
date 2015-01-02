@@ -265,15 +265,16 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
 
    // Realtime Effect Processing
    bool RealtimeInitialize();
+   bool RealtimeAddProcessor(int group, int chans, float rate);
    bool RealtimeFinalize();
    bool RealtimeSuspend();
    bool RealtimeResume();
+   bool RealtimeProcessStart();
    sampleCount RealtimeProcess(int group,
                                int chans,
-                               float rate,
                                float **inbuf,
                                float **outbuf,
-                               sampleCount numSamplesd(c   bool IsRealtimeActive(d(const wxString& str);
+                               sampleCount numSamplesd(c   bool RealtimeProcessEnd(d(c   bool IsRealtimeActive(d(const wxString& str);
 
  //
  // protected virtual methods
@@ -432,8 +433,8 @@ PresetParameters( const wxArrayString * Names, const wxArrayString * Values ){
    sampleCount mBlockSize;
    int mNumChannels;
 
-   int mCurrentGroup;
-   int mHighGroup;
+   wxArrayInt mGroupProcessor;
+   int mCurrentProcessor;
 
    wxCriticalSection mRealtimeSuspendLock;
    int mRealtimeSuspendCount;

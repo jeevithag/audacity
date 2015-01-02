@@ -966,6 +966,19 @@ bool LadspaEffect::RealtimeInitialize()
    return true;
 }
 
+bool LadspaEffect::RealtimeAddProcessor(int WXUNUSED(numChannels), float sampleRate)
+{
+   LADSPA_Handle slave = InitInstance(sampleRate);
+   if (!slave)
+   {
+      return false;
+   }
+
+   mSlaves.Add(slave);
+
+   return true;
+}
+
 bool LadspaEffect::RealtimeFinalize()
 {
    for (size_t i = 0, cnt = mSlaves.GetCount(); i < cnt; i++)
@@ -987,16 +1000,16 @@ bool LadspaEffect::RealtimeResume()
    return true;
 }
 
+bool LadspaEffect::RealtimeProcessStart()
+{
+   return true;
+}
+
 sampleCount LadspaEffect::RealtimeProcess(int group,
                                           float **inbuf,
                                           float **outbuf,
                                           sampleCount numSamples)
 {
-   if (group < 0 || group >= (int) mSlaves.GetCount())
-   {
-      return 0;
-   }
-
    for (int i = 0; i < mAudioIns; i++)
    {
       mData->connect_port(mSlaves[group], mInputPorts[i], inbuf[i]);
@@ -1012,16 +1025,8 @@ sampleCount LadspaEffect::RealtimeProcess(int group,
    return numSamples;
 }
 
-bool LadspaEffect::RealtimeAddProcessor(int WXUNUSED(numChannels), float sampleRate)
+bool LadspaEffect::RealtimeProcessEnd()
 {
-   LADSPA_Handle slave = InitInstance(sampleRate);
-   if (!slave)
-   {
-      return false;
-   }
-
-   mSlaves.Add(slave);
-
    return true;
 }
 
