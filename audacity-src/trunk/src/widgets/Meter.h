@@ -183,7 +183,7 @@ class Meter : public wxPanel
    void OnErase(wxEraseEvent &evt);
    void OnPaint(wxPaintEvent &evt);
    void OnSize(wxSizeEvent &evt);
-   void OnMouse(wxMouseEvent &evt);
+   void OnMouse(wxMouseEven   void OnKeyDown(wxKeye(wxMouseEvent &evt);
 
  AudioIOStatus(wxCommande(wxMouseEvent &evt);
 
@@ -199,9 +199,9 @@ class Meter : public wxPanel
    void RepaintBawxFont GetFont() const;
 
    //
-   // Pop-up menu handlers
+   // Pop-up menu
    //
-
+   void ShowMenu(const wxPoint & pos);
    void OnMonitor(wxCommandEvent &evt);
    void OnPreferences(wxCommandEvent &evt);
    void OnMeterPrefsUpdated(wxCommandEvent &evt);
