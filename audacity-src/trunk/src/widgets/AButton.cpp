@@ -531,7 +531,9 @@ void AButton::Click()
    GetEventHandler()->ProcessEvent(event);
 }
 
-void AButton::SetShift(bool shift)
+void AButton::SetShiftvoid AButton::SetControl(bool control)
+{
+   mWasControlDown = controlShift(bool shift)
 {
    mWasShiftDown = shift;
 }
