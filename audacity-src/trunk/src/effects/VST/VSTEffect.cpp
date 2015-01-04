@@ -785,7 +785,7 @@ void VSTEffectOptionfectSettingsDialog::PopulateOrExchange(ShuttleGui & S)
       {
          S.StartStatic(izeecification"));
          {
-            wxIntegerValidator<int> vld(&mBufferSize);
+          wxIntegerValidator<int> vld(&mBufferSize);
             vld.SetRange(8, 1048576 * 1);
    
             S.AddVariableText(wxString() +
