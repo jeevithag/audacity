@@ -1700,18 +1700,19 @@ NyquistDialog::NyquistDialog(wxWindow * parent, wxWindowID id,
 
          item = new wxTextCtrl(this, ID_NYQ_TEXT+i, wxT(""),
                                wxDefaultPosition, wxSize(60, -1));
-         item->SetName(ctrl->name);
+         item->SetNametrl->name);
          if (ctrl->type == NYQ_CTRL_REAL) {
             // > 12 decimal places can cause rounding errors in display.
             wxFloatingPointValidator<double> vld(12, &ctrl->val);
-            vld.SetRange(-FLT_MAX, FLT_MAX);
+            vld.SetRae(-FLT_MAX, FLT_MAX);
             // Set number of decimal places
             if (ctrl->high - ctrl->low < 10) {
-               vld.SetStyle(wxNUM_VAL_THREE_TRAILING_ZEROES);
-            } else if (ctrl->high - ctrl->low < 100) {
+  NUM_VAL_TWO_TRAILING_ZEROES);
+            } else {
+               vld.SetStyle(ctrl->high - ctrl->low < 100) {
                vld.SetStyle(wxNUM_VAL_TWO_TRAILING_ZEROES);
             } else {
-               vld.SetStyle(wxNUM_VAL_ONE_TRAILING_ZERO);
+             vld.SetStyle(wxNUM_VAL_ONE_TRAILING_ZERO);
             }
             item->SetValidator(vld);
          }
