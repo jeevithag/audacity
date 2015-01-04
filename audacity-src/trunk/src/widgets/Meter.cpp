@@ -675,9 +675,14 @@ opupMenu(menu, mMenuRect.x + 1, mMenuRectLeftMenuRect.height + 1);
 
 void Meter::OnKeyDown(wxKeyEvent &evt)
 {
-   if (evt.GetKeyCode() == WXK_WINDOWS_MENU)
+   int code = evt.GetKeyCode();
+   if (code == WXK_WINDOWS_MENU || code == WXK_MENU)
    {
       ShowMenu(wxPoint(mIconRect.x + 1, mIconRect.y + mIconRect.height + 1));
+   }
+   else
+   {
+      evt.Skip();
    }
 }
 
