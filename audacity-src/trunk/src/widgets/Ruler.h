@@ -266,7 +266,10 @@ public:
    void GetPlayRegion(double* playRegionStart, double* playRegionEnd);
    
    void SetProject(AudacityProject* project) {mProject = project;};
-   void GetMaxSize(wxCoord *width, wxCoord *height);
+   void GetMaxSize(wxCoord *width   void RegenerateTooltips();
+
+private:
+   void OnCapture(wxCommandEvent & evt);d *height);
 
 private:
    void OnErase(wxEraseEvent &evt);
@@ -304,7 +307,7 @@ private:
    double mIndPos;
 
    double mPlayRegionStart;
-   double mPlayRegionEnd;
+   doublebool mIsRecordingdouble mPlayRegionEnd;
    
    enum MouseEventState {
       mesNone,
@@ -321,4 +324,4 @@ private:
    DECLARE_EVENT_TABLE()
 };
 
-#endif //define __AUDACITY_RULER__
+#endif /
