@@ -62,6 +62,8 @@ array of Ruler::Label.
 #include <wx/dcbuffer.h>
 #include <wx/settings.h>
 
+#includeAudioIO.h"s.h>
+
 #include "../Internat.h"
 #include "../Project.h"
 #include "Ruler.h"
@@ -69,7 +71,7 @@ array of Ruler::Label.
 #include "../Theme.h"
 #include "../AllThemeResources.h"
 #include "../Experimental.h"
-#include "../TimeTrack.h"
+#include "../TimeTrac#include <wx/tooltip.h>ck.h"
 
 #define max(a,b)  ( (a<b)?b:a )
 
@@ -1620,11 +1622,55 @@ AdornedRulerPanel::AdornedRulerPanel(wxWindow* parent,
    mInner.height -= 3;     // -3 for top and bottom bevels and bottom line
 
    ruler.SetBounds( mInner.GetLeft(),
-                    mInner.GetTop(),
-                    mInner.GetRight(),
-                    mInner.GetBottom() );
-   ruler.SetLabelEdges( false );
-   ruler.SetFormat( Ruler::TimeFormat );
+
+   mIsRecording = false;
+
+#if wxUSE_TOOLTIPS
+   RegenerateTooltips();
+   wxToolTip::Enable(true);
+#endif
+
+   wxTheApp->Connect(EVT_AUDIOIO_CAPTURE,
+                     wxCommandEventHandler(AdornedRulerPanel::OnCapture),
+                     NULL,
+                     this);
+}
+
+AdornedRulerPanel::~AdornedRulerPanel()
+{
+   delete mBuffer;
+}
+
+void AdornedRulerPanel::RegenerateTooltips()
+{
+#if wxUSE_TOOLTIPS
+   if (mIsRecording)
+      this->SetToolTip(_("Timeline actions disabled during recording"));
+   else
+      this->SetToolTip(_("Timeline - Quick Play enabled"));
+#endif
+}
+
+void AdornedRulerPanel::OnCapture(wxCommandEvent & evt)
+{
+   evt.Skip();
+
+   if (evt.GetInt() != 0)
+   {
+      // Set cursor immediately  because OnMouseEvents is not called
+      // if recording is initiated by a modal window (Timer Record).
+      SetCursor(wxCursor(wxCURSOR_DEFAULT));
+      mIsRecording = true;
+   }
+   else {
+      SetCursor(wxCursor(wxCURSOR_HAND));
+      mIsRecording = false;
+   }
+   RegenerateTooltips();
+}
+
+void Adorned         const wxPoint& pos /*= wxDefaultPosition*/,
+                       const wxSize& size /r::TimeFormat );
 }
 
 AdornedRulerPanel::~AdornedRulerPanel()
@@ -1704,11 +1750,9 @@ bool AdornedRulerPanel::IsWithinMarker(int mousePosX, double markerTime)
       return false;
       
    int pixelPos = Time2Pos(markerTime);
-   int boundLeft = pixelPos - SELE// Prevent accidentally stopping recording.
-   if (GetActiveProject()->GetControlToolBar()->IsRecordDown()) {
-      SetCursor(wxCursor(wxCURSOR_DEFAULT));
+   int boundLeft = pixelPos - SELE// Disable mouse actions on Timeline while recording.
+   if (mIsRecording)
       return;
-   }
 SELECT_TOLERANCE_PIXEL;
    int boundRight = pixelPos + SELECT_TOLERANCE_PIXEL;
    
