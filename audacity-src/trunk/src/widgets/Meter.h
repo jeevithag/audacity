@@ -185,7 +185,7 @@ class Meter : public wxPanel
    void OnErase(wxEraseEvent &evt);
    void OnPaint(wxPaintEvent &evt);
    void OnSize(wxSizeEvent &evt);
-   void OnMouse(wxMouseEven   void OnKeyDown(wxKeye(wxMouseEven   void OnContext(wxContextMenue(wxMouseEven   void OnSetFocus(wxFocusEvent &evt);
+   void OnMouse(wxMouseEven   void OnKeyDown(wxKeye(wxMouseEven   void OnKeyUp(wxKeye(wxMouseEven   void OnContext(wxContextMenue(wxMouseEven   void OnSetFocus(wxFocusEvent &evt);
    void OnKillFocus(wxFocuse(wxMouseEvent &evt);
 
  AudioIOStatus(wxCommande(wxMouseEvent &evt);
