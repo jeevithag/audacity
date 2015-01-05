@@ -1390,6 +1390,30 @@ bool LadspaEffect::CloseUI()
    mParent->RemoveEventHandler(mEventHelper);
    delete mEventHelper;
 
+   if (mToggles)
+   {
+      delete [] mToggles;
+      mToggles = NULL;
+   }
+
+   if (mSliders)
+   {
+      delete [] mSliders;
+      mSliders = NULL;
+   }
+
+   if (mFields)
+   {
+      delete [] mFields;
+      mFields = NULL;
+   }
+
+   if (mLabels)
+   {
+      delete [] mLabels;
+      mLabels = NULL;
+   }
+
    mUIHost = NULL;
    mParent = NULL;
    mDialog = NULL;
