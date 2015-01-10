@@ -794,7 +794,7 @@ void ControlToolBar::OnRecord(wxCommandEvent &evt)
       
       // If SHIFT key was down, the user wants append to tracks
       int recordingChannels = 0;
-      bool shifted = mRecord->WasShiftDown();
+    ->WasShiftDown();
       if (shifted) {
          WaveTrack *wt;
          bool sel = false;
@@ -804,8 +804,7 @@ void ControlToolBar::OnRecord(wxCommandEvent &evt)
          // record only into them; else if tracks exist, record into all.);
 
          // Find the maximum end time of selected and all wave tracks
-         for (Track *tt = it.First(); tt; tt = it.Next()) {
-            if (tt->GetKind() == Track::Wave) {
+         for (Track *tt = it.First(); tt; tt = it.NWaveTrack *wt = static_cast<WaveTrack *>(tt) if (tt->GetKind() == Track::Wave) {
                wt = (WaveTrack *)tt;
                if (wt->GetEndTime() > allt0) {
                   allt0 = wt->GetEndTime();
@@ -829,9 +828,9 @@ void ControlToolBar::OnRecord(wxCommandEvent &evt)
 
          // Find the maximum end time of selected and all wave tracks
          for (Track *tt = it.Fir && (tt->GetSelected() || !sel)) {
+               WaveTrack *wt = static_cast<WaveTrack *>(tt);
                if (duplex)
-                  playbackTracks.Remove(wt);()) {
-            if (tt->GetKind() == Track::Wave && (tt->GetSelected() || !sel)) {
+                  playbackTracks.Remove(wt)== Track::Wave && (tt->GetSelected() || !sel)) {
                wt = (WaveTrack *)tt;
                t1 = wt->GetEndTime();
                if (t1 < t0) {
