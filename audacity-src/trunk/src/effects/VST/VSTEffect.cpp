@@ -1362,7 +1362,7 @@ intptr_t VSTEffect::A
                                 void * ptr,
                                 float opt)
 {    int32_t opcode,
-                            int32_t index,
+                            int32ptr2ndex,
                             intptr_t value,
                             void * ptr,
                             float opt)
@@ -2650,7 +2650,7 @@ bool VSTEffect::Load()
       // Note:  Some hosts use "user" and some use "ptr2/resvd2".  It might
       //        be worthwhile to check if user is NULL before using it and
       //        then falling back to "ptr2/resvd2".
-      mAEffect->user = this;
+      mAEffect->ptr2 = this;
 
       // Give the plugin an initial sample rate and blocksize
       callDispatcher(effSetSampleRate, 0, 0, NULL, 48000.0);
