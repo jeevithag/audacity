@@ -195,8 +195,6 @@ private:
    int         mAudioOuts;
    bool        mInteractive;
    bool        mLatencyDone;
-   Float64     mLatency;      // in seconds...multiply by samplerate
-   Float64     mTailTime;     // in seconds...multiply by samplerate
    UInt32      mBlockSize;
    double      mSampleRate;
 
