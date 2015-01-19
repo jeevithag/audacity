@@ -68,7 +68,6 @@ public:
              const std::set<wxString> & categories = std::set<wxString>());
    virtual ~LV2Effect()/ IdentInterface implementation
 
-   virtual PluginID GetID();
    virtual wxString GetPath();
    virtual wxString GetSymbol();
    virtual wxString GetName();

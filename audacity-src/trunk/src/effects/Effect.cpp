@@ -147,16 +147,6 @@ EffectType Effect::GetType()
    return EffectTypeNone;
 }
 
-PluginID Effect::GetID()
-{
-   if (mClient)
-   {
-      return mClient->GetID();
-   }
-
-   return wxString::Format(wxT("LEGACY_EFFECT_ID_%d"), GetEffectID());
-}
-
 wxString Effect::GetPath()
 {
    if (mClient)
@@ -506,6 +496,16 @@ bool Effect::RemovePrivateConfig(const wxString & group, const wxString & key)
 }
 
 // Effect implementation
+
+PluginID Effect::GetID()
+{
+   if (mClient)
+   {
+      return PluginManager::GetID(mClient);
+   }
+
+   return wxString::Format(wxT("LEGACY_EFFECT_ID_%d"), GetEffectID());
+}
 
 bool Effect::Startup(EffectClientInterface *client)
 {

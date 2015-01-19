@@ -64,7 +64,6 @@ class AUDACITY_DLL_API EffectNyquist:public Effect
    virtual ~EffectNyquist();
 // IdentInterface implementation
 
-   virtual PluginID GetID();
    virtual wxString GetPath();
    virtual wxString GetSymbol();
    virtual wxString GetName();

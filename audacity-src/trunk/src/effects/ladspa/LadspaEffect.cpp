@@ -94,12 +94,6 @@ LadspaEffectsModule::~LadspaEffectsModule()
 // IdentInterface implementation
 // ============================================================================
 
-wxString LadspaEffectsModule::GetID()
-{
-   // Can be anything, but this is a v4 UUID
-   return wxT("3ebd9fb9-c020-4c0d-a786-d6a914e55e31");
-}
-
 wxString LadspaEffectsModule::GetPath()
 {
    return mPath;
@@ -351,22 +345,22 @@ bool LadspaEffectsModule::RegisterPlugin(PluginManagerInterface & pm, const wxSt
    return index > 0;
 }
 
-bool LadspaEffectsModule::IsPluginValid(const PluginID & WXUNUSED(ID),
-                                        const wxString & path)
+bool LadspaEffectsModule::IsPluginValid(const wxString & path)
 {
-   return wxFileName::FileExists(path);
+   wxString realPath = path.BeforeFirst(wxT(';'));
+   return wxFileName::FileExists(realPath);
 }
 
-IdentInterface *LadspaEffectsModule::CreateInstance(const PluginID & ID,
-                                                    const wxString & path)
+IdentInterface *LadspaEffectsModule::CreateInstance(const wxString & path)
 {
-   // For us, the ID is two words.
-   // 1)  The LADSPA descriptor index
-   // 2)  The library's path
+   // For us, the path is two words.
+   // 1)  The library's path
+   // 2)  The LADSPA descriptor index
    long index;
-   ID.BeforeFirst(wxT(' ')).ToLong(&index);
+   wxString realPath = path.BeforeFirst(wxT(';'));
+   path.AfterFirst(wxT(';')).ToLong(&index);
 
-   return new LadspaEffect(path, (int) index);
+   return new LadspaEffect(realPath, (int) index);
 }
 
 void LadspaEffectsModule::DeleteInstance(IdentInterface *instance)
@@ -606,14 +600,9 @@ LadspaEffect::~LadspaEffect()
 // IdentInterface implementation
 // ============================================================================
 
-wxString LadspaEffect::GetID()
-{
-   return wxString::Format(wxT("%d %s"), mIndex, mPath.c_str());
-}
-
 wxString LadspaEffect::GetPath()
 {
-   return mPath;
+   return wxString::Format(wxT("%s;%d"), mPath.c_str(), mIndex);
 }
 
 wxString LadspaEffect::GetSymbol()
@@ -1488,6 +1477,7 @@ bool LadspaEffect::Load()
    }
 
    LADSPA_Descriptor_Function mainFn = NULL;
+
    if (mLib.Load(mPath, wxDL_NOW))
    {
       wxLogNull logNo;
