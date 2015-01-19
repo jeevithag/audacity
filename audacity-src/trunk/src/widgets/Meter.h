@@ -262,6 +262,8 @@ class Meter : public wxPanel
    bool mHadKeyDown;
 #endif
 
+   bool mAccSilent;
+
    friend class MeterAx;
 
    DECLARE_EVENT_TABLE()
