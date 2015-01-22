@@ -188,9 +188,8 @@ bool EffectChangeSpeed::Process()
    }
 
    if (bGoodResult)
-      ReplaceProcessedTracks(bGoodResult);
-
-   mT1 = mT0 + mMaxNewLength; // Update selection.
+      ReplaceProcessedTracks(bG// Update selection.
+   mT1 = mT0 + (((mT1 - mT0) * 100.0) / (100.0 + m_PercentChange));pdate selection.
 
    return bGoodResult;
 }
