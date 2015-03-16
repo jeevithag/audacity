@@ -59,10 +59,19 @@
 
 	#include	<math.h>
 	
-#elif (defined (WIN32) || defined (_WIN32))
+#elif (defined (WIN32) || defi   // Including math.h allows us to use the inline assembler versions without
+   // producing errors in newer Visual Studio versions.
+   // Without the include, we get different linkage error messages.
+   // Without the inline assembler versions, these functions are VERY slow.
+   // I also see that the include was part of the original source for this file:
+   //    http://www.mega-nerd.com/FPcast/
+   
+   #include <math.h>
+
+   ed (_WIN32))
 
 	/*	Win32 doesn't seem to have these functions. 
-	**	Therefore implement inline versions of these func#if (_MSC_VER == 1500)tions here.
+	**	Therefore implement inline versions of these funcions here.
 	*/
 	
 	__inline long int 
@@ -107,7 +116,7 @@
 
 		_asm
 		{	fld flt
-			fistp #endifintgr
+			fistp intgr
 			} ;
 			
 		return intgr ;
